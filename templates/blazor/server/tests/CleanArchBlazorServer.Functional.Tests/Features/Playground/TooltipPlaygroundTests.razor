@@ -1,0 +1,22 @@
+@inherits UiTestContext
+@using Bunit
+@using CleanArchBlazorServer.Web.Features.Playground
+@using Xunit
+
+@code {
+    // Deliberately does not open the Tooltip: OpenDelay's live-controlled value is asserted
+    // directly, avoiding a real-delay-timer-dependent assertion (known CI flake surface).
+    [Fact]
+    public void ChangingOpenDelayControl_UpdatesDisplayedDelay_WithoutOpeningOrTouchingInterop()
+    {
+        var cut = Render(@<TooltipPlayground />);
+
+        Assert.Contains("OpenDelay: 300ms", cut.Find("[data-testid=playground-preview]").TextContent);
+
+        cut.Find("[data-testid='control-OpenDelay'] input").Input("500");
+
+        Assert.Contains("OpenDelay: 500ms", cut.Find("[data-testid=playground-preview]").TextContent);
+        Assert.Empty(AnchorModule.Invocations);
+        Assert.Empty(DismissModule.Invocations);
+    }
+}

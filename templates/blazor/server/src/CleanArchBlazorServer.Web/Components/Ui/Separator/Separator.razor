@@ -1,0 +1,29 @@
+<div
+    role="@(Decorative ? "none" : "separator")"
+    aria-orientation="@(Decorative ? null : Orientation == SeparatorOrientation.Horizontal ? "horizontal" : "vertical")"
+    class="@ComputedClass"
+    @attributes="AdditionalAttributes"
+></div>
+
+@code {
+    private const string BaseClass = "shrink-0 bg-border";
+
+    [Parameter]
+    public SeparatorOrientation Orientation { get; set; } = SeparatorOrientation.Horizontal;
+
+    [Parameter]
+    public bool Decorative { get; set; }
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? AdditionalAttributes { get; set; }
+
+    private string ComputedClass =>
+        Cn.Merge(
+            BaseClass,
+            Orientation == SeparatorOrientation.Horizontal ? "h-px w-full" : "h-full w-px",
+            Class
+        );
+}

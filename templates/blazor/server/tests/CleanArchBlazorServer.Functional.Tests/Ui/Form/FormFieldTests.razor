@@ -1,0 +1,206 @@
+@inherits UiTestContext
+@using Bunit
+@using CleanArchBlazorServer.Web.Components.Ui.Form
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Forms
+@using Xunit
+
+@code {
+    [Fact]
+    public void Label_And_Input_ShareGeneratedId_ViaFormField()
+    {
+        var model = new TestModel();
+
+        var cut = Render(@<FormField>
+            <Label>Name</Label>
+            <Input
+                Value="@model.Name"
+                ValueChanged="@(v => model.Name = v)"
+                ValueExpression="@(() => model.Name)"
+            />
+        </FormField>);
+
+        var label = cut.Find("label");
+        var input = cut.Find("input");
+
+        Assert.False(string.IsNullOrEmpty(input.GetAttribute("id")));
+        Assert.Equal(input.GetAttribute("id"), label.GetAttribute("for"));
+    }
+
+    [Fact]
+    public void Input_BindsStandalone_WithNoAmbientEditForm()
+    {
+        var model = new TestModel { Name = "seed" };
+
+        var cut = Render(@<Input
+            Value="@model.Name"
+            ValueChanged="@(v => model.Name = v)"
+            ValueExpression="@(() => model.Name)"
+        />);
+
+        cut.Find("input").Input("typed-value");
+
+        Assert.Equal("typed-value", model.Name);
+    }
+
+    [Fact]
+    public void Input_WithAmbientEditContext_SetsAriaInvalid_WhenValidationFails()
+    {
+        var model = new TestModel { Name = "" };
+        var editContext = new EditContext(model);
+
+        var cut = Render(@<CascadingValue Value="@editContext" IsFixed="true">
+            <Input
+                Value="@model.Name"
+                ValueChanged="@(v => model.Name = v)"
+                ValueExpression="@(() => model.Name)"
+            />
+        </CascadingValue>);
+
+        var messageStore = new ValidationMessageStore(editContext);
+        messageStore.Add(editContext.Field(nameof(TestModel.Name)), "Name is required.");
+        cut.InvokeAsync(editContext.NotifyValidationStateChanged);
+
+        Assert.Equal("true", cut.Find("input").GetAttribute("aria-invalid"));
+    }
+
+    [Fact]
+    public void Input_WithNoValidationError_HasNoAriaInvalidAttribute()
+    {
+        var model = new TestModel { Name = "seed" };
+        var editContext = new EditContext(model);
+
+        var cut = Render(@<CascadingValue Value="@editContext" IsFixed="true">
+            <Input
+                Value="@model.Name"
+                ValueChanged="@(v => model.Name = v)"
+                ValueExpression="@(() => model.Name)"
+            />
+        </CascadingValue>);
+
+        Assert.Null(cut.Find("input").GetAttribute("aria-invalid"));
+    }
+
+    [Fact]
+    public void Input_WithTypeParameter_SetsNativeTypeAttribute()
+    {
+        var model = new TestModel { Name = "secret" };
+
+        var cut = Render(@<Input
+            Type="password"
+            Value="@model.Name"
+            ValueChanged="@(v => model.Name = v)"
+            ValueExpression="@(() => model.Name)"
+        />);
+
+        Assert.Equal("password", cut.Find("input").GetAttribute("type"));
+    }
+
+    [Fact]
+    public void Input_WithTypeParameter_StillBindsValue()
+    {
+        var model = new TestModel { Name = "seed" };
+
+        var cut = Render(@<Input
+            Type="password"
+            Value="@model.Name"
+            ValueChanged="@(v => model.Name = v)"
+            ValueExpression="@(() => model.Name)"
+        />);
+
+        cut.Find("input").Input("typed-value");
+
+        Assert.Equal("typed-value", model.Name);
+    }
+
+    [Fact]
+    public void Input_WithOmittedType_DefaultsToTextType()
+    {
+        var model = new TestModel { Name = "seed" };
+
+        var cut = Render(@<Input
+            Value="@model.Name"
+            ValueChanged="@(v => model.Name = v)"
+            ValueExpression="@(() => model.Name)"
+        />);
+
+        Assert.Equal("text", cut.Find("input").GetAttribute("type"));
+    }
+
+    [Fact]
+    public void FormMessage_RendersValidationMessage_AndWiresInputAriaDescribedBy_WhenFieldIsInvalid()
+    {
+        var model = new TestModel();
+        var editContext = new EditContext(model);
+
+        var cut = Render(
+            @<CascadingValue Value="@editContext" IsFixed="true">
+                <FormField>
+                    <Label>Name</Label>
+                    <Input
+                        Value="@model.Name"
+                        ValueChanged="@(v => model.Name = v)"
+                        ValueExpression="@(() => model.Name)"
+                    />
+                    <FormMessage />
+                </FormField>
+            </CascadingValue>
+        );
+
+        var messageStore = new ValidationMessageStore(editContext);
+        messageStore.Add(editContext.Field(nameof(TestModel.Name)), "Name is required.");
+        cut.InvokeAsync(editContext.NotifyValidationStateChanged);
+
+        var message = cut.Find("p");
+        var input = cut.Find("input");
+
+        Assert.Equal("Name is required.", message.TextContent);
+        Assert.Equal(message.GetAttribute("id"), input.GetAttribute("aria-describedby"));
+    }
+
+    [Fact]
+    public void FormMessage_RendersNothing_WhenFieldIsValid()
+    {
+        var model = new TestModel { Name = "seed" };
+        var editContext = new EditContext(model);
+
+        var cut = Render(
+            @<CascadingValue Value="@editContext" IsFixed="true">
+                <FormField>
+                    <Input
+                        Value="@model.Name"
+                        ValueChanged="@(v => model.Name = v)"
+                        ValueExpression="@(() => model.Name)"
+                    />
+                    <FormMessage />
+                </FormField>
+            </CascadingValue>
+        );
+
+        Assert.Empty(cut.FindAll("p"));
+        Assert.Null(cut.Find("input").GetAttribute("aria-describedby"));
+    }
+
+    [Fact]
+    public void FormMessage_RendersNothing_AndInputHasNoAriaDescribedBy_WhenStandalone()
+    {
+        var model = new TestModel { Name = "seed" };
+
+        var cut = Render(@<FormField>
+            <Input
+                Value="@model.Name"
+                ValueChanged="@(v => model.Name = v)"
+                ValueExpression="@(() => model.Name)"
+            />
+            <FormMessage />
+        </FormField>);
+
+        Assert.Empty(cut.FindAll("p"));
+        Assert.Null(cut.Find("input").GetAttribute("aria-describedby"));
+    }
+
+    private sealed class TestModel
+    {
+        public string Name { get; set; } = "";
+    }
+}

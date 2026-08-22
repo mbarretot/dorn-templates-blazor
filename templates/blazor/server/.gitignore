@@ -1,0 +1,7 @@
+[Bb]in/
+[Oo]bj/
+.vs/
+.idea/
+
+# Generated at build time by build/Tailwind.targets — see docs/templates/blazor-server.md.
+**/wwwroot/app.css

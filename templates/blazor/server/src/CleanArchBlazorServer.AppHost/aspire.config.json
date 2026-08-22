@@ -1,0 +1,5 @@
+{
+  "appHost": {
+    "path": "CleanArchBlazorServer.AppHost.csproj"
+  }
+}

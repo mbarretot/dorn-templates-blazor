@@ -1,0 +1,52 @@
+[data-ui-theme='primer'] {
+  --ui-background: oklch(1 0 0);
+  --ui-foreground: oklch(0.222 0.011 256.5);
+  --ui-card: oklch(1 0 0);
+  --ui-card-foreground: oklch(0.222 0.011 256.5);
+  --ui-popover: oklch(1 0 0);
+  --ui-popover-foreground: oklch(0.222 0.011 256.5);
+  --ui-primary: oklch(0.518 0.187 256.4);
+  --ui-primary-foreground: oklch(1 0 0);
+  --ui-secondary: oklch(0.975 0.003 247.9);
+  --ui-secondary-foreground: oklch(0.222 0.011 256.5);
+  --ui-muted: oklch(0.975 0.003 247.9);
+  --ui-muted-foreground: oklch(0.505 0.019 253.5);
+  --ui-accent: oklch(0.955 0.018 251.5);
+  --ui-accent-foreground: oklch(0.42 0.15 256.4);
+  --ui-destructive: oklch(0.539 0.203 25.5);
+  --ui-destructive-foreground: oklch(1 0 0);
+  --ui-success: oklch(0.502 0.128 152.1);
+  --ui-success-foreground: oklch(1 0 0);
+  --ui-warning: oklch(0.523 0.113 79.2);
+  --ui-warning-foreground: oklch(1 0 0);
+  --ui-border: oklch(0.884 0.011 251.9);
+  --ui-input: oklch(0.884 0.011 251.9);
+  --ui-ring: oklch(0.518 0.187 256.4);
+  --ui-radius: 0.375rem;
+}
+
+[data-ui-theme='primer'][data-ui-mode='dark'] {
+  --ui-background: oklch(0.18 0.014 264.4);
+  --ui-foreground: oklch(0.968 0.01 247);
+  --ui-card: oklch(0.226 0.015 261.3);
+  --ui-card-foreground: oklch(0.968 0.01 247);
+  --ui-popover: oklch(0.226 0.015 261.3);
+  --ui-popover-foreground: oklch(0.968 0.01 247);
+  --ui-primary: oklch(0.665 0.158 254.6);
+  --ui-primary-foreground: oklch(0.18 0.014 264.4);
+  --ui-secondary: oklch(0.276 0.016 259.8);
+  --ui-secondary-foreground: oklch(0.968 0.01 247);
+  --ui-muted: oklch(0.276 0.016 259.8);
+  --ui-muted-foreground: oklch(0.673 0.014 256.8);
+  --ui-accent: oklch(0.3 0.035 257);
+  --ui-accent-foreground: oklch(0.855 0.075 254.6);
+  --ui-destructive: oklch(0.657 0.196 24.9);
+  --ui-destructive-foreground: oklch(0.18 0.014 264.4);
+  --ui-success: oklch(0.688 0.17 148.5);
+  --ui-success-foreground: oklch(0.18 0.014 264.4);
+  --ui-warning: oklch(0.709 0.132 82.1);
+  --ui-warning-foreground: oklch(0.18 0.014 264.4);
+  --ui-border: oklch(0.373 0.014 258.1);
+  --ui-input: oklch(0.373 0.014 258.1);
+  --ui-ring: oklch(0.665 0.158 254.6);
+}

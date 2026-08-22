@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<!-- No data-ui-theme/data-ui-mode here: the server can't read localStorage, so theme-boot.js stays the sole writer (design S-B1). -->
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>CleanArchBlazorServer</title>
+    <base href="/" />
+    <!-- Classic script, no type="module"/defer/async: must run synchronously before the
+         stylesheet is applied so data-ui-theme/data-ui-mode exist on <html> before first
+         paint (design S-B). -->
+    <script src="@Assets["theme-boot.js"]"></script>
+    <!-- @Assets fingerprints the URL; a literal href="app.css" would silently drop fingerprinting (design S-T4). -->
+    <link rel="stylesheet" href="@Assets["app.css"]" />
+    <HeadOutlet @rendermode="InteractiveServer" />
+</head>
+
+<body>
+    <Routes @rendermode="InteractiveServer" />
+    <script src="_framework/blazor.web.js"></script>
+</body>
+
+</html>

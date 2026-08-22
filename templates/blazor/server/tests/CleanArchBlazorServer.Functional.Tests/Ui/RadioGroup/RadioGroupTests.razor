@@ -1,0 +1,215 @@
+@inherits UiTestContext
+@using Bunit
+@using CleanArchBlazorServer.Web.Components.Ui.RadioGroup
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Web
+@using Xunit
+
+@code {
+    [Fact]
+    public void Renders_RoleRadiogroup()
+    {
+        var model = new TestModel();
+
+        var cut = Render(
+            @<RadioGroup
+                TValue="string"
+                Value="@model.Choice"
+                ValueChanged="@(v => model.Choice = v)"
+                ValueExpression="@(() => model.Choice)"
+            >
+                <RadioGroupItem TValue="string" Value="@("one")" />
+            </RadioGroup>
+        );
+
+        Assert.NotNull(cut.Find("[role=radiogroup]"));
+    }
+
+    [Fact]
+    public void Items_RenderRoleRadio_WithAriaCheckedReflectingSelection()
+    {
+        var model = new TestModel { Choice = "one" };
+
+        var cut = Render(
+            @<RadioGroup
+                TValue="string"
+                Value="@model.Choice"
+                ValueChanged="@(v => model.Choice = v)"
+                ValueExpression="@(() => model.Choice)"
+            >
+                <RadioGroupItem TValue="string" Value="@("one")" data-testid="item-one" />
+                <RadioGroupItem TValue="string" Value="@("two")" data-testid="item-two" />
+            </RadioGroup>
+        );
+
+        var selected = cut.Find("[data-testid=item-one]");
+        var unselected = cut.Find("[data-testid=item-two]");
+
+        Assert.Equal("radio", selected.GetAttribute("role"));
+        Assert.Equal("true", selected.GetAttribute("aria-checked"));
+        Assert.Equal("false", unselected.GetAttribute("aria-checked"));
+    }
+
+    [Fact]
+    public void FirstEnabledItem_HasTabIndexZero_OthersHaveTabIndexMinusOne()
+    {
+        var model = new TestModel();
+
+        var cut = Render(
+            @<RadioGroup
+                TValue="string"
+                Value="@model.Choice"
+                ValueChanged="@(v => model.Choice = v)"
+                ValueExpression="@(() => model.Choice)"
+            >
+                <RadioGroupItem TValue="string" Value="@("one")" data-testid="item-one" />
+                <RadioGroupItem TValue="string" Value="@("two")" data-testid="item-two" />
+            </RadioGroup>
+        );
+
+        Assert.Equal("0", cut.Find("[data-testid=item-one]").GetAttribute("tabindex"));
+        Assert.Equal("-1", cut.Find("[data-testid=item-two]").GetAttribute("tabindex"));
+    }
+
+    [Fact]
+    public void ArrowDown_MovesFocusAndCommitsValue_InSingleKeyPress()
+    {
+        var model = new TestModel();
+
+        var cut = Render(
+            @<RadioGroup
+                TValue="string"
+                Value="@model.Choice"
+                ValueChanged="@(v => model.Choice = v)"
+                ValueExpression="@(() => model.Choice)"
+            >
+                <RadioGroupItem TValue="string" Value="@("one")" data-testid="item-one" />
+                <RadioGroupItem TValue="string" Value="@("two")" data-testid="item-two" />
+            </RadioGroup>
+        );
+
+        cut.Find("[data-testid=item-one]").KeyDown(new KeyboardEventArgs { Key = "ArrowDown" });
+
+        Assert.Equal("0", cut.Find("[data-testid=item-two]").GetAttribute("tabindex"));
+        Assert.Equal("-1", cut.Find("[data-testid=item-one]").GetAttribute("tabindex"));
+        Assert.Equal("true", cut.Find("[data-testid=item-two]").GetAttribute("aria-checked"));
+        Assert.Equal("false", cut.Find("[data-testid=item-one]").GetAttribute("aria-checked"));
+        Assert.Equal("two", model.Choice);
+    }
+
+    [Fact]
+    public void Click_SelectsClickedItem_Standalone()
+    {
+        var model = new TestModel();
+
+        var cut = Render(
+            @<RadioGroup
+                TValue="string"
+                Value="@model.Choice"
+                ValueChanged="@(v => model.Choice = v)"
+                ValueExpression="@(() => model.Choice)"
+            >
+                <RadioGroupItem TValue="string" Value="@("one")" data-testid="item-one" />
+                <RadioGroupItem TValue="string" Value="@("two")" data-testid="item-two" />
+            </RadioGroup>
+        );
+
+        cut.Find("[data-testid=item-two]").Click();
+
+        Assert.Equal("two", model.Choice);
+        Assert.Equal("true", cut.Find("[data-testid=item-two]").GetAttribute("aria-checked"));
+        Assert.Equal("0", cut.Find("[data-testid=item-two]").GetAttribute("tabindex"));
+    }
+
+    [Fact]
+    public void Disabled_SuppressesClickActivation()
+    {
+        var model = new TestModel();
+
+        var cut = Render(
+            @<RadioGroup
+                TValue="string"
+                Value="@model.Choice"
+                ValueChanged="@(v => model.Choice = v)"
+                ValueExpression="@(() => model.Choice)"
+            >
+                <RadioGroupItem TValue="string" Value="@("one")" data-testid="item-one" Disabled="true" />
+            </RadioGroup>
+        );
+
+        cut.Find("[data-testid=item-one]").Click();
+
+        Assert.Null(model.Choice);
+    }
+
+    [Fact]
+    public void WithinEditForm_BindsTwoWay_AndReflectsCheckedState()
+    {
+        var model = new TestModel();
+
+        var cut = Render(@<EditForm Model="@model">
+            <RadioGroup
+                TValue="string"
+                Value="@model.Choice"
+                ValueChanged="@(v => model.Choice = v)"
+                ValueExpression="@(() => model.Choice)"
+            >
+                <RadioGroupItem TValue="string" Value="@("one")" data-testid="item-one" />
+            </RadioGroup>
+        </EditForm>);
+
+        cut.Find("[data-testid=item-one]").Click();
+
+        Assert.Equal("one", model.Choice);
+        Assert.Equal("true", cut.Find("[data-testid=item-one]").GetAttribute("aria-checked"));
+    }
+
+    [Fact]
+    public void WithinEditForm_SetsAriaInvalid_WhenValidationFails()
+    {
+        var model = new TestModel();
+        var editContext = new EditContext(model);
+
+        var cut = Render(@<CascadingValue Value="@editContext" IsFixed="true">
+            <RadioGroup
+                TValue="string"
+                Value="@model.Choice"
+                ValueChanged="@(v => model.Choice = v)"
+                ValueExpression="@(() => model.Choice)"
+            >
+                <RadioGroupItem TValue="string" Value="@("one")" data-testid="item-one" />
+            </RadioGroup>
+        </CascadingValue>);
+
+        var messageStore = new ValidationMessageStore(editContext);
+        messageStore.Add(editContext.Field(nameof(TestModel.Choice)), "You must choose one.");
+        cut.InvokeAsync(editContext.NotifyValidationStateChanged);
+
+        Assert.Equal("true", cut.Find("[role=radiogroup]").GetAttribute("aria-invalid"));
+    }
+
+    [Fact]
+    public void Standalone_WithNoAmbientEditContext_HasNoAriaInvalidAttribute()
+    {
+        var model = new TestModel();
+
+        var cut = Render(
+            @<RadioGroup
+                TValue="string"
+                Value="@model.Choice"
+                ValueChanged="@(v => model.Choice = v)"
+                ValueExpression="@(() => model.Choice)"
+            >
+                <RadioGroupItem TValue="string" Value="@("one")" data-testid="item-one" />
+            </RadioGroup>
+        );
+
+        Assert.Null(cut.Find("[role=radiogroup]").GetAttribute("aria-invalid"));
+    }
+
+    private sealed class TestModel
+    {
+        public string? Choice { get; set; }
+    }
+}

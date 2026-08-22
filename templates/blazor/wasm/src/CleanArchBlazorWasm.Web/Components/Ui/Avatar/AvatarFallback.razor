@@ -1,0 +1,24 @@
+@if (Context.ImageFailed)
+{
+    <span class="@ComputedClass" @attributes="AdditionalAttributes">
+        @ChildContent
+    </span>
+}
+
+@code {
+    private const string BaseClass = "flex size-full items-center justify-center rounded-full bg-muted";
+
+    [CascadingParameter]
+    private AvatarContext Context { get; set; } = default!;
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? AdditionalAttributes { get; set; }
+
+    private string ComputedClass => Cn.Merge(BaseClass, Class);
+}

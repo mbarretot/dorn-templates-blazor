@@ -1,0 +1,62 @@
+@implements IDisposable
+<div
+    role="menuitem"
+    id="@_id"
+    @ref="_element"
+    tabindex="@Parent.Focus.TabIndexFor(_id)"
+    aria-haspopup="menu"
+    aria-expanded="@(Sub.Menu.IsOpen ? "true" : "false")"
+    aria-controls="@Sub.Menu.ContentId"
+    class="@ComputedClass"
+    @onclick="OpenAsync"
+    @onkeydown="OnKeyDownAsync"
+    @onkeydown:stopPropagation="true"
+    @attributes="AdditionalAttributes"
+>
+    @ChildContent
+</div>
+
+@code {
+    private const string BaseClass =
+        "flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm text-foreground outline-none focus-visible:bg-accent focus-visible:text-accent-foreground";
+    private readonly string _id = UiId.New("dropdown-sub-trigger");
+    private ElementReference _element;
+
+    [CascadingParameter]
+    private DropdownMenuContext Parent { get; set; } = default!;
+
+    [CascadingParameter(Name = "DropdownMenuSub")]
+    private DropdownMenuSubContext Sub { get; set; } = default!;
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? AdditionalAttributes { get; set; }
+
+    private string ComputedClass => Cn.Merge(BaseClass, Class);
+
+    protected override void OnParametersSet()
+    {
+        if (Parent is null || Sub is null)
+        {
+            throw new InvalidOperationException("DropdownMenuSubTrigger must be rendered inside a <DropdownMenuSub>.");
+        }
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        Parent.RegisterItem(_id, _element, false);
+        Sub.Menu.TriggerElement = _element;
+    }
+
+    private Task OpenAsync() => Sub.Menu.RequestOpen();
+
+    private Task OnKeyDownAsync(KeyboardEventArgs e) =>
+        e.Key is "ArrowRight" or "Enter" or " " ? OpenAsync() : Parent.MoveAsync(e.Key);
+
+    public void Dispose() => Parent.UnregisterItem(_id);
+}

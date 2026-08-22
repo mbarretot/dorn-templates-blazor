@@ -1,0 +1,79 @@
+<div class="mx-auto flex max-w-4xl flex-col gap-8 p-8">
+    <div class="flex flex-col gap-1">
+        <h1 class="text-3xl font-bold text-foreground">@Title</h1>
+        @if (Description is not null)
+        {
+            <p class="text-muted-foreground">@Description</p>
+        }
+    </div>
+
+    <div class="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_16rem]">
+        <div class="flex flex-col items-start gap-4 rounded-lg border border-border bg-card p-6" data-testid="playground-preview">
+            @Preview
+        </div>
+        <div class="flex flex-col gap-4" data-testid="playground-controls">
+            @Controls
+        </div>
+    </div>
+
+    <PlaygroundSection Title="Code">
+        <div class="relative">
+            <pre class="overflow-x-auto rounded-md border border-border bg-muted p-4 text-sm text-foreground"><code>@CodeSnippet</code></pre>
+            <CopyButton Text="@CodeSnippet" Class="absolute right-2 top-2" />
+        </div>
+    </PlaygroundSection>
+
+    <PlaygroundSection Title="API">
+        <div class="overflow-x-auto rounded-md border border-border">
+            <table class="w-full text-left text-sm">
+                <thead class="border-b border-border bg-muted/50 text-foreground">
+                    <tr>
+                        <th class="px-4 py-2 font-medium">Name</th>
+                        <th class="px-4 py-2 font-medium">Type</th>
+                        <th class="px-4 py-2 font-medium">Default</th>
+                        <th class="px-4 py-2 font-medium">Description</th>
+                        <th class="w-px px-4 py-2 font-medium"><span class="sr-only">Copy</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var parameter in ApiParameters)
+                    {
+                        <tr class="border-b border-border last:border-b-0">
+                            <td class="px-4 py-2 font-mono text-xs text-foreground">@parameter.Name</td>
+                            <td class="px-4 py-2 font-mono text-xs text-muted-foreground">@parameter.Type</td>
+                            <td class="px-4 py-2 font-mono text-xs text-muted-foreground">@parameter.Default</td>
+                            <td class="px-4 py-2 text-muted-foreground">@parameter.Description</td>
+                            <td class="px-4 py-2 text-right">
+                                <CopyButton
+                                    Text="@($"{parameter.Name}: {parameter.Type}")"
+                                    aria-label="@($"Copy {parameter.Name}")"
+                                    data-testid="@($"api-copy-{parameter.Name}")"
+                                />
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </PlaygroundSection>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public string Title { get; set; } = "";
+
+    [Parameter]
+    public string? Description { get; set; }
+
+    [Parameter, EditorRequired]
+    public RenderFragment Controls { get; set; } = default!;
+
+    [Parameter, EditorRequired]
+    public RenderFragment Preview { get; set; } = default!;
+
+    [Parameter, EditorRequired]
+    public string CodeSnippet { get; set; } = "";
+
+    [Parameter, EditorRequired]
+    public IReadOnlyList<PlaygroundParameter> ApiParameters { get; set; } = [];
+}

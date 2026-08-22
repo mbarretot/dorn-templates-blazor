@@ -1,0 +1,14 @@
+<button
+    type="button"
+    aria-label="Dismiss notification"
+    class="rounded-md p-1 text-muted-foreground hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+    data-testid="toast-close"
+    @onclick="OnClick"
+>
+    ×
+</button>
+
+@code {
+    [Parameter, EditorRequired]
+    public EventCallback OnClick { get; set; }
+}

@@ -1,0 +1,24 @@
+@inherits UiTestContext
+@using Bunit
+@using CleanArchBlazorWasm.Web.Components.Ui.Badge
+@using Xunit
+
+@code {
+    [Theory]
+    [InlineData(BadgeVariant.Default, "bg-primary")]
+    [InlineData(BadgeVariant.Secondary, "bg-secondary")]
+    [InlineData(BadgeVariant.Destructive, "bg-destructive")]
+    [InlineData(BadgeVariant.Outline, "text-foreground")]
+    [InlineData(BadgeVariant.Success, "bg-success")]
+    [InlineData(BadgeVariant.Warning, "bg-warning")]
+    public void RendersEachVariantWithItsSemanticClass(BadgeVariant variant, string expectedClass)
+    {
+        var cut = Render<Badge>(parameters =>
+            parameters.Add(parameter => parameter.Variant, variant).AddChildContent("Status")
+        );
+
+        var badge = cut.Find("span");
+        Assert.Contains(expectedClass, badge.ClassList);
+        Assert.Equal("Status", badge.TextContent);
+    }
+}

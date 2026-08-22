@@ -1,0 +1,53 @@
+@inherits UiTestContext
+@using Bunit
+@using CleanArchBlazorWasm.Web.Components.Ui.Breadcrumb
+@using Xunit
+
+@code {
+    [Fact]
+    public void RendersNavWithAriaLabelAndOrderedList()
+    {
+        var cut = Render(@<Breadcrumb>
+            <BreadcrumbList>
+                <BreadcrumbItem>
+                    <BreadcrumbLink Href="/">Home</BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                    <BreadcrumbPage>Settings</BreadcrumbPage>
+                </BreadcrumbItem>
+            </BreadcrumbList>
+        </Breadcrumb>);
+
+        var nav = cut.Find("nav");
+        Assert.Equal("breadcrumb", nav.GetAttribute("aria-label"));
+        Assert.NotNull(nav.QuerySelector("ol"));
+    }
+
+    [Fact]
+    public void BreadcrumbLink_RendersAnchorWithHref()
+    {
+        var cut = Render(@<BreadcrumbLink Href="/dashboard">Dashboard</BreadcrumbLink>);
+
+        var anchor = cut.Find("a");
+        Assert.Equal("/dashboard", anchor.GetAttribute("href"));
+        Assert.Equal("Dashboard", anchor.TextContent);
+    }
+
+    [Fact]
+    public void BreadcrumbPage_RendersAriaCurrentPageAndIsNotAnAnchor()
+    {
+        var cut = Render(@<BreadcrumbPage>Settings</BreadcrumbPage>);
+
+        Assert.Equal("page", cut.Find("*").GetAttribute("aria-current"));
+        Assert.Empty(cut.FindAll("a"));
+    }
+
+    [Fact]
+    public void BreadcrumbSeparator_HasAriaHiddenTrue()
+    {
+        var cut = Render<BreadcrumbSeparator>();
+
+        Assert.Equal("true", cut.Find("*").GetAttribute("aria-hidden"));
+    }
+}

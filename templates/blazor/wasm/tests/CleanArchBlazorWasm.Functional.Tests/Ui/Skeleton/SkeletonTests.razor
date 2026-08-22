@@ -1,0 +1,16 @@
+@inherits UiTestContext
+@using Bunit
+@using CleanArchBlazorWasm.Web.Components.Ui.Skeleton
+@using Xunit
+
+@code {
+    [Fact]
+    public void RendersAsHiddenPlaceholderWithReducedMotionClass()
+    {
+        var cut = Render<Skeleton>();
+
+        var skeleton = cut.Find("div");
+        Assert.Equal("true", skeleton.GetAttribute("aria-hidden"));
+        Assert.Contains("motion-reduce:animate-none", skeleton.ClassList);
+    }
+}

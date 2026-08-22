@@ -1,0 +1,215 @@
+@inherits UiTestContext
+@using Bunit
+@using CleanArchBlazorWasm.Web.Components.Ui.Select
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Web
+@using Xunit
+
+@code {
+    // Design D (Select row): Select<TValue> owns both the combobox trigger and the listbox
+    // popover internally — SelectItem<TValue> is the only other exported part. Same accepted
+    // bUnit limitation as Dialog/DropdownMenu: proves the JS-call/state CONTRACT, not real
+    // browser focus or positioning.
+
+    private static void SetupOpenInterop(Bunit.BunitJSModuleInterop anchor, Bunit.BunitJSModuleInterop dismiss)
+    {
+        anchor.SetupVoid("show", _ => true).SetVoidResult();
+        anchor.SetupVoid("position", _ => true).SetVoidResult();
+        anchor.SetupVoid("hide", _ => true).SetVoidResult();
+        anchor.SetupVoid("dispose", _ => true).SetVoidResult();
+        dismiss.SetupVoid("activate", _ => true).SetVoidResult();
+        dismiss.SetupVoid("deactivate", _ => true).SetVoidResult();
+    }
+
+    [Fact]
+    public void TriggerClick_Opens_AndRendersListbox()
+    {
+        SetupOpenInterop(AnchorModule, DismissModule);
+        var value = "";
+
+        var cut = Render<Select<string>>(parameters =>
+            parameters
+                .Add(p => p.Value, value)
+                .Add(p => p.ValueChanged, EventCallback.Factory.Create<string>(this, v => value = v))
+                .Add(p => p.ValueExpression, () => value)
+                .AddChildContent(builder =>
+                {
+                    builder.OpenComponent<SelectItem<string>>(0);
+                    builder.AddAttribute(1, "Value", "light");
+                    builder.AddAttribute(2, "data-testid", "option-light");
+                    builder.AddAttribute(3, "ChildContent", (RenderFragment)(b => b.AddContent(0, "Light")));
+                    builder.CloseComponent();
+
+                    builder.OpenComponent<SelectItem<string>>(4);
+                    builder.AddAttribute(5, "Value", "dark");
+                    builder.AddAttribute(6, "data-testid", "option-dark");
+                    builder.AddAttribute(7, "ChildContent", (RenderFragment)(b => b.AddContent(0, "Dark")));
+                    builder.CloseComponent();
+                })
+        );
+
+        cut.Find("[role=combobox]").Click();
+
+        Assert.NotNull(cut.Find("[role=listbox]"));
+        Assert.Equal("true", cut.Find("[role=combobox]").GetAttribute("aria-expanded"));
+    }
+
+    [Fact]
+    public void ClickingOption_CommitsValue_AndCloses()
+    {
+        SetupOpenInterop(AnchorModule, DismissModule);
+        var value = "";
+
+        var cut = Render<Select<string>>(parameters =>
+            parameters
+                .Add(p => p.Value, value)
+                .Add(p => p.ValueChanged, EventCallback.Factory.Create<string>(this, v => value = v))
+                .Add(p => p.ValueExpression, () => value)
+                .AddChildContent(builder =>
+                {
+                    builder.OpenComponent<SelectItem<string>>(0);
+                    builder.AddAttribute(1, "Value", "dark");
+                    builder.AddAttribute(2, "data-testid", "option-dark");
+                    builder.AddAttribute(3, "ChildContent", (RenderFragment)(b => b.AddContent(0, "Dark")));
+                    builder.CloseComponent();
+                })
+        );
+
+        cut.Find("[role=combobox]").Click();
+        cut.Find("[data-testid=option-dark]").Click();
+
+        Assert.Equal("dark", value);
+        Assert.Equal("false", cut.Find("[role=combobox]").GetAttribute("aria-expanded"));
+    }
+
+    [Fact]
+    public void ArrowDown_MovesRovingTabIndex_BetweenOptions()
+    {
+        SetupOpenInterop(AnchorModule, DismissModule);
+        var value = "";
+
+        var cut = Render<Select<string>>(parameters =>
+            parameters
+                .Add(p => p.Value, value)
+                .Add(p => p.ValueChanged, EventCallback.Factory.Create<string>(this, v => value = v))
+                .Add(p => p.ValueExpression, () => value)
+                .AddChildContent(builder =>
+                {
+                    builder.OpenComponent<SelectItem<string>>(0);
+                    builder.AddAttribute(1, "Value", "light");
+                    builder.AddAttribute(2, "data-testid", "option-light");
+                    builder.AddAttribute(3, "ChildContent", (RenderFragment)(b => b.AddContent(0, "Light")));
+                    builder.CloseComponent();
+
+                    builder.OpenComponent<SelectItem<string>>(4);
+                    builder.AddAttribute(5, "Value", "dark");
+                    builder.AddAttribute(6, "data-testid", "option-dark");
+                    builder.AddAttribute(7, "ChildContent", (RenderFragment)(b => b.AddContent(0, "Dark")));
+                    builder.CloseComponent();
+                })
+        );
+
+        cut.Find("[role=combobox]").Click();
+        Assert.Equal("0", cut.Find("[data-testid=option-light]").GetAttribute("tabindex"));
+
+        cut.Find("[data-testid=option-light]").KeyDown(new KeyboardEventArgs { Key = "ArrowDown" });
+
+        Assert.Equal("-1", cut.Find("[data-testid=option-light]").GetAttribute("tabindex"));
+        Assert.Equal("0", cut.Find("[data-testid=option-dark]").GetAttribute("tabindex"));
+    }
+
+    [Fact]
+    public void Escape_ClosesWithoutCommitting()
+    {
+        SetupOpenInterop(AnchorModule, DismissModule);
+        var value = "light";
+
+        var cut = Render<Select<string>>(parameters =>
+            parameters
+                .Add(p => p.Value, value)
+                .Add(p => p.ValueChanged, EventCallback.Factory.Create<string>(this, v => value = v))
+                .Add(p => p.ValueExpression, () => value)
+                .AddChildContent(builder =>
+                {
+                    builder.OpenComponent<SelectItem<string>>(0);
+                    builder.AddAttribute(1, "Value", "light");
+                    builder.AddAttribute(2, "data-testid", "option-light");
+                    builder.AddAttribute(3, "ChildContent", (RenderFragment)(b => b.AddContent(0, "Light")));
+                    builder.CloseComponent();
+
+                    builder.OpenComponent<SelectItem<string>>(4);
+                    builder.AddAttribute(5, "Value", "dark");
+                    builder.AddAttribute(6, "data-testid", "option-dark");
+                    builder.AddAttribute(7, "ChildContent", (RenderFragment)(b => b.AddContent(0, "Dark")));
+                    builder.CloseComponent();
+                })
+        );
+
+        cut.Find("[role=combobox]").Click();
+        cut.Find("[data-testid=option-dark]").KeyDown(new KeyboardEventArgs { Key = "Escape" });
+
+        Assert.Equal("light", value);
+        Assert.Equal("false", cut.Find("[role=combobox]").GetAttribute("aria-expanded"));
+    }
+
+    [Fact]
+    public void Tab_CommitsValue_AndCloses()
+    {
+        SetupOpenInterop(AnchorModule, DismissModule);
+        var value = "";
+
+        var cut = Render<Select<string>>(parameters =>
+            parameters
+                .Add(p => p.Value, value)
+                .Add(p => p.ValueChanged, EventCallback.Factory.Create<string>(this, v => value = v))
+                .Add(p => p.ValueExpression, () => value)
+                .AddChildContent(builder =>
+                {
+                    builder.OpenComponent<SelectItem<string>>(0);
+                    builder.AddAttribute(1, "Value", "dark");
+                    builder.AddAttribute(2, "data-testid", "option-dark");
+                    builder.AddAttribute(3, "ChildContent", (RenderFragment)(b => b.AddContent(0, "Dark")));
+                    builder.CloseComponent();
+                })
+        );
+
+        cut.Find("[role=combobox]").Click();
+        cut.Find("[data-testid=option-dark]").KeyDown(new KeyboardEventArgs { Key = "Tab" });
+
+        Assert.Equal("dark", value);
+        Assert.Equal("false", cut.Find("[role=combobox]").GetAttribute("aria-expanded"));
+    }
+
+    [Fact]
+    public void WithAmbientEditContext_SetsAriaInvalid_WhenValidationFails()
+    {
+        SetupOpenInterop(AnchorModule, DismissModule);
+        var model = new TestModel();
+        var editContext = new EditContext(model);
+
+        var cut = Render(
+            @<CascadingValue Value="@editContext" IsFixed="true">
+                <Select
+                    TValue="string"
+                    Value="@model.Theme"
+                    ValueChanged="@(v => model.Theme = v)"
+                    ValueExpression="@(() => model.Theme)"
+                >
+                    <SelectItem TValue="string" Value="@("light")">Light</SelectItem>
+                </Select>
+            </CascadingValue>
+        );
+
+        var messageStore = new ValidationMessageStore(editContext);
+        messageStore.Add(editContext.Field(nameof(TestModel.Theme)), "Theme is required.");
+        cut.InvokeAsync(editContext.NotifyValidationStateChanged);
+
+        Assert.Equal("true", cut.Find("[role=combobox]").GetAttribute("aria-invalid"));
+    }
+
+    private sealed class TestModel
+    {
+        public string Theme { get; set; } = "";
+    }
+}

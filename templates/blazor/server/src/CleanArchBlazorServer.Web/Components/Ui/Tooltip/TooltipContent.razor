@@ -1,0 +1,97 @@
+@implements IAsyncDisposable
+<div
+    @ref="_element"
+    id="@Context.ContentId"
+    role="tooltip"
+    popover="manual"
+    class="@ComputedClass"
+    @attributes="AdditionalAttributes"
+>
+    @ChildContent
+</div>
+
+@code {
+    private const string BaseClass =
+        "z-50 overflow-hidden rounded-md border border-border bg-popover px-3 py-1.5 text-xs text-popover-foreground shadow-md";
+
+    private ElementReference _element;
+    private bool _pendingOpen;
+    private bool _pendingClose;
+    private bool _wasOpen;
+
+    [CascadingParameter]
+    private TooltipContext Context { get; set; } = default!;
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? AdditionalAttributes { get; set; }
+
+    [Inject]
+    private AnchorInterop AnchorInterop { get; set; } = default!;
+
+    private string ComputedClass => Cn.Merge(BaseClass, Class);
+
+    protected override void OnParametersSet()
+    {
+        if (Context is null)
+        {
+            throw new InvalidOperationException(
+                "TooltipContent must be rendered inside a <Tooltip>."
+            );
+        }
+
+        if (Context.IsOpen && !_wasOpen)
+        {
+            _pendingOpen = true;
+        }
+        else if (!Context.IsOpen && _wasOpen)
+        {
+            _pendingClose = true;
+        }
+
+        _wasOpen = Context.IsOpen;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_pendingOpen && !_element.Equals(default(ElementReference)))
+        {
+            _pendingOpen = false;
+            await AnchorInterop.ShowAsync(_element);
+            await AnchorInterop.PositionAsync(
+                Context.TriggerElement,
+                _element,
+                Context.Side,
+                Context.Align,
+                Context.Offset,
+                Context.CollisionPadding
+            );
+        }
+        else if (_pendingClose)
+        {
+            _pendingClose = false;
+            await AnchorInterop.DisposeAsync(_element);
+            await AnchorInterop.HideAsync(_element);
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        try
+        {
+            if (Context.IsOpen)
+            {
+                await AnchorInterop.DisposeAsync(_element);
+            }
+        }
+        catch (JSDisconnectedException)
+        {
+            // Circuit/module already gone — nothing left to clean up JS-side.
+        }
+    }
+}

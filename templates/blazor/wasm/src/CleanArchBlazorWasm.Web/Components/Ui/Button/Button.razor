@@ -1,0 +1,92 @@
+<button
+    type="@Type"
+    class="@ComputedClass"
+    disabled="@(Disabled || Loading)"
+    aria-busy="@(Loading ? "true" : null)"
+    @attributes="ComputedAdditionalAttributes"
+>
+    @if (Loading)
+    {
+        <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+            ></circle>
+            <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+            ></path>
+        </svg>
+    }
+    @ChildContent
+</button>
+
+@code {
+    private const string BaseClass =
+        "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50";
+
+    [Parameter]
+    public ButtonVariant Variant { get; set; } = ButtonVariant.Default;
+
+    [Parameter]
+    public ButtonSize Size { get; set; } = ButtonSize.Default;
+
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    [Parameter]
+    public bool Loading { get; set; }
+
+    [Parameter]
+    public string Type { get; set; } = "button";
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? AdditionalAttributes { get; set; }
+
+    private string ComputedClass => ResolveClass(Variant, Size, Class);
+
+    private Dictionary<string, object>? ComputedAdditionalAttributes =>
+        Loading && AdditionalAttributes is not null
+            ? AdditionalAttributes.Where(kvp => kvp.Key != "onclick")
+                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value)
+            : AdditionalAttributes;
+
+    public static string ResolveClass(ButtonVariant variant, ButtonSize size, string? consumerClass) =>
+        Cn.Merge(BaseClass, ResolveVariantClass(variant), ResolveSizeClass(size), consumerClass);
+
+    private static string ResolveVariantClass(ButtonVariant variant) =>
+        variant switch
+        {
+            ButtonVariant.Default => "bg-primary text-primary-foreground hover:bg-primary/90",
+            ButtonVariant.Secondary =>
+                "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+            ButtonVariant.Destructive =>
+                "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+            ButtonVariant.Outline =>
+                "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+            ButtonVariant.Ghost => "hover:bg-accent hover:text-accent-foreground",
+            ButtonVariant.Link => "text-primary underline-offset-4 hover:underline",
+            _ => "",
+        };
+
+    private static string ResolveSizeClass(ButtonSize size) =>
+        size switch
+        {
+            ButtonSize.Sm => "h-8 rounded-md px-3 text-xs",
+            ButtonSize.Default => "h-9 px-4 py-2",
+            ButtonSize.Lg => "h-10 rounded-md px-6",
+            ButtonSize.Icon => "h-9 w-9",
+            _ => "",
+        };
+}

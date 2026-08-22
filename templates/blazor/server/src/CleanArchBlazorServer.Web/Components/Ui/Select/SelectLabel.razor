@@ -1,0 +1,33 @@
+@implements IDisposable
+
+<div id="@_id" class="@Class" @attributes="AdditionalAttributes">
+    @ChildContent
+</div>
+
+@code {
+    private readonly string _id = UiId.New("select-label");
+
+    [CascadingParameter]
+    private SelectGroupContext Context { get; set; } = default!;
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? AdditionalAttributes { get; set; }
+
+    protected override void OnInitialized()
+    {
+        if (Context is null)
+        {
+            throw new InvalidOperationException("SelectLabel must be rendered inside a <SelectGroup>.");
+        }
+
+        Context.RegisterLabel(_id);
+    }
+
+    public void Dispose() => Context.UnregisterLabel(_id);
+}

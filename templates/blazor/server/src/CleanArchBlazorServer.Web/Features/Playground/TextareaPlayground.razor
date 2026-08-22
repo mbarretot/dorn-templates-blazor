@@ -1,0 +1,43 @@
+@page "/playground/textarea"
+@layout PlaygroundLayout
+
+<PageTitle>Playground · Textarea</PageTitle>
+
+<ComponentPlayground
+    Title="Textarea"
+    Description="Rows sets the native rows attribute; the value binds like Input with no ambient EditForm."
+    CodeSnippet="@CodeSnippet"
+    ApiParameters="ApiParameters"
+>
+    <Controls>
+        <NumberControl Label="Rows" @bind-Value="_rows" />
+        <BoolControl Label="Disabled" @bind-Value="_disabled" />
+    </Controls>
+    <Preview>
+        <Textarea @bind-Value="_text" Rows="_rows" Disabled="_disabled" Class="w-64" />
+        <p class="text-sm text-muted-foreground">You typed: @_text</p>
+    </Preview>
+</ComponentPlayground>
+
+@code {
+    private string _text = "";
+    private int _rows = 3;
+    private bool _disabled;
+
+    private string CodeSnippet
+    {
+        get
+        {
+            var attributes = _rows != 3 ? $" Rows=\"{_rows}\"" : "";
+            attributes += _disabled ? " Disabled=\"true\"" : "";
+            return $"<Textarea @bind-Value=\"_text\"{attributes} />";
+        }
+    }
+
+    private static readonly PlaygroundParameter[] ApiParameters =
+    [
+        new("Value", "string", "\"\"", "The bound text value (two-way bindable)."),
+        new("Rows", "int", "3", "The native rows attribute."),
+        new("Disabled", "bool", "false", "Disables interaction."),
+    ];
+}

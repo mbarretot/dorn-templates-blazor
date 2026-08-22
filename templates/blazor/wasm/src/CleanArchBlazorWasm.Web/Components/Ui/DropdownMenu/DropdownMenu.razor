@@ -1,0 +1,62 @@
+<CascadingValue Value="_context" IsFixed="false">
+    @ChildContent
+</CascadingValue>
+
+@code {
+    private readonly UiValueComponent<bool> _value = new();
+    private DropdownMenuContext _context = default!;
+
+    [Parameter]
+    public bool Open { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> OpenChanged { get; set; }
+
+    [Parameter]
+    public bool DefaultOpen { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    protected override void OnInitialized()
+    {
+        _context = new DropdownMenuContext
+        {
+            TriggerId = UiId.New("dropdown-trigger"),
+            ContentId = UiId.New("dropdown-content"),
+            RequestOpen = RequestOpenAsync,
+            RequestClose = RequestCloseAsync,
+            NotifyStateChanged = StateHasChanged,
+        };
+    }
+
+    protected override void OnParametersSet()
+    {
+        _value.SetParameters(Open, OpenChanged, DefaultOpen);
+        _context.IsOpen = _value.CurrentValue;
+        if (_context.IsOpen)
+        {
+            _context.RegisterOpen();
+        }
+        else
+        {
+            _context.UnregisterOpen();
+        }
+    }
+
+    private async Task RequestOpenAsync()
+    {
+        await _value.SetValueAsync(true);
+        _context.IsOpen = _value.CurrentValue;
+        _context.RegisterOpen();
+        StateHasChanged();
+    }
+
+    private async Task RequestCloseAsync()
+    {
+        await _value.SetValueAsync(false);
+        _context.IsOpen = _value.CurrentValue;
+        _context.UnregisterOpen();
+        StateHasChanged();
+    }
+}

@@ -1,0 +1,12 @@
+<Solution>
+    <Configurations>
+        <Platform Name="Any CPU" />
+    </Configurations>
+    <Folder Name="/eng/packaging/">
+        <Project Path="eng/packaging/Dorn.Templates.BlazorWasm/Dorn.Templates.BlazorWasm.csproj" />
+        <Project Path="eng/packaging/Dorn.Templates.BlazorServer/Dorn.Templates.BlazorServer.csproj" />
+    </Folder>
+    <Folder Name="/tests/">
+        <Project Path="tests/Dorn.Templates.Blazor.Tests/Dorn.Templates.Blazor.Tests.csproj" />
+    </Folder>
+</Solution>

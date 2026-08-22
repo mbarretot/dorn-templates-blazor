@@ -1,0 +1,44 @@
+@page "/playground/tooltip"
+@layout PlaygroundLayout
+
+<PageTitle>Playground · Tooltip</PageTitle>
+
+<ComponentPlayground
+    Title="Tooltip"
+    Description="Opens on pointer hover or keyboard focus after OpenDelay; closes immediately on pointer leave, focus loss, or Escape. Never receives focus itself."
+    CodeSnippet="@CodeSnippet"
+    ApiParameters="ApiParameters"
+>
+    <Controls>
+        <NumberControl Label="OpenDelay" @bind-Value="_openDelay" />
+    </Controls>
+    <Preview>
+        <div class="flex flex-col gap-2">
+            <Tooltip OpenDelay="_openDelay">
+                <TooltipTrigger Class="@Button.ResolveClass(ButtonVariant.Outline, ButtonSize.Default, null)">
+                    Hover me
+                </TooltipTrigger>
+                <TooltipContent>Saved successfully</TooltipContent>
+            </Tooltip>
+            <p class="text-sm text-muted-foreground">OpenDelay: @(_openDelay)ms</p>
+        </div>
+    </Preview>
+</ComponentPlayground>
+
+@code {
+    private int _openDelay = 300;
+
+    private string CodeSnippet => $"<Tooltip{(_openDelay != 300 ? $" OpenDelay=\"{_openDelay}\"" : "")}>...</Tooltip>";
+
+    private static readonly PlaygroundParameter[] ApiParameters =
+    [
+        new("Open", "bool", "false", "Controls the open state (two-way bindable)."),
+        new("OpenChanged", "EventCallback<bool>", "-", "Fires when the open state changes."),
+        new("DefaultOpen", "bool", "false", "Initial open state when uncontrolled."),
+        new("OpenDelay", "int", "300", "Milliseconds the trigger must stay hovered or focused before opening."),
+        new("Side", "string", "\"top\"", "Preferred side to anchor the content."),
+        new("Align", "string", "\"center\"", "Alignment along the anchored side."),
+        new("Offset", "double", "4", "Distance in pixels between the trigger and content."),
+        new("CollisionPadding", "double", "8", "Minimum viewport padding kept during collision avoidance."),
+    ];
+}

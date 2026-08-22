@@ -1,0 +1,76 @@
+@typeparam TValue
+@inherits UiInputBase<TValue>
+@using System.Diagnostics.CodeAnalysis
+
+<div
+    role="radiogroup"
+    aria-invalid="@(IsInvalid ? "true" : null)"
+    aria-describedby="@(Field?.HasMessage == true ? Field.MessageId : null)"
+    class="@Cn.Merge(BaseClass, Class)"
+    @attributes="AdditionalAttributes"
+>
+    <CascadingValue Value="_context" IsFixed="false">
+        @ChildContent
+    </CascadingValue>
+</div>
+
+@code {
+    private const string BaseClass = "grid gap-2";
+
+    private RadioGroupContext<TValue> _context = default!;
+
+    [CascadingParameter]
+    private FieldContext? Field { get; set; }
+
+    [Parameter]
+    public RovingFocusOrientation Orientation { get; set; } = RovingFocusOrientation.Vertical;
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    protected override void OnInitialized()
+    {
+        _context = new RadioGroupContext<TValue>(Orientation)
+        {
+            NotifyStateChanged = StateHasChanged,
+            CommitValueAsync = CommitValueAsync,
+        };
+    }
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        Field?.SetField(FieldIdentifier);
+        _context.Value = CurrentValue;
+    }
+
+    // Items only set Focus.ActiveId from their own OnAfterRender, which runs after this render already produced tabindex="-1" for every item.
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            StateHasChanged();
+        }
+    }
+
+    private Task CommitValueAsync(TValue value)
+    {
+        CurrentValue = value;
+        _context.Value = value;
+        return Task.CompletedTask;
+    }
+
+    protected override bool TryParseValueFromString(
+        string? value,
+        [MaybeNullWhen(false)] out TValue result,
+        [NotNullWhen(false)] out string? validationErrorMessage
+    )
+    {
+        result = default!;
+        validationErrorMessage = $"{FieldIdentifier.FieldName} does not support parsing from text.";
+        return false;
+    }
+}

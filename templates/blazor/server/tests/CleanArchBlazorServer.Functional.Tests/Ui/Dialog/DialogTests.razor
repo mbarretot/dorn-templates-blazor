@@ -1,0 +1,143 @@
+@inherits UiTestContext
+@using Bunit
+@using CleanArchBlazorServer.Web.Components.Ui.Dialog
+@using Microsoft.AspNetCore.Components
+@using Microsoft.JSInterop
+@using Xunit
+
+@code {
+    // Proves Dialog calls the expected JS only after the OnAfterRenderAsync gate opens.
+
+    [Fact]
+    public void Render_WithDialogClosed_MakesNoModalInteropCalls()
+    {
+        var open = ModalModule.SetupVoid("open", _ => true).SetVoidResult();
+        var close = ModalModule.SetupVoid("close", _ => true).SetVoidResult();
+
+        Render(@<Dialog>
+            <DialogTrigger data-testid="trigger">Open</DialogTrigger>
+            <DialogContent>
+                <DialogTitle>Title</DialogTitle>
+            </DialogContent>
+        </Dialog>);
+
+        Assert.Empty(open.Invocations);
+        Assert.Empty(close.Invocations);
+    }
+
+    [Fact]
+    public void TriggerClick_OpensDialog_AndCallsModalOpen_WithInitialFocus()
+    {
+        var open = ModalModule.SetupVoid("open", _ => true).SetVoidResult();
+
+        var cut = Render(@<Dialog>
+            <DialogTrigger data-testid="trigger">Open</DialogTrigger>
+            <DialogContent InitialFocus="#confirm">
+                <DialogTitle>Title</DialogTitle>
+                <DialogDescription>Description</DialogDescription>
+            </DialogContent>
+        </Dialog>);
+
+        cut.Find("[data-testid=trigger]").Click();
+
+        var invocation = Assert.Single(open.Invocations);
+        Assert.IsType<ElementReference>(invocation.Arguments[0]);
+        Assert.Equal("#confirm", invocation.Arguments[2]);
+    }
+
+    [Fact]
+    public void DefaultOpen_RendersOpen_AndCallsModalOpen_Once()
+    {
+        var open = ModalModule.SetupVoid("open", _ => true).SetVoidResult();
+
+        Render(@<Dialog DefaultOpen="true">
+            <DialogContent>
+                <DialogTitle>Title</DialogTitle>
+            </DialogContent>
+        </Dialog>);
+
+        Assert.Single(open.Invocations);
+    }
+
+    [Fact]
+    public async Task RequestDismissAsync_ClosesDialog_AndCallsModalClose()
+    {
+        var open = ModalModule.SetupVoid("open", _ => true).SetVoidResult();
+        var close = ModalModule.SetupVoid("close", _ => true).SetVoidResult();
+
+        var cut = Render(@<Dialog DefaultOpen="true">
+            <DialogContent>
+                <DialogTitle>Title</DialogTitle>
+            </DialogContent>
+        </Dialog>);
+
+        var dotNetRef = ExtractDialogContentRef(open);
+
+        // Simulates Escape (native `cancel` event) or a backdrop click routed via ui-modal.js.
+        await cut.InvokeAsync(() => dotNetRef.RequestDismissAsync());
+
+        Assert.Single(close.Invocations);
+    }
+
+    [Fact]
+    public async Task RequestDismissAsync_FiresOpenChangedExactlyOnce()
+    {
+        var open = ModalModule.SetupVoid("open", _ => true).SetVoidResult();
+        ModalModule.SetupVoid("close", _ => true).SetVoidResult();
+        var changes = new List<bool>();
+
+        var cut = Render(@<Dialog Open="true" OpenChanged="v => changes.Add(v)">
+            <DialogContent>
+                <DialogTitle>Title</DialogTitle>
+            </DialogContent>
+        </Dialog>);
+
+        var dotNetRef = ExtractDialogContentRef(open);
+
+        await cut.InvokeAsync(() => dotNetRef.RequestDismissAsync());
+
+        Assert.Equal([false], changes);
+    }
+
+    [Fact]
+    public void DialogClose_Click_RequestsClose_AndCallsModalClose()
+    {
+        ModalModule.SetupVoid("open", _ => true).SetVoidResult();
+        var close = ModalModule.SetupVoid("close", _ => true).SetVoidResult();
+
+        var cut = Render(@<Dialog DefaultOpen="true">
+            <DialogContent>
+                <DialogTitle>Title</DialogTitle>
+                <DialogClose data-testid="close">Close</DialogClose>
+            </DialogContent>
+        </Dialog>);
+
+        cut.Find("[data-testid=close]").Click();
+
+        Assert.Single(close.Invocations);
+    }
+
+    [Fact]
+    public async Task DisposeAsync_WhileOpen_CallsModalClose()
+    {
+        ModalModule.SetupVoid("open", _ => true).SetVoidResult();
+        var close = ModalModule.SetupVoid("close", _ => true).SetVoidResult();
+
+        Render(@<Dialog DefaultOpen="true">
+            <DialogContent>
+                <DialogTitle>Title</DialogTitle>
+            </DialogContent>
+        </Dialog>);
+
+        await DisposeComponentsAsync();
+
+        Assert.Single(close.Invocations);
+    }
+
+    private static DialogContent ExtractDialogContentRef(JSRuntimeInvocationHandler openHandler)
+    {
+        var invocation = Assert.Single(openHandler.Invocations);
+        var dotNetRef = Assert.IsType<DotNetObjectReference<DialogContent>>(invocation.Arguments[1]);
+        return dotNetRef.Value;
+    }
+}

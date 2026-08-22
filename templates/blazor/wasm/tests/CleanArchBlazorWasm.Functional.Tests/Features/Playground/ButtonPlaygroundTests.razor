@@ -1,0 +1,18 @@
+@inherits UiTestContext
+@using Bunit
+@using CleanArchBlazorWasm.Web.Features.Playground
+@using Xunit
+
+@code {
+    [Fact]
+    public void TogglingDisabledControl_UpdatesPreviewButtonDisabledAttribute()
+    {
+        var cut = Render(@<ButtonPlayground />);
+
+        Assert.False(cut.Find("[data-testid=playground-preview] button").HasAttribute("disabled"));
+
+        cut.Find("[data-testid='control-Disabled'] button").Click();
+
+        Assert.True(cut.Find("[data-testid=playground-preview] button").HasAttribute("disabled"));
+    }
+}

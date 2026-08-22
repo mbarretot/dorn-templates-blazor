@@ -1,0 +1,157 @@
+@inherits UiTestContext
+@using Bunit
+@using CleanArchBlazorServer.Web.Components.Ui.ToggleGroup
+@using Microsoft.AspNetCore.Components.Web
+@using Xunit
+
+@code {
+    [Fact]
+    public void Renders_RoleGroup()
+    {
+        var cut = Render(
+            @<ToggleGroup TValue="string">
+                <ToggleGroupItem TValue="string" Value="@("bold")">B</ToggleGroupItem>
+            </ToggleGroup>
+        );
+
+        Assert.NotNull(cut.Find("[role=group]"));
+    }
+
+    [Fact]
+    public void FirstEnabledItem_HasTabIndexZero_OthersHaveTabIndexMinusOne()
+    {
+        var cut = Render(
+            @<ToggleGroup TValue="string">
+                <ToggleGroupItem TValue="string" Value="@("bold")" data-testid="item-bold">B</ToggleGroupItem>
+                <ToggleGroupItem TValue="string" Value="@("italic")" data-testid="item-italic">I</ToggleGroupItem>
+            </ToggleGroup>
+        );
+
+        Assert.Equal("0", cut.Find("[data-testid=item-bold]").GetAttribute("tabindex"));
+        Assert.Equal("-1", cut.Find("[data-testid=item-italic]").GetAttribute("tabindex"));
+    }
+
+    [Fact]
+    public void ArrowRight_MovesRovingTabIndex_ButDoesNotActivateItem()
+    {
+        var cut = Render(
+            @<ToggleGroup TValue="string">
+                <ToggleGroupItem TValue="string" Value="@("bold")" data-testid="item-bold">B</ToggleGroupItem>
+                <ToggleGroupItem TValue="string" Value="@("italic")" data-testid="item-italic">I</ToggleGroupItem>
+            </ToggleGroup>
+        );
+
+        cut.Find("[data-testid=item-bold]").KeyDown(new KeyboardEventArgs { Key = "ArrowRight" });
+
+        Assert.Equal("-1", cut.Find("[data-testid=item-bold]").GetAttribute("tabindex"));
+        Assert.Equal("0", cut.Find("[data-testid=item-italic]").GetAttribute("tabindex"));
+        Assert.Equal("false", cut.Find("[data-testid=item-bold]").GetAttribute("aria-pressed"));
+        Assert.Equal("false", cut.Find("[data-testid=item-italic]").GetAttribute("aria-pressed"));
+    }
+
+    [Fact]
+    public void EnterKey_ActivatesFocusedItem()
+    {
+        var cut = Render(
+            @<ToggleGroup TValue="string">
+                <ToggleGroupItem TValue="string" Value="@("bold")" data-testid="item-bold">B</ToggleGroupItem>
+            </ToggleGroup>
+        );
+
+        cut.Find("[data-testid=item-bold]").KeyDown(new KeyboardEventArgs { Key = "Enter" });
+
+        Assert.Equal("true", cut.Find("[data-testid=item-bold]").GetAttribute("aria-pressed"));
+    }
+
+    [Fact]
+    public void SpaceKey_ActivatesFocusedItem()
+    {
+        var cut = Render(
+            @<ToggleGroup TValue="string">
+                <ToggleGroupItem TValue="string" Value="@("bold")" data-testid="item-bold">B</ToggleGroupItem>
+            </ToggleGroup>
+        );
+
+        cut.Find("[data-testid=item-bold]").KeyDown(new KeyboardEventArgs { Key = " " });
+
+        Assert.Equal("true", cut.Find("[data-testid=item-bold]").GetAttribute("aria-pressed"));
+    }
+
+    [Fact]
+    public void Single_Click_SelectsOnlyClickedItem_AndTogglesOffOnSecondClick()
+    {
+        var cut = Render(
+            @<ToggleGroup TValue="string" Type="ToggleGroupType.Single">
+                <ToggleGroupItem TValue="string" Value="@("bold")" data-testid="item-bold">B</ToggleGroupItem>
+                <ToggleGroupItem TValue="string" Value="@("italic")" data-testid="item-italic">I</ToggleGroupItem>
+            </ToggleGroup>
+        );
+
+        cut.Find("[data-testid=item-bold]").Click();
+
+        Assert.Equal("true", cut.Find("[data-testid=item-bold]").GetAttribute("aria-pressed"));
+        Assert.Equal("false", cut.Find("[data-testid=item-italic]").GetAttribute("aria-pressed"));
+
+        cut.Find("[data-testid=item-italic]").Click();
+
+        Assert.Equal("false", cut.Find("[data-testid=item-bold]").GetAttribute("aria-pressed"));
+        Assert.Equal("true", cut.Find("[data-testid=item-italic]").GetAttribute("aria-pressed"));
+
+        cut.Find("[data-testid=item-italic]").Click();
+
+        Assert.Equal("false", cut.Find("[data-testid=item-italic]").GetAttribute("aria-pressed"));
+    }
+
+    [Fact]
+    public void Multiple_Click_SelectsEachItemIndependently()
+    {
+        var cut = Render(
+            @<ToggleGroup TValue="string" Type="ToggleGroupType.Multiple">
+                <ToggleGroupItem TValue="string" Value="@("bold")" data-testid="item-bold">B</ToggleGroupItem>
+                <ToggleGroupItem TValue="string" Value="@("italic")" data-testid="item-italic">I</ToggleGroupItem>
+            </ToggleGroup>
+        );
+
+        cut.Find("[data-testid=item-bold]").Click();
+        cut.Find("[data-testid=item-italic]").Click();
+
+        Assert.Equal("true", cut.Find("[data-testid=item-bold]").GetAttribute("aria-pressed"));
+        Assert.Equal("true", cut.Find("[data-testid=item-italic]").GetAttribute("aria-pressed"));
+
+        cut.Find("[data-testid=item-bold]").Click();
+
+        Assert.Equal("false", cut.Find("[data-testid=item-bold]").GetAttribute("aria-pressed"));
+        Assert.Equal("true", cut.Find("[data-testid=item-italic]").GetAttribute("aria-pressed"));
+    }
+
+    [Fact]
+    public void Disabled_SuppressesClickActivation()
+    {
+        var cut = Render(
+            @<ToggleGroup TValue="string">
+                <ToggleGroupItem TValue="string" Value="@("bold")" data-testid="item-bold" Disabled="true">B</ToggleGroupItem>
+            </ToggleGroup>
+        );
+
+        cut.Find("[data-testid=item-bold]").Click();
+
+        Assert.Equal("false", cut.Find("[data-testid=item-bold]").GetAttribute("aria-pressed"));
+    }
+
+    [Fact]
+    public void Single_Controlled_Click_RaisesValueChanged_ButDoesNotSelfMutate()
+    {
+        var raised = new List<string?>();
+
+        var cut = Render(
+            @<ToggleGroup TValue="string" ValueChanged="@(v => raised.Add(v))">
+                <ToggleGroupItem TValue="string" Value="@("bold")" data-testid="item-bold">B</ToggleGroupItem>
+            </ToggleGroup>
+        );
+
+        cut.Find("[data-testid=item-bold]").Click();
+
+        Assert.Equal(["bold"], raised);
+        Assert.Equal("false", cut.Find("[data-testid=item-bold]").GetAttribute("aria-pressed"));
+    }
+}

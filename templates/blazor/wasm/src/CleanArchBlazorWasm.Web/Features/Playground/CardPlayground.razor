@@ -1,0 +1,48 @@
+@page "/playground/card"
+@layout PlaygroundLayout
+
+<PageTitle>Playground · Card</PageTitle>
+
+<ComponentPlayground
+    Title="Card"
+    Description="Pure composition — Header, Content, and Footer render only when supplied, with no bindable parameters of their own."
+    CodeSnippet="@CodeSnippet"
+    ApiParameters="ApiParameters"
+>
+    <Controls>
+        <p class="text-sm text-muted-foreground">Card has no bindable parameters — this composition is static.</p>
+    </Controls>
+    <Preview>
+        <Card>
+            <CardHeader>
+                <CardTitle>Project Alpha</CardTitle>
+                <CardDescription>A short description of what this card represents.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <p class="text-sm text-foreground">
+                    Card content composes any children — text, other components, or forms.
+                </p>
+            </CardContent>
+            <CardFooter>
+                <Button Variant="ButtonVariant.Outline">Cancel</Button>
+                <Button>Save</Button>
+            </CardFooter>
+        </Card>
+    </Preview>
+</ComponentPlayground>
+
+@code {
+    private const string CodeSnippet =
+        """
+        <Card>
+            <CardHeader>
+                <CardTitle>Project Alpha</CardTitle>
+                <CardDescription>A short description of what this card represents.</CardDescription>
+            </CardHeader>
+            <CardContent>...</CardContent>
+            <CardFooter>...</CardFooter>
+        </Card>
+        """;
+
+    private static readonly PlaygroundParameter[] ApiParameters = [];
+}

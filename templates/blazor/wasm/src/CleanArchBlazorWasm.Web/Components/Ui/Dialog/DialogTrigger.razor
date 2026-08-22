@@ -1,0 +1,32 @@
+<button
+    type="button"
+    class="@Class"
+    aria-haspopup="dialog"
+    aria-expanded="@(Context.IsOpen ? "true" : "false")"
+    @onclick="() => Context.RequestOpen()"
+    @attributes="AdditionalAttributes"
+>
+    @ChildContent
+</button>
+
+@code {
+    [CascadingParameter]
+    private DialogContext Context { get; set; } = default!;
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? AdditionalAttributes { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        if (Context is null)
+        {
+            throw new InvalidOperationException("DialogTrigger must be rendered inside a <Dialog>.");
+        }
+    }
+}

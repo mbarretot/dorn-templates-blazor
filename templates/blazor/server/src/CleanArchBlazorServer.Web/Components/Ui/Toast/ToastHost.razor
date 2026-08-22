@@ -1,0 +1,48 @@
+@implements IDisposable
+@using Dorn.WebUI.Primitives.Toast
+@inject ToastStore Store
+
+<ToastViewport>
+    @foreach (var message in _items)
+    {
+        <ToastItem Message="message" OnDismiss="HandleDismiss" OnInvokeAction="HandleActionAsync" />
+    }
+</ToastViewport>
+
+@code {
+    private IReadOnlyList<ToastMessage> _items = [];
+    private bool _disposed;
+    private int _generation;
+
+    protected override void OnInitialized()
+    {
+        _items = Store.Items;
+        Store.Changed += HandleChanged;
+    }
+
+    public void Dispose()
+    {
+        _disposed = true;
+        _generation++;
+        Store.Changed -= HandleChanged;
+    }
+
+    private void HandleChanged(IReadOnlyList<ToastMessage> items)
+    {
+        var generation = _generation;
+        _ = InvokeAsync(() =>
+        {
+            if (_disposed || generation != _generation)
+            {
+                return;
+            }
+
+            _items = items;
+            StateHasChanged();
+        });
+    }
+
+    private void HandleDismiss(Guid id) => Store.Dismiss(id);
+
+    private Task HandleActionAsync(Guid id) => Store.InvokeActionAsync(id);
+}

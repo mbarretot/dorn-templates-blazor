@@ -1,0 +1,153 @@
+@inherits UiTestContext
+@using Bunit
+@using CleanArchBlazorWasm.Web.Features.Playground
+@using Dorn.WebUI.Primitives.Toast
+@using Microsoft.Extensions.DependencyInjection
+@using Xunit
+
+@code {
+    [Fact]
+    public void Catalog_ListsWaveTwoFeedbackGroupingAndAdvancedMenus()
+    {
+        var entries = PlaygroundCatalog.Categories.SelectMany(category => category.Entries).ToArray();
+
+        Assert.Contains(entries, entry => entry.Label == "Toast");
+        Assert.Contains(entries, entry => entry.Label == "Select" && entry.Keywords.Contains("group"));
+        Assert.Contains(entries, entry => entry.Label == "DropdownMenu" && entry.Keywords.Contains("submenu"));
+    }
+
+    [Fact]
+    public async Task ToastPreview_PublishesInvokesActionsAndDismisses()
+    {
+        var store = new ToastStore(new ToastStoreOptions(Capacity: 2));
+        Services.AddSingleton(store);
+        var toast = Render(@<ToastPlayground />);
+
+        toast.Find("[data-testid=toast-publish]").Click();
+        Assert.Single(store.Items);
+        toast.Find("[data-testid=toast-invoke-action]").Click();
+        Assert.Empty(store.Items);
+        toast.Find("[data-testid=toast-publish]").Click();
+        toast.Find("[data-testid=toast-dismiss]").Click();
+        Assert.Empty(store.Items);
+
+        Assert.Contains("ToastStore.Publish", toast.Markup);
+        Assert.Contains("InvokeActionAsync", toast.Markup);
+        Assert.Contains("oldest active", toast.Markup);
+        Assert.Contains("expiry ID", toast.Markup);
+    }
+
+    [Fact]
+    public async Task ToastStore_EvictsOldestAndExpiresOnlyItsTargetedId()
+    {
+        var timeProvider = new ManualTimeProvider();
+        await using var store = new ToastStore(new ToastStoreOptions(Capacity: 2), timeProvider);
+        var expiring = store.Publish(new ToastRequest("Expiring", Duration: TimeSpan.FromSeconds(5)));
+        var retained = store.Publish(new ToastRequest("Retained"));
+        var newest = store.Publish(new ToastRequest("Newest"));
+
+        Assert.Equal([retained, newest], store.Items.Select(item => item.Id));
+        timeProvider.Advance(TimeSpan.FromSeconds(5));
+
+        Assert.Equal([retained, newest], store.Items.Select(item => item.Id));
+    }
+
+    [Fact]
+    public void SelectPreview_ComposesGroupsLabelsAndOnlyItemsForRovingFocus()
+    {
+        var select = Render(@<SelectPlayground />);
+        var groups = select.FindAll("[data-testid=select-group]");
+
+        Assert.Equal(2, groups.Count);
+        Assert.All(groups, group => Assert.Equal("group", group.GetAttribute("role")));
+        Assert.All(groups, group => Assert.NotNull(group.GetAttribute("aria-labelledby")));
+        Assert.All(groups, group => Assert.NotNull(select.Find($"#{group.GetAttribute("aria-labelledby")}")));
+        Assert.Empty(select.FindAll("[data-testid=select-label][tabindex]"));
+        Assert.All(select.FindAll("[data-testid=select-item]"), item => Assert.NotNull(item.GetAttribute("tabindex")));
+    }
+
+    [Fact]
+    public void DropdownPreview_OpensAndExercisesControlledAndUncontrolledItems()
+    {
+        SetupMenuInterop();
+        var menu = Render(@<DropdownMenuPlayground />);
+
+        menu.Find("[data-testid=menu-trigger]").Click();
+        menu.Find("[data-testid=uncontrolled-checkbox]").Click();
+        Assert.Equal("true", menu.Find("[data-testid=uncontrolled-checkbox]").GetAttribute("aria-checked"));
+
+        menu.Find("[data-testid=menu-trigger]").Click();
+        menu.Find("[data-testid=controlled-checkbox]").Click();
+        Assert.Contains("Controlled checkbox: True", menu.Markup);
+
+        menu.Find("[data-testid=menu-trigger]").Click();
+        menu.Find("[data-testid=uncontrolled-radio-b]").Click();
+        Assert.Equal("true", menu.Find("[data-testid=uncontrolled-radio-b]").GetAttribute("aria-checked"));
+
+        menu.Find("[data-testid=menu-trigger]").Click();
+        menu.Find("[data-testid=controlled-radio-b]").Click();
+        Assert.Contains("Controlled radio: b", menu.Markup);
+        Assert.Equal("menuitemcheckbox", menu.Find("[data-testid=controlled-checkbox]").GetAttribute("role"));
+        Assert.Equal("menuitemradio", menu.Find("[data-testid=controlled-radio-b]").GetAttribute("role"));
+        Assert.Contains("DropdownMenuSub", menu.Markup);
+    }
+
+    private void SetupMenuInterop()
+    {
+        AnchorModule.SetupVoid("show", _ => true).SetVoidResult();
+        AnchorModule.SetupVoid("position", _ => true).SetVoidResult();
+        AnchorModule.SetupVoid("dispose", _ => true).SetVoidResult();
+        AnchorModule.SetupVoid("hide", _ => true).SetVoidResult();
+        DismissModule.SetupVoid("activate", _ => true).SetVoidResult();
+        DismissModule.SetupVoid("deactivate", _ => true).SetVoidResult();
+    }
+
+    private sealed class ManualTimeProvider : TimeProvider
+    {
+        private readonly List<ManualTimer> _timers = [];
+        private DateTimeOffset _now;
+
+        public override DateTimeOffset GetUtcNow() => _now;
+
+        public override ITimer CreateTimer(TimerCallback callback, object? state, TimeSpan dueTime, TimeSpan period)
+        {
+            var timer = new ManualTimer(callback, state, _now + dueTime);
+            _timers.Add(timer);
+            return timer;
+        }
+
+        public void Advance(TimeSpan duration)
+        {
+            _now += duration;
+            foreach (var timer in _timers.Where(timer => timer.DueAt <= _now))
+            {
+                timer.Fire();
+            }
+        }
+    }
+
+    private sealed class ManualTimer(TimerCallback callback, object? state, DateTimeOffset dueAt) : ITimer
+    {
+        private bool _disposed;
+
+        public DateTimeOffset DueAt { get; } = dueAt;
+
+        public bool Change(TimeSpan dueTime, TimeSpan period) => true;
+
+        public void Dispose() => _disposed = true;
+
+        public ValueTask DisposeAsync()
+        {
+            Dispose();
+            return ValueTask.CompletedTask;
+        }
+
+        public void Fire()
+        {
+            if (!_disposed)
+            {
+                callback(state);
+            }
+        }
+    }
+}

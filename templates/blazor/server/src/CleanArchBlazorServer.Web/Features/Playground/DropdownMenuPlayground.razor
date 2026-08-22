@@ -1,0 +1,92 @@
+@page "/playground/dropdown-menu"
+@layout PlaygroundLayout
+
+<PageTitle>Playground · DropdownMenu</PageTitle>
+
+<ComponentPlayground
+    Title="DropdownMenu"
+    Description="ArrowDown/ArrowUp rove focus between items; Escape or an outside click dismisses."
+    CodeSnippet="@CodeSnippet"
+    ApiParameters="ApiParameters"
+>
+    <Controls>
+        <BoolControl Label="Open" @bind-Value="_open" />
+    </Controls>
+    <Preview>
+        <div class="flex flex-col gap-4">
+            <DropdownMenu @bind-Open="_open">
+                <DropdownMenuTrigger data-testid="menu-trigger" Class="@Button.ResolveClass(ButtonVariant.Outline, ButtonSize.Default, null)">
+                    Open menu
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                    <DropdownMenuItem OnClick="@(() => _lastAction = "Edit")">Edit</DropdownMenuItem>
+                    <DropdownMenuItem OnClick="@(() => _lastAction = "Duplicate")">Duplicate</DropdownMenuItem>
+                    <DropdownMenuSub>
+                        <DropdownMenuSubTrigger data-testid="submenu-trigger">More</DropdownMenuSubTrigger>
+                        <DropdownMenuSubContent><DropdownMenuItem>Nested action</DropdownMenuItem></DropdownMenuSubContent>
+                    </DropdownMenuSub>
+                    <DropdownMenuCheckboxItem data-testid="uncontrolled-checkbox" DefaultChecked="false">Uncontrolled checkbox</DropdownMenuCheckboxItem>
+                    <DropdownMenuCheckboxItem data-testid="controlled-checkbox" Checked="@_controlledCheckbox" CheckedChanged="OnControlledCheckboxChanged">Controlled checkbox</DropdownMenuCheckboxItem>
+                    <DropdownMenuRadioGroup TValue="string" DefaultValue="@("a")">
+                        <DropdownMenuRadioItem TValue="string" ItemValue="@("a")">Uncontrolled A</DropdownMenuRadioItem>
+                        <DropdownMenuRadioItem TValue="string" data-testid="uncontrolled-radio-b" ItemValue="@("b")">Uncontrolled B</DropdownMenuRadioItem>
+                    </DropdownMenuRadioGroup>
+                    <DropdownMenuRadioGroup TValue="string" Value="@_controlledRadio" ValueChanged="OnControlledRadioChanged">
+                        <DropdownMenuRadioItem TValue="string" ItemValue="@("a")">Controlled A</DropdownMenuRadioItem>
+                        <DropdownMenuRadioItem TValue="string" data-testid="controlled-radio-b" ItemValue="@("b")">Controlled B</DropdownMenuRadioItem>
+                    </DropdownMenuRadioGroup>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem OnClick="@(() => _lastAction = "Delete")">Delete</DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+            <p class="text-sm text-muted-foreground">Last action: @(_lastAction ?? "none")</p>
+            <p class="text-sm text-muted-foreground">Controlled checkbox: @_controlledCheckbox</p>
+            <p class="text-sm text-muted-foreground">Controlled radio: @_controlledRadio</p>
+        </div>
+    </Preview>
+</ComponentPlayground>
+
+@code {
+    private bool _open;
+    private bool _controlledCheckbox;
+    private string _controlledRadio = "a";
+    private string? _lastAction;
+
+    private string CodeSnippet => """
+        <DropdownMenu>
+            <DropdownMenuSub><DropdownMenuSubTrigger>More</DropdownMenuSubTrigger><DropdownMenuSubContent>...</DropdownMenuSubContent></DropdownMenuSub>
+            <DropdownMenuCheckboxItem DefaultChecked="true">Uncontrolled</DropdownMenuCheckboxItem>
+            <DropdownMenuCheckboxItem Checked="@_checked" CheckedChanged="OnCheckedChanged">Controlled</DropdownMenuCheckboxItem>
+            <DropdownMenuRadioGroup TValue="string" DefaultValue="@("a")">...</DropdownMenuRadioGroup>
+            <DropdownMenuRadioGroup TValue="string" Value="@_value" ValueChanged="OnValueChanged">...</DropdownMenuRadioGroup>
+        </DropdownMenu>
+        """;
+
+    private static readonly PlaygroundParameter[] ApiParameters =
+    [
+        new("Open", "bool", "false", "Controls the open state (two-way bindable)."),
+        new("OpenChanged", "EventCallback<bool>", "-", "Fires when the open state changes."),
+        new("DefaultOpen", "bool", "false", "Initial open state when uncontrolled."),
+        new("DropdownMenuCheckboxItem.Checked", "bool", "false", "Controlled checkbox value."),
+        new("DropdownMenuCheckboxItem.CheckedChanged", "EventCallback<bool>", "-", "Reports controlled checkbox changes."),
+        new("DropdownMenuCheckboxItem.DefaultChecked", "bool", "false", "Initial uncontrolled checkbox value."),
+        new("DropdownMenuRadioGroup.Value", "TValue", "-", "Controlled radio-group value."),
+        new("DropdownMenuRadioGroup.ValueChanged", "EventCallback<TValue>", "-", "Reports controlled radio-group changes."),
+        new("DropdownMenuRadioGroup.DefaultValue", "TValue", "-", "Initial uncontrolled radio-group value."),
+        new("DropdownMenuRadioItem.ItemValue", "TValue", "-", "The value selected by a radio item."),
+        new("DropdownMenuSub", "component", "-", "ArrowRight enters a child, ArrowLeft or Escape closes the child first, and terminal activation dismisses the full chain."),
+    ];
+
+    private Task OnControlledCheckboxChanged(bool value)
+    {
+        _controlledCheckbox = value;
+        return Task.CompletedTask;
+    }
+
+    private Task OnControlledRadioChanged(string value)
+    {
+        _controlledRadio = value;
+        return Task.CompletedTask;
+    }
+}

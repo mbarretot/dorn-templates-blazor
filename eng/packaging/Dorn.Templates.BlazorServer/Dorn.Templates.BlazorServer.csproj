@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <PackageType>Template</PackageType>
+        <PackageId>Dorn.Templates.BlazorServer</PackageId>
+        <Title>Dorn Blazor Server Template</Title>
+        <Authors>Dorn Contributors</Authors>
+        <Description>Blazor Server app with a Tailwind design system and Aspire orchestration. Install via `dotnet new install Dorn.Templates.BlazorServer`.</Description>
+        <PackageTags>dotnet-new;templates;blazor;server;tailwind;design-system</PackageTags>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <IncludeContentInPack>true</IncludeContentInPack>
+        <IncludeBuildOutput>false</IncludeBuildOutput>
+        <ContentTargetFolders>content</ContentTargetFolders>
+        <NoDefaultExcludes>true</NoDefaultExcludes>
+        <NoWarn>$(NoWarn);NU5128</NoWarn>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageOutputPath>$(MSBuildThisFileDirectory)../../../artifacts</PackageOutputPath>
+        <PackageVersion Condition="'$(PackageVersion)'==''">0.0.1-local</PackageVersion>
+    </PropertyGroup>
+    <ItemGroup>
+        <Content
+            Include="../../../templates/blazor/server/**/*"
+            Exclude="../../../templates/blazor/server/**/bin/**;../../../templates/blazor/server/**/obj/**;../../../templates/blazor/server/**/TestResults/**;../../../templates/blazor/server/**/*.user"
+            PackagePath="content/"
+        />
+    </ItemGroup>
+</Project>

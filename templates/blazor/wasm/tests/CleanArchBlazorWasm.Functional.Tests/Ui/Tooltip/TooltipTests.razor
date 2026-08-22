@@ -1,0 +1,104 @@
+@inherits OverlayTestContext
+@using Bunit
+@using CleanArchBlazorWasm.Web.Components.Ui.Tooltip
+@using Microsoft.AspNetCore.Components.Web
+@using Xunit
+
+@code {
+    // Design D4: Tooltip skips DismissInterop — every test proves it stays untouched (Strict mode throws on any stray call).
+
+    private static RenderFragment BuildTooltip(int? openDelay = null) =>
+        @<Tooltip OpenDelay="@(openDelay ?? 300)">
+            <TooltipTrigger data-testid="trigger">Hover me</TooltipTrigger>
+            <TooltipContent data-testid="content">Helpful text</TooltipContent>
+        </Tooltip>;
+
+    [Fact]
+    public void Render_WhenClosed_MakesNoInteropCalls()
+    {
+        var cut = Render(BuildTooltip());
+
+        Assert.Empty(AnchorModule.Invocations);
+    }
+
+    [Fact]
+    public void PointerEnter_DoesNotOpenImmediately_ThenOpensAfterDelay()
+    {
+        var show = AnchorModule.SetupVoid("show", _ => true).SetVoidResult();
+        var position = SetupPosition();
+
+        var cut = Render(BuildTooltip(openDelay: 30));
+        cut.Find("[data-testid=trigger]").PointerEnter();
+
+        Assert.Empty(show.Invocations);
+
+        cut.WaitForAssertion(() => Assert.Single(show.Invocations), TimeSpan.FromMilliseconds(2000));
+        AssertPositionedWith(position, "top", "center", 4, 8);
+        Assert.Empty(DismissModule.Invocations);
+    }
+
+    [Fact]
+    public void PointerLeave_ClosesImmediately_WithoutWaitingOpenDelay()
+    {
+        var show = AnchorModule.SetupVoid("show", _ => true).SetVoidResult();
+        AnchorModule.SetupVoid("position", _ => true).SetVoidResult();
+        AnchorModule.SetupVoid("dispose", _ => true).SetVoidResult();
+        var hide = AnchorModule.SetupVoid("hide", _ => true).SetVoidResult();
+
+        var cut = Render(BuildTooltip(openDelay: 10));
+        cut.Find("[data-testid=trigger]").PointerEnter();
+        cut.WaitForAssertion(() => Assert.Single(show.Invocations), TimeSpan.FromMilliseconds(1200));
+
+        cut.Find("[data-testid=trigger]").PointerLeave();
+
+        cut.WaitForAssertion(() => Assert.Single(hide.Invocations), TimeSpan.FromMilliseconds(800));
+    }
+
+    [Fact]
+    public void FocusIn_OpensAfterDelay_FocusOut_ClosesImmediately()
+    {
+        var show = AnchorModule.SetupVoid("show", _ => true).SetVoidResult();
+        AnchorModule.SetupVoid("position", _ => true).SetVoidResult();
+        AnchorModule.SetupVoid("dispose", _ => true).SetVoidResult();
+        var hide = AnchorModule.SetupVoid("hide", _ => true).SetVoidResult();
+
+        var cut = Render(BuildTooltip(openDelay: 10));
+        cut.Find("[data-testid=trigger]").FocusIn();
+
+        cut.WaitForAssertion(() => Assert.Single(show.Invocations), TimeSpan.FromMilliseconds(1200));
+
+        cut.Find("[data-testid=trigger]").FocusOut();
+
+        cut.WaitForAssertion(() => Assert.Single(hide.Invocations), TimeSpan.FromMilliseconds(800));
+    }
+
+    [Fact]
+    public void EscapeOnTrigger_ClosesTooltip_WithoutAnyDismissInteropCall()
+    {
+        var show = AnchorModule.SetupVoid("show", _ => true).SetVoidResult();
+        AnchorModule.SetupVoid("position", _ => true).SetVoidResult();
+        AnchorModule.SetupVoid("dispose", _ => true).SetVoidResult();
+        var hide = AnchorModule.SetupVoid("hide", _ => true).SetVoidResult();
+
+        var cut = Render(BuildTooltip(openDelay: 10));
+        cut.Find("[data-testid=trigger]").PointerEnter();
+        cut.WaitForAssertion(() => Assert.Single(show.Invocations), TimeSpan.FromMilliseconds(1200));
+
+        cut.Find("[data-testid=trigger]").KeyDown(new KeyboardEventArgs { Key = "Escape" });
+
+        cut.WaitForAssertion(() => Assert.Single(hide.Invocations), TimeSpan.FromMilliseconds(800));
+        Assert.Empty(DismissModule.Invocations);
+    }
+
+    [Fact]
+    public void Content_HasRoleTooltip_AndTriggerDescribesIt()
+    {
+        var cut = Render(BuildTooltip());
+
+        var trigger = cut.Find("[data-testid=trigger]");
+        var content = cut.Find("[data-testid=content]");
+
+        Assert.Equal("tooltip", content.GetAttribute("role"));
+        Assert.Equal(content.GetAttribute("id"), trigger.GetAttribute("aria-describedby"));
+    }
+}

@@ -1,0 +1,36 @@
+@inherits UiTestContext
+@using Bunit
+@using CleanArchBlazorWasm.Web.Features.Playground
+@using Xunit
+
+@code {
+    [Fact]
+    public void TogglingOpenControl_ExpandsCollapsibleContent()
+    {
+        var cut = Render(@<CollapsiblePlayground />);
+
+        Assert.Equal(
+            "false",
+            cut.Find("[data-testid=playground-preview] button[aria-expanded]").GetAttribute("aria-expanded")
+        );
+
+        cut.Find("[data-testid='control-Open'] button").Click();
+
+        Assert.Equal(
+            "true",
+            cut.Find("[data-testid=playground-preview] button[aria-expanded]").GetAttribute("aria-expanded")
+        );
+    }
+
+    [Fact]
+    public void TogglingDisabledControl_DisablesTrigger()
+    {
+        var cut = Render(@<CollapsiblePlayground />);
+
+        cut.Find("[data-testid='control-Disabled'] button").Click();
+
+        Assert.True(
+            cut.Find("[data-testid=playground-preview] button[aria-expanded]").HasAttribute("disabled")
+        );
+    }
+}

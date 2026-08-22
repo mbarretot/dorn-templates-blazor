@@ -1,0 +1,28 @@
+@typeparam TValue
+@implements IDisposable
+<div role="menuitemradio" id="@_id" @ref="_element" tabindex="@Menu.Focus.TabIndexFor(_id)" aria-checked="@(Group.IsSelected(ItemValue) ? "true" : "false")" aria-disabled="@(Disabled ? "true" : null)" class="@Cn.Merge("flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm text-foreground outline-none focus-visible:bg-accent focus-visible:text-accent-foreground aria-disabled:pointer-events-none aria-disabled:opacity-50", Class)" @onclick="SelectAsync" @onkeydown="OnKeyDownAsync" @attributes="AdditionalAttributes">@ChildContent</div>
+
+@code {
+    private readonly string _id = UiId.New("dropdown-radio");
+    private ElementReference _element;
+    [CascadingParameter] private DropdownMenuContext Menu { get; set; } = default!;
+    [CascadingParameter] private DropdownMenuRadioGroup<TValue> Group { get; set; } = default!;
+    [Parameter] public required TValue ItemValue { get; set; }
+    [Parameter] public bool Disabled { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter(CaptureUnmatchedValues = true)] public Dictionary<string, object>? AdditionalAttributes { get; set; }
+    protected override void OnParametersSet()
+    {
+        if (Menu is null || Group is null) throw new InvalidOperationException("DropdownMenuRadioItem must be rendered inside a <DropdownMenuRadioGroup>.");
+    }
+    protected override void OnAfterRender(bool firstRender) => Menu.RegisterItem(_id, _element, Disabled);
+    private async Task SelectAsync()
+    {
+        if (Disabled) return;
+        await Group.SelectAsync(ItemValue);
+        await Menu.CloseChainAsync();
+    }
+    private Task OnKeyDownAsync(KeyboardEventArgs e) => e.Key is "Enter" or " " ? SelectAsync() : Menu.MoveAsync(e.Key);
+    public void Dispose() => Menu.UnregisterItem(_id);
+}

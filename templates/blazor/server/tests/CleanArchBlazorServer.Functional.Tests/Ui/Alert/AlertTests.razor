@@ -1,0 +1,30 @@
+@inherits UiTestContext
+@using Bunit
+@using CleanArchBlazorServer.Web.Components.Ui.Alert
+@using Xunit
+
+@code {
+    [Theory]
+    [InlineData(AlertVariant.Destructive, "alert")]
+    [InlineData(AlertVariant.Warning, "alert")]
+    [InlineData(AlertVariant.Default, "status")]
+    [InlineData(AlertVariant.Success, "status")]
+    public void Alert_RendersExpectedRole_ForVariant(AlertVariant variant, string expectedRole)
+    {
+        var cut = Render<Alert>(parameters => parameters.Add(p => p.Variant, variant));
+
+        Assert.Equal(expectedRole, cut.Find("div").GetAttribute("role"));
+    }
+
+    [Fact]
+    public void AlertTitle_And_AlertDescription_RenderInsideAlert()
+    {
+        var cut = Render(@<Alert>
+            <AlertTitle>Heads up</AlertTitle>
+            <AlertDescription>Something happened.</AlertDescription>
+        </Alert>);
+
+        Assert.Equal("Heads up", cut.Find("h5").TextContent);
+        Assert.Equal("Something happened.", cut.Find("div > div").TextContent);
+    }
+}

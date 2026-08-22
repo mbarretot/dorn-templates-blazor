@@ -1,0 +1,18 @@
+@inherits UiTestContext
+@using Bunit
+@using CleanArchBlazorWasm.Web.Features.Playground
+@using Xunit
+
+@code {
+    [Fact]
+    public void ClickingItemInPreview_UpdatesEchoedSelectedValue()
+    {
+        var cut = Render(@<ToggleGroupPlayground />);
+
+        Assert.Contains("Selected: none", cut.Find("[data-testid=playground-preview]").TextContent);
+
+        cut.FindAll("[data-testid=playground-preview] button[aria-pressed]")[1].Click();
+
+        Assert.Contains("Selected: center", cut.Find("[data-testid=playground-preview]").TextContent);
+    }
+}

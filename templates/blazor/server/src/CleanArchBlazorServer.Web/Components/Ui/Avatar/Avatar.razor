@@ -1,0 +1,38 @@
+<CascadingValue Value="_context" IsFixed="false">
+    <span class="@ComputedClass" @attributes="AdditionalAttributes">
+        @ChildContent
+    </span>
+</CascadingValue>
+
+@code {
+    private const string BaseClass = "relative flex shrink-0 overflow-hidden rounded-full";
+
+    private AvatarContext _context = default!;
+
+    [Parameter]
+    public AvatarSize Size { get; set; } = AvatarSize.Default;
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? AdditionalAttributes { get; set; }
+
+    private string ComputedClass => Cn.Merge(BaseClass, ResolveSizeClass(Size), Class);
+
+    protected override void OnInitialized()
+    {
+        _context = new AvatarContext { NotifyStateChanged = StateHasChanged };
+    }
+
+    private static string ResolveSizeClass(AvatarSize size) =>
+        size switch
+        {
+            AvatarSize.Sm => "size-8",
+            AvatarSize.Lg => "size-12",
+            _ => "size-10",
+        };
+}

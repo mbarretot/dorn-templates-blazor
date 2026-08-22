@@ -1,0 +1,72 @@
+<CascadingValue Value="_context" IsFixed="false">
+    @ChildContent
+</CascadingValue>
+
+@code {
+    private readonly UiValueComponent<bool> _value = new();
+    private TooltipContext _context = default!;
+
+    [Parameter]
+    public bool Open { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> OpenChanged { get; set; }
+
+    [Parameter]
+    public bool DefaultOpen { get; set; }
+
+    [Parameter]
+    public int OpenDelay { get; set; } = 300;
+
+    [Parameter]
+    public string Side { get; set; } = "top";
+
+    [Parameter]
+    public string Align { get; set; } = "center";
+
+    [Parameter]
+    public double Offset { get; set; } = 4;
+
+    [Parameter]
+    public double CollisionPadding { get; set; } = 8;
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    protected override void OnInitialized()
+    {
+        _context = new TooltipContext
+        {
+            TriggerId = UiId.New("tooltip-trigger"),
+            ContentId = UiId.New("tooltip-content"),
+            RequestOpen = RequestOpenAsync,
+            RequestClose = RequestCloseAsync,
+            NotifyStateChanged = StateHasChanged,
+        };
+    }
+
+    protected override void OnParametersSet()
+    {
+        _value.SetParameters(Open, OpenChanged, DefaultOpen);
+        _context.IsOpen = _value.CurrentValue;
+        _context.OpenDelay = OpenDelay;
+        _context.Side = Side;
+        _context.Align = Align;
+        _context.Offset = Offset;
+        _context.CollisionPadding = CollisionPadding;
+    }
+
+    private async Task RequestOpenAsync()
+    {
+        await _value.SetValueAsync(true);
+        _context.IsOpen = _value.CurrentValue;
+        StateHasChanged();
+    }
+
+    private async Task RequestCloseAsync()
+    {
+        await _value.SetValueAsync(false);
+        _context.IsOpen = _value.CurrentValue;
+        StateHasChanged();
+    }
+}

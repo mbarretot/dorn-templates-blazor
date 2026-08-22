@@ -1,0 +1,14 @@
+<section
+    aria-label="Notifications"
+    aria-live="polite"
+    aria-atomic="false"
+    class="fixed bottom-4 right-4 z-50 flex w-full max-w-sm flex-col gap-3 p-4"
+    data-testid="toast-viewport"
+>
+    @ChildContent
+</section>
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}

@@ -1,0 +1,40 @@
+<Project>
+  <!-- Self-contained on purpose: not shared with the Dorn repo root, see Directory.Build.props. -->
+
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Dorn's own packages - resolved from a local feed during development, from NuGet.org
+         for end-user installs. See nuget.config, packages/Directory.Build.props (GitVersion), and
+         docs/adr/0010-*.md and 0026-*.md. -->
+    <PackageVersion Include="Dorn.WebUI.Primitives" Version="1.0.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Aspire orchestration (design S-A): 3-project shape with ServiceDefaults, following
+         grpc/worker rather than WASM's 2-project shape — this template is a real server
+         process with OpenTelemetry/health checks/service discovery, not a browser sandbox. -->
+    <PackageVersion Include="Aspire.Hosting.AppHost" Version="13.4.6" />
+    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="10.7.0" />
+    <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="10.7.0" />
+    <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.16.0" />
+    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.16.0" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.16.0" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.16.0" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.16.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Testing. Versions match templates/grpc and templates/blazor/wasm (dorn repo precedent,
+         see sdd/feat-blazor-server-template phase0-resolution). -->
+    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.9" />
+    <PackageVersion Include="xunit" Version="2.9.3" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="2.8.2" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageVersion Include="coverlet.collector" Version="6.0.2" />
+    <PackageVersion Include="bunit" Version="2.9.0" />
+    <PackageVersion Include="TngTech.ArchUnitNET.xUnit" Version="0.13.3" />
+  </ItemGroup>
+</Project>

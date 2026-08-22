@@ -1,0 +1,55 @@
+@page "/playground/toggle-group"
+@layout PlaygroundLayout
+
+<PageTitle>Playground · ToggleGroup</PageTitle>
+
+<ComponentPlayground
+    Title="ToggleGroup"
+    Description="Type=Single binds one value; arrow keys only move focus, Enter/Space activates the focused item."
+    CodeSnippet="@CodeSnippet"
+    ApiParameters="ApiParameters"
+>
+    <Controls>
+        <p class="text-sm text-muted-foreground">Items are fixed — pick one in the preview to see the bound value below.</p>
+    </Controls>
+    <Preview>
+        <ToggleGroup TValue="string" Value="_selected" ValueChanged="@(v => _selected = v)">
+            <ToggleGroupItem TValue="string" Value="@("left")">Left</ToggleGroupItem>
+            <ToggleGroupItem TValue="string" Value="@("center")">Center</ToggleGroupItem>
+            <ToggleGroupItem TValue="string" Value="@("right")">Right</ToggleGroupItem>
+        </ToggleGroup>
+        <p class="text-sm text-muted-foreground">Selected: @(string.IsNullOrEmpty(_selected) ? "none" : _selected)</p>
+    </Preview>
+</ComponentPlayground>
+
+<PlaygroundSection
+    Title="Multiple selection"
+    Description="Type=Multiple binds Values/ValuesChanged to a list; each item toggles independently of the others."
+>
+    <ToggleGroup TValue="string" Type="ToggleGroupType.Multiple" DefaultValues="@(new[] { "bold" })">
+        <ToggleGroupItem TValue="string" Value="@("bold")">B</ToggleGroupItem>
+        <ToggleGroupItem TValue="string" Value="@("italic")">I</ToggleGroupItem>
+        <ToggleGroupItem TValue="string" Value="@("underline")">U</ToggleGroupItem>
+    </ToggleGroup>
+</PlaygroundSection>
+
+@code {
+    private string _selected = "";
+
+    private string CodeSnippet =>
+        $"""<ToggleGroup TValue="string" Value="_selected" ValueChanged="v => _selected = v">...</ToggleGroup> // selected: {(string.IsNullOrEmpty(_selected) ? "none" : _selected)}""";
+
+    private static readonly PlaygroundParameter[] ApiParameters =
+    [
+        new("Type", "ToggleGroupType", "Single", "Single binds Value/ValueChanged; Multiple binds Values/ValuesChanged."),
+        new("Value", "TValue", "-", "The bound selected value in Single mode (two-way bindable)."),
+        new("DefaultValue", "TValue", "-", "Initial selected value in Single mode when uncontrolled."),
+        new("Values", "IReadOnlyList<TValue>", "-", "The bound selected values in Multiple mode (two-way bindable)."),
+        new(
+            "DefaultValues",
+            "IReadOnlyList<TValue>",
+            "-",
+            "Initial selected values in Multiple mode when uncontrolled."
+        ),
+    ];
+}

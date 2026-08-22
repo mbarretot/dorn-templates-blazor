@@ -1,0 +1,45 @@
+@page "/playground/toast"
+@layout PlaygroundLayout
+@using Dorn.WebUI.Primitives.Toast
+@inject ToastStore ToastStore
+
+<PageTitle>Playground · Toast</PageTitle>
+
+<ComponentPlayground Title="Toast" Description="Scoped feedback supports ordered capacity, expiry, actions, live announcements, and visible keyboard controls." CodeSnippet="@CodeSnippet" ApiParameters="ApiParameters">
+    <Controls>
+        <p class="text-sm text-muted-foreground">Publish, invoke its action, or dismiss it to observe a real scoped queue.</p>
+    </Controls>
+    <Preview>
+        <div class="flex flex-wrap gap-2">
+            <Button data-testid="toast-publish" @onclick="Publish">Publish toast with action</Button>
+            <Button data-testid="toast-invoke-action" Variant="ButtonVariant.Outline" @onclick="InvokeLatestActionAsync">Invoke latest action</Button>
+            <Button data-testid="toast-dismiss" Variant="ButtonVariant.Outline" @onclick="DismissLatest">Dismiss latest toast</Button>
+        </div>
+        <p class="text-sm text-muted-foreground">ToastStoreOptions.Capacity keeps a finite queue and evicts the oldest active toast before append. ToastRequest.Duration expires only its captured expiry ID.</p>
+    </Preview>
+</ComponentPlayground>
+
+@code {
+    private const string CodeSnippet = "var id = ToastStore.Publish(new ToastRequest(\"Saved\", Duration: TimeSpan.FromSeconds(5), Action: new(\"Dismiss\", () => Task.CompletedTask)));\nawait ToastStore.InvokeActionAsync(id);\nToastStore.Dismiss(id);";
+    private static readonly PlaygroundParameter[] ApiParameters =
+    [
+        new("ToastStore.Publish", "ToastRequest", "-", "Publishes an ordered message and evicts the oldest active toast when capacity is full."),
+        new("Dismiss", "Guid", "-", "Removes only the supplied toast ID."),
+        new("InvokeActionAsync", "Guid", "-", "Runs ToastRequest.Action; successful actions dismiss and failing actions preserve the toast."),
+        new("ToastStoreOptions.Capacity", "int", "5", "Finite active-message limit."),
+        new("ToastRequest.Duration", "TimeSpan?", "default", "Expiry targets only its captured toast ID."),
+        new("ToastRequest.Action", "ToastActionDescriptor?", "null", "Optional accessible action invoked by InvokeActionAsync."),
+    ];
+
+    private void Publish() => ToastStore.Publish(new ToastRequest("Saved", "Dismiss explicitly or let this configured expiry remove only this item.", TimeSpan.FromSeconds(5), new("Dismiss", () => Task.CompletedTask)));
+
+    private Task InvokeLatestActionAsync() => ToastStore.Items.LastOrDefault() is { } toast ? ToastStore.InvokeActionAsync(toast.Id) : Task.CompletedTask;
+
+    private void DismissLatest()
+    {
+        if (ToastStore.Items.LastOrDefault() is { } toast)
+        {
+            ToastStore.Dismiss(toast.Id);
+        }
+    }
+}

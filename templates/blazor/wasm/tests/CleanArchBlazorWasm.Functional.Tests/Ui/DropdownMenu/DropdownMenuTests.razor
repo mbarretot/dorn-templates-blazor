@@ -1,0 +1,137 @@
+@inherits UiTestContext
+@using Bunit
+@using CleanArchBlazorWasm.Web.Components.Ui.DropdownMenu
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.JSInterop
+@using Xunit
+
+@code {
+    // Design C6/C7: content renders as a native popover="manual" surface (not a <dialog>) —
+    // AnchorInterop drives show/position, DismissInterop drives outside-click/Escape. bUnit
+    // cannot simulate real DOM focus/positioning (same accepted limitation as Dialog); these
+    // tests prove the CONTRACT — the right JS calls fire at the right lifecycle points and
+    // roving-tabindex state updates correctly.
+
+    private static RenderFragment BuildMenu() =>
+        @<DropdownMenu>
+            <DropdownMenuTrigger data-testid="trigger">Options</DropdownMenuTrigger>
+            <DropdownMenuContent>
+                <DropdownMenuItem data-testid="item-a">Item A</DropdownMenuItem>
+                <DropdownMenuItem data-testid="item-b">Item B</DropdownMenuItem>
+                <DropdownMenuItem data-testid="item-c" Disabled="true">Item C</DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>;
+
+    [Fact]
+    public void TriggerClick_Opens_AndShowsPositionsAndActivatesDismiss()
+    {
+        var show = AnchorModule.SetupVoid("show", _ => true).SetVoidResult();
+        var position = AnchorModule.SetupVoid("position", _ => true).SetVoidResult();
+        var activate = DismissModule.SetupVoid("activate", _ => true).SetVoidResult();
+
+        var cut = Render(BuildMenu());
+        cut.Find("[data-testid=trigger]").Click();
+
+        Assert.Single(show.Invocations);
+        Assert.Single(position.Invocations);
+        Assert.Single(activate.Invocations);
+        Assert.Equal("true", cut.Find("[data-testid=trigger]").GetAttribute("aria-expanded"));
+    }
+
+    [Fact]
+    public void FirstItem_HasTabIndexZero_OthersHaveTabIndexMinusOne()
+    {
+        var cut = Render(BuildMenu());
+
+        Assert.Equal("0", cut.Find("[data-testid=item-a]").GetAttribute("tabindex"));
+        Assert.Equal("-1", cut.Find("[data-testid=item-b]").GetAttribute("tabindex"));
+        Assert.Equal("-1", cut.Find("[data-testid=item-c]").GetAttribute("tabindex"));
+    }
+
+    [Fact]
+    public void ArrowDown_MovesRovingTabIndex_ToNextItem()
+    {
+        var cut = Render(BuildMenu());
+
+        cut.Find("[data-testid=item-a]").KeyDown(new KeyboardEventArgs { Key = "ArrowDown" });
+
+        Assert.Equal("-1", cut.Find("[data-testid=item-a]").GetAttribute("tabindex"));
+        Assert.Equal("0", cut.Find("[data-testid=item-b]").GetAttribute("tabindex"));
+    }
+
+    [Fact]
+    public void ItemClick_InvokesOnClick_AndCloses()
+    {
+        AnchorModule.SetupVoid("show", _ => true).SetVoidResult();
+        AnchorModule.SetupVoid("position", _ => true).SetVoidResult();
+        AnchorModule.SetupVoid("dispose", _ => true).SetVoidResult();
+        DismissModule.SetupVoid("activate", _ => true).SetVoidResult();
+        DismissModule.SetupVoid("deactivate", _ => true).SetVoidResult();
+        var hide = AnchorModule.SetupVoid("hide", _ => true).SetVoidResult();
+        var clicked = false;
+
+        var cut = Render<DropdownMenu>(parameters =>
+            parameters.AddChildContent(builder =>
+            {
+                builder.OpenComponent<DropdownMenuTrigger>(0);
+                builder.AddAttribute(1, "data-testid", "trigger");
+                builder.AddAttribute(2, "ChildContent", (RenderFragment)(b => b.AddContent(0, "Options")));
+                builder.CloseComponent();
+
+                builder.OpenComponent<DropdownMenuContent>(3);
+                builder.AddAttribute(
+                    4,
+                    "ChildContent",
+                    (RenderFragment)(b =>
+                    {
+                        b.OpenComponent<DropdownMenuItem>(0);
+                        b.AddAttribute(1, "data-testid", "item-a");
+                        b.AddAttribute(
+                            2,
+                            "OnClick",
+                            EventCallback.Factory.Create(this, () => clicked = true)
+                        );
+                        b.AddAttribute(3, "ChildContent", (RenderFragment)(c => c.AddContent(0, "Item A")));
+                        b.CloseComponent();
+                    })
+                );
+                builder.CloseComponent();
+            })
+        );
+
+        cut.Find("[data-testid=trigger]").Click();
+        cut.Find("[data-testid=item-a]").Click();
+
+        Assert.True(clicked);
+        Assert.Single(hide.Invocations);
+        Assert.Equal("false", cut.Find("[data-testid=trigger]").GetAttribute("aria-expanded"));
+    }
+
+    [Fact]
+    public async Task RequestDismissAsync_ClosesMenu_AndDeactivatesDismiss()
+    {
+        var open = AnchorModule.SetupVoid("show", _ => true).SetVoidResult();
+        AnchorModule.SetupVoid("position", _ => true).SetVoidResult();
+        AnchorModule.SetupVoid("dispose", _ => true).SetVoidResult();
+        var activate = DismissModule.SetupVoid("activate", _ => true).SetVoidResult();
+        var deactivate = DismissModule.SetupVoid("deactivate", _ => true).SetVoidResult();
+        AnchorModule.SetupVoid("hide", _ => true).SetVoidResult();
+
+        var cut = Render(BuildMenu());
+        cut.Find("[data-testid=trigger]").Click();
+
+        var dotNetRef = ExtractDotNetRef(activate);
+        await cut.InvokeAsync(() => dotNetRef.RequestDismissAsync());
+
+        Assert.Single(deactivate.Invocations);
+        Assert.Equal("false", cut.Find("[data-testid=trigger]").GetAttribute("aria-expanded"));
+    }
+
+    private static DropdownMenuContent ExtractDotNetRef(JSRuntimeInvocationHandler activateHandler)
+    {
+        var invocation = Assert.Single(activateHandler.Invocations);
+        var dotNetRef = Assert.IsType<DotNetObjectReference<DropdownMenuContent>>(invocation.Arguments[2]);
+        return dotNetRef.Value;
+    }
+}

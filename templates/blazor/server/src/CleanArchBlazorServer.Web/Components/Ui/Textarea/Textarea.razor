@@ -1,0 +1,54 @@
+@inherits UiInputBase<string>
+@using System.Diagnostics.CodeAnalysis
+
+<textarea
+    id="@Context?.Id"
+    rows="@Rows"
+    disabled="@Disabled"
+    class="@ComputedClass"
+    value="@CurrentValueAsString"
+    aria-invalid="@(IsInvalid ? "true" : null)"
+    aria-describedby="@(Context?.HasMessage == true ? Context.MessageId : null)"
+    @oninput="OnInput"
+    @attributes="AdditionalAttributes"
+/>
+
+@code {
+    private const string BaseClass =
+        "flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50";
+
+    private const string InvalidClass = "border-destructive focus-visible:ring-destructive";
+
+    [CascadingParameter]
+    private FieldContext? Context { get; set; }
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    [Parameter]
+    public int Rows { get; set; } = 3;
+
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    private string ComputedClass => Cn.Merge(BaseClass, IsInvalid ? InvalidClass : null, Class);
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        Context?.SetField(FieldIdentifier);
+    }
+
+    private void OnInput(ChangeEventArgs e) => CurrentValueAsString = e.Value?.ToString();
+
+    protected override bool TryParseValueFromString(
+        string? value,
+        [MaybeNullWhen(false)] out string result,
+        [NotNullWhen(false)] out string? validationErrorMessage
+    )
+    {
+        result = value ?? "";
+        validationErrorMessage = null;
+        return true;
+    }
+}

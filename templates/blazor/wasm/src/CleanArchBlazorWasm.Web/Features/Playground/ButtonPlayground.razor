@@ -1,0 +1,57 @@
+@page "/playground/button"
+@layout PlaygroundLayout
+
+<PageTitle>Playground · Button</PageTitle>
+
+<ComponentPlayground
+    Title="Button"
+    Description="The class-merge system resolves each variant/size combination to a distinct, non-conflicting class set."
+    CodeSnippet="@CodeSnippet"
+    ApiParameters="ApiParameters"
+>
+    <Controls>
+        <EnumControl TEnum="ButtonVariant" Label="Variant" @bind-Value="_variant" />
+        <EnumControl TEnum="ButtonSize" Label="Size" @bind-Value="_size" />
+        <BoolControl Label="Disabled" @bind-Value="_disabled" />
+        <BoolControl Label="Loading" @bind-Value="_loading" />
+        <TextControl Label="Text" @bind-Value="_text" />
+    </Controls>
+    <Preview>
+        <Button Variant="_variant" Size="_size" Disabled="_disabled" Loading="_loading">@_text</Button>
+    </Preview>
+</ComponentPlayground>
+
+@code {
+    private ButtonVariant _variant = ButtonVariant.Default;
+    private ButtonSize _size = ButtonSize.Default;
+    private bool _disabled;
+    private bool _loading;
+    private string _text = "Save";
+
+    private string CodeSnippet
+    {
+        get
+        {
+            var attributes = "";
+            attributes += _variant != ButtonVariant.Default ? $" Variant=\"ButtonVariant.{_variant}\"" : "";
+            attributes += _size != ButtonSize.Default ? $" Size=\"ButtonSize.{_size}\"" : "";
+            attributes += _disabled ? " Disabled=\"true\"" : "";
+            attributes += _loading ? " Loading=\"true\"" : "";
+            return $"<Button{attributes}>{_text}</Button>";
+        }
+    }
+
+    private static readonly PlaygroundParameter[] ApiParameters =
+    [
+        new("Variant", "ButtonVariant", "Default", "Visual style variant."),
+        new("Size", "ButtonSize", "Default", "Size preset."),
+        new("Disabled", "bool", "false", "Disables interaction."),
+        new(
+            "Loading",
+            "bool",
+            "false",
+            "Shows a spinner, disables interaction, suppresses the click handler."
+        ),
+        new("Type", "string", "\"button\"", "The native button type attribute."),
+    ];
+}

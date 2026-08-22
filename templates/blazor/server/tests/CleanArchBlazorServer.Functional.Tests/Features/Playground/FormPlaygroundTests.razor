@@ -1,0 +1,17 @@
+@inherits UiTestContext
+@using Bunit
+@using CleanArchBlazorServer.Web.Features.Playground
+@using Xunit
+
+@code {
+    [Fact]
+    public void TypingInValueControl_UpdatesPreviewInput_AndEchoedText()
+    {
+        var cut = Render(@<FormPlayground />);
+
+        cut.Find("[data-testid='control-Value'] input").Input("Grace Hopper");
+
+        Assert.Equal("Grace Hopper", cut.Find("[data-testid=playground-preview] input").GetAttribute("value"));
+        Assert.Contains("You typed: Grace Hopper", cut.Find("[data-testid=playground-preview]").TextContent);
+    }
+}

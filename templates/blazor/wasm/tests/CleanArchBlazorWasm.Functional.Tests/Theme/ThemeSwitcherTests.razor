@@ -1,0 +1,73 @@
+@inherits UiTestContext
+@using Bunit
+@using CleanArchBlazorWasm.Web.Components.Theme
+@using Dorn.WebUI.Primitives.Theme
+@using Microsoft.Extensions.DependencyInjection
+@using Xunit
+
+@code {
+    // Rewired (task 6.5) from PR5's plain toggle-button stub to a real DropdownMenu — the
+    // interaction is now open-then-select-a-specific-option instead of click-to-cycle, but the
+    // state plumbing (ThemeState.SetModeAsync/SetThemeAsync -> ThemeInterop) is unchanged.
+
+    public ThemeSwitcherTests()
+    {
+        Services.AddScoped<ThemeInterop>();
+        Services.AddScoped<ThemeState>();
+    }
+
+    private void SetupMenuInterop()
+    {
+        AnchorModule.SetupVoid("show", _ => true).SetVoidResult();
+        AnchorModule.SetupVoid("position", _ => true).SetVoidResult();
+        AnchorModule.SetupVoid("hide", _ => true).SetVoidResult();
+        AnchorModule.SetupVoid("dispose", _ => true).SetVoidResult();
+        DismissModule.SetupVoid("activate", _ => true).SetVoidResult();
+        DismissModule.SetupVoid("deactivate", _ => true).SetVoidResult();
+    }
+
+    [Fact]
+    public void OnFirstRender_ReadsSnapshot_AndShowsResolvedMode()
+    {
+        JSInterop
+            .Setup<ThemeSnapshot>("dornTheme.getSnapshot")
+            .SetResult(new ThemeSnapshot("rose", "dark", true));
+
+        var cut = Render(@<ThemeSwitcher />);
+
+        Assert.Contains("Dark", cut.Markup);
+        Assert.Contains("rose", cut.Markup);
+    }
+
+    [Fact]
+    public async Task SelectingDarkModeOption_CallsSetMode()
+    {
+        SetupMenuInterop();
+        JSInterop
+            .Setup<ThemeSnapshot>("dornTheme.getSnapshot")
+            .SetResult(new ThemeSnapshot("slate", "light", false));
+        var setMode = JSInterop.SetupVoid("dornTheme.setMode", "dark").SetVoidResult();
+
+        var cut = Render(@<ThemeSwitcher />);
+        await cut.InvokeAsync(() => cut.Find("[data-testid=mode-trigger]").Click());
+        await cut.InvokeAsync(() => cut.Find("[data-testid=mode-option-Dark]").Click());
+
+        Assert.Single(setMode.Invocations);
+    }
+
+    [Fact]
+    public async Task SelectingRoseThemeOption_CallsSetTheme()
+    {
+        SetupMenuInterop();
+        JSInterop
+            .Setup<ThemeSnapshot>("dornTheme.getSnapshot")
+            .SetResult(new ThemeSnapshot("slate", "light", false));
+        var setTheme = JSInterop.SetupVoid("dornTheme.setTheme", "rose").SetVoidResult();
+
+        var cut = Render(@<ThemeSwitcher />);
+        await cut.InvokeAsync(() => cut.Find("[data-testid=theme-trigger]").Click());
+        await cut.InvokeAsync(() => cut.Find("[data-testid=theme-option-rose]").Click());
+
+        Assert.Single(setTheme.Invocations);
+    }
+}

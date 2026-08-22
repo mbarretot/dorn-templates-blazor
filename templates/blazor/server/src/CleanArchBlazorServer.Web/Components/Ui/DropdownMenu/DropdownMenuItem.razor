@@ -1,0 +1,67 @@
+@implements IDisposable
+<div
+    role="menuitem"
+    id="@_id"
+    @ref="_element"
+    tabindex="@Context.Focus.TabIndexFor(_id)"
+    aria-disabled="@(Disabled ? "true" : null)"
+    class="@ComputedClass"
+    @onclick="HandleActivateAsync"
+    @onkeydown="OnKeyDownAsync"
+    @attributes="AdditionalAttributes"
+>
+    @ChildContent
+</div>
+
+@code {
+    private const string BaseClass =
+        "flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm text-foreground outline-none focus-visible:bg-accent focus-visible:text-accent-foreground aria-disabled:pointer-events-none aria-disabled:opacity-50";
+
+    private readonly string _id = UiId.New("dropdown-item");
+    private ElementReference _element;
+
+    [CascadingParameter]
+    private DropdownMenuContext Context { get; set; } = default!;
+
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    [Parameter]
+    public EventCallback OnClick { get; set; }
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? AdditionalAttributes { get; set; }
+
+    private string ComputedClass => Cn.Merge(BaseClass, Class);
+
+    protected override void OnParametersSet()
+    {
+        if (Context is null)
+        {
+            throw new InvalidOperationException(
+                "DropdownMenuItem must be rendered inside a <DropdownMenu>."
+            );
+        }
+    }
+
+    protected override void OnAfterRender(bool firstRender) =>
+        Context.RegisterItem(_id, _element, Disabled);
+
+    private Task HandleActivateAsync() =>
+        Disabled ? Task.CompletedTask : Context.SelectItemAsync(OnClick);
+
+    private Task OnKeyDownAsync(KeyboardEventArgs e) =>
+        e.Key switch
+        {
+            "Enter" or " " => HandleActivateAsync(),
+            _ => Context.MoveAsync(e.Key),
+        };
+
+    public void Dispose() => Context.UnregisterItem(_id);
+}

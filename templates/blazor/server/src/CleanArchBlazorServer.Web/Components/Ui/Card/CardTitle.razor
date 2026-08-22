@@ -1,0 +1,11 @@
+<h3 class="@Cn.Merge("text-lg font-semibold leading-none tracking-tight text-foreground", Class)">
+    @ChildContent
+</h3>
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public string? Class { get; set; }
+}

@@ -1,0 +1,62 @@
+@implements IDisposable
+
+@if (EditContext is not null && Context is not null && _messages.Count > 0)
+{
+    <p id="@Context.MessageId" class="@Cn.Merge("text-sm font-medium text-destructive", Class)">
+        @(ChildContent ?? _defaultContent)
+    </p>
+}
+
+@code {
+    private IReadOnlyList<string> _messages = [];
+
+    [CascadingParameter]
+    private EditContext? EditContext { get; set; }
+
+    [CascadingParameter]
+    private FieldContext? Context { get; set; }
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    private RenderFragment _defaultContent => builder => builder.AddContent(0, _messages[0]);
+
+    protected override void OnInitialized()
+    {
+        if (EditContext is not null)
+        {
+            EditContext.OnValidationStateChanged += HandleValidationStateChanged;
+        }
+
+        UpdateMessages();
+    }
+
+    protected override void OnParametersSet() => UpdateMessages();
+
+    private void HandleValidationStateChanged(object? sender, ValidationStateChangedEventArgs e)
+    {
+        UpdateMessages();
+        StateHasChanged();
+    }
+
+    private void UpdateMessages()
+    {
+        _messages =
+            EditContext is not null && Context is not null
+                ? [.. EditContext.GetValidationMessages(Context.FieldIdentifier)]
+                : [];
+
+        Context?.SetHasMessage(_messages.Count > 0);
+    }
+
+    public void Dispose()
+    {
+        if (EditContext is not null)
+        {
+            EditContext.OnValidationStateChanged -= HandleValidationStateChanged;
+        }
+    }
+}

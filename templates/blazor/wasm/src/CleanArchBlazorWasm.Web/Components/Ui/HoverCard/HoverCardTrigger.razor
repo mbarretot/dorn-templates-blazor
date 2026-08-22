@@ -1,0 +1,89 @@
+@implements IAsyncDisposable
+<span
+    @ref="_element"
+    id="@Context.TriggerId"
+    aria-expanded="@(Context.IsOpen ? "true" : "false")"
+    class="@Cn.Merge(Class)"
+    @onpointerenter="HandlePointerEnterAsync"
+    @onpointerleave="HandlePointerLeaveAsync"
+    @onfocusin="HandleFocusInAsync"
+    @onfocusout="HandleFocusOutAsync"
+    @attributes="AdditionalAttributes"
+>
+    @ChildContent
+</span>
+
+@code {
+    private ElementReference _element;
+    private CancellationTokenSource? _openCts;
+
+    [CascadingParameter]
+    private HoverCardContext Context { get; set; } = default!;
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? AdditionalAttributes { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        if (Context is null)
+        {
+            throw new InvalidOperationException(
+                "HoverCardTrigger must be rendered inside a <HoverCard>."
+            );
+        }
+    }
+
+    protected override void OnAfterRender(bool firstRender) => Context.TriggerElement = _element;
+
+    private Task HandlePointerEnterAsync(PointerEventArgs e) => ScheduleOpenAsync();
+
+    private Task HandleFocusInAsync(FocusEventArgs e) => ScheduleOpenAsync();
+
+    private Task HandlePointerLeaveAsync(PointerEventArgs e) => Context.ScheduleCloseAsync();
+
+    private Task HandleFocusOutAsync(FocusEventArgs e) => Context.ScheduleCloseAsync();
+
+    private async Task ScheduleOpenAsync()
+    {
+        Context.CancelPendingClose();
+        CancelPendingOpen();
+        var cts = new CancellationTokenSource();
+        _openCts = cts;
+
+        try
+        {
+            if (Context.OpenDelay > 0)
+            {
+                await Task.Delay(Context.OpenDelay, cts.Token);
+            }
+
+            if (!cts.Token.IsCancellationRequested)
+            {
+                await InvokeAsync(() => Context.RequestOpen());
+            }
+        }
+        catch (TaskCanceledException)
+        {
+            // Superseded by a leave/close before the open delay elapsed — expected, not an error.
+        }
+    }
+
+    private void CancelPendingOpen()
+    {
+        _openCts?.Cancel();
+        _openCts?.Dispose();
+        _openCts = null;
+    }
+
+    public ValueTask DisposeAsync()
+    {
+        CancelPendingOpen();
+        return ValueTask.CompletedTask;
+    }
+}

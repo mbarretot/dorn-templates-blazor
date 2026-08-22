@@ -1,0 +1,26 @@
+@typeparam TEnum where TEnum : struct, Enum
+
+<div class="flex flex-col gap-1.5" data-testid="@($"control-{Label}")">
+    <span class="text-sm font-medium text-foreground">@Label</span>
+    <Select TValue="TEnum" Value="Value" ValueChanged="HandleChangedAsync" ValueExpression="() => Value">
+        @foreach (var option in Options)
+        {
+            <SelectItem TValue="TEnum" Value="option">@option</SelectItem>
+        }
+    </Select>
+</div>
+
+@code {
+    private static readonly TEnum[] Options = Enum.GetValues<TEnum>();
+
+    [Parameter, EditorRequired]
+    public string Label { get; set; } = "";
+
+    [Parameter]
+    public TEnum Value { get; set; }
+
+    [Parameter]
+    public EventCallback<TEnum> ValueChanged { get; set; }
+
+    private Task HandleChangedAsync(TEnum value) => ValueChanged.InvokeAsync(value);
+}

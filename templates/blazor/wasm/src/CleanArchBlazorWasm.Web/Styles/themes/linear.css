@@ -1,0 +1,52 @@
+[data-ui-theme='linear'] {
+  --ui-background: oklch(1 0 0);
+  --ui-foreground: oklch(0.16 0.008 285.8);
+  --ui-card: oklch(1 0 0);
+  --ui-card-foreground: oklch(0.16 0.008 285.8);
+  --ui-popover: oklch(1 0 0);
+  --ui-popover-foreground: oklch(0.16 0.008 285.8);
+  --ui-primary: oklch(0.545 0.166 275.5);
+  --ui-primary-foreground: oklch(0.985 0.002 285.8);
+  --ui-secondary: oklch(0.967 0.004 286.3);
+  --ui-secondary-foreground: oklch(0.25 0.008 285.8);
+  --ui-muted: oklch(0.967 0.004 286.3);
+  --ui-muted-foreground: oklch(0.552 0.01 285.9);
+  --ui-accent: oklch(0.955 0.012 278);
+  --ui-accent-foreground: oklch(0.42 0.12 275.5);
+  --ui-destructive: oklch(0.577 0.245 27.325);
+  --ui-destructive-foreground: oklch(0.985 0.002 285.8);
+  --ui-success: oklch(0.548 0.14 155);
+  --ui-success-foreground: oklch(0.985 0.002 285.8);
+  --ui-warning: oklch(0.64 0.13 72);
+  --ui-warning-foreground: oklch(0.985 0.002 285.8);
+  --ui-border: oklch(0.92 0.004 286.3);
+  --ui-input: oklch(0.92 0.004 286.3);
+  --ui-ring: oklch(0.545 0.166 275.5);
+  --ui-radius: 0.5rem;
+}
+
+[data-ui-theme='linear'][data-ui-mode='dark'] {
+  --ui-background: oklch(0.155 0.01 285.8);
+  --ui-foreground: oklch(0.975 0.003 286.3);
+  --ui-card: oklch(0.196 0.011 285.9);
+  --ui-card-foreground: oklch(0.975 0.003 286.3);
+  --ui-popover: oklch(0.196 0.011 285.9);
+  --ui-popover-foreground: oklch(0.975 0.003 286.3);
+  --ui-primary: oklch(0.638 0.169 276.5);
+  --ui-primary-foreground: oklch(0.985 0.002 285.8);
+  --ui-secondary: oklch(0.262 0.012 285.9);
+  --ui-secondary-foreground: oklch(0.975 0.003 286.3);
+  --ui-muted: oklch(0.262 0.012 285.9);
+  --ui-muted-foreground: oklch(0.705 0.013 286.1);
+  --ui-accent: oklch(0.288 0.03 278);
+  --ui-accent-foreground: oklch(0.86 0.07 277);
+  --ui-destructive: oklch(0.704 0.191 22.216);
+  --ui-destructive-foreground: oklch(0.985 0.002 285.8);
+  --ui-success: oklch(0.7 0.16 153);
+  --ui-success-foreground: oklch(0.155 0.01 285.8);
+  --ui-warning: oklch(0.78 0.14 78);
+  --ui-warning-foreground: oklch(0.155 0.01 285.8);
+  --ui-border: oklch(1 0 0 / 10%);
+  --ui-input: oklch(1 0 0 / 15%);
+  --ui-ring: oklch(0.638 0.169 276.5);
+}

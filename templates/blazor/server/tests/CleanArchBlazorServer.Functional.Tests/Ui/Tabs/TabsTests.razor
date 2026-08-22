@@ -1,0 +1,108 @@
+@inherits UiTestContext
+@using Bunit
+@using CleanArchBlazorServer.Web.Components.Ui.Tabs
+@using Microsoft.AspNetCore.Components.Web
+@using Xunit
+
+@code {
+    // JSInterop.Mode = Strict means any unconfigured IJSRuntime call throws; these pass with zero JS interop.
+
+    [Fact]
+    public void Uncontrolled_ClickingTrigger_ActivatesItsPanel_AndHidesTheOthers()
+    {
+        var cut = Render(@<Tabs DefaultValue="account">
+            <TabsList>
+                <TabsTrigger Value="account" data-testid="trigger-account">Account</TabsTrigger>
+                <TabsTrigger Value="password" data-testid="trigger-password">Password</TabsTrigger>
+            </TabsList>
+            <TabsContent Value="account">Account settings</TabsContent>
+            <TabsContent Value="password">Password settings</TabsContent>
+        </Tabs>);
+
+        var panels = cut.FindAll("[role=tabpanel]");
+        Assert.False(panels[0].HasAttribute("hidden"));
+        Assert.True(panels[1].HasAttribute("hidden"));
+
+        cut.Find("[data-testid=trigger-password]").Click();
+
+        panels = cut.FindAll("[role=tabpanel]");
+        Assert.True(panels[0].HasAttribute("hidden"));
+        Assert.False(panels[1].HasAttribute("hidden"));
+    }
+
+    [Fact]
+    public void Controlled_ClickingTrigger_RaisesValueChanged_ButDoesNotSelfMutate()
+    {
+        var raised = new List<string>();
+
+        var cut = Render(@<Tabs Value="account" ValueChanged="@(v => raised.Add(v))">
+            <TabsList>
+                <TabsTrigger Value="account" data-testid="trigger-account">Account</TabsTrigger>
+                <TabsTrigger Value="password" data-testid="trigger-password">Password</TabsTrigger>
+            </TabsList>
+            <TabsContent Value="account">Account settings</TabsContent>
+            <TabsContent Value="password">Password settings</TabsContent>
+        </Tabs>);
+
+        cut.Find("[data-testid=trigger-password]").Click();
+
+        Assert.Equal(["password"], raised);
+        var panels = cut.FindAll("[role=tabpanel]");
+        Assert.False(panels[0].HasAttribute("hidden"));
+        Assert.True(panels[1].HasAttribute("hidden"));
+    }
+
+    [Fact]
+    public void AutomaticActivation_ArrowKey_MovesFocus_AndActivatesTarget()
+    {
+        var cut = Render(@<Tabs DefaultValue="account">
+            <TabsList>
+                <TabsTrigger Value="account" data-testid="trigger-account">Account</TabsTrigger>
+                <TabsTrigger Value="password" data-testid="trigger-password">Password</TabsTrigger>
+            </TabsList>
+            <TabsContent Value="account">Account settings</TabsContent>
+            <TabsContent Value="password">Password settings</TabsContent>
+        </Tabs>);
+
+        cut.Find("[data-testid=trigger-account]").KeyDown(new KeyboardEventArgs { Key = "ArrowRight" });
+
+        var panels = cut.FindAll("[role=tabpanel]");
+        Assert.True(panels[0].HasAttribute("hidden"));
+        Assert.False(panels[1].HasAttribute("hidden"));
+    }
+
+    [Fact]
+    public void ManualActivation_ArrowKey_MovesFocus_ButDoesNotActivateTarget()
+    {
+        var cut = Render(@<Tabs DefaultValue="account" ActivationMode="TabsActivationMode.Manual">
+            <TabsList>
+                <TabsTrigger Value="account" data-testid="trigger-account">Account</TabsTrigger>
+                <TabsTrigger Value="password" data-testid="trigger-password">Password</TabsTrigger>
+            </TabsList>
+            <TabsContent Value="account">Account settings</TabsContent>
+            <TabsContent Value="password">Password settings</TabsContent>
+        </Tabs>);
+
+        cut.Find("[data-testid=trigger-account]").KeyDown(new KeyboardEventArgs { Key = "ArrowRight" });
+
+        var panels = cut.FindAll("[role=tabpanel]");
+        Assert.False(panels[0].HasAttribute("hidden"));
+        Assert.True(panels[1].HasAttribute("hidden"));
+    }
+
+    [Fact]
+    public void ActiveTrigger_HasTabIndexZero_OthersHaveTabIndexMinusOne()
+    {
+        var cut = Render(@<Tabs DefaultValue="account">
+            <TabsList>
+                <TabsTrigger Value="account" data-testid="trigger-account">Account</TabsTrigger>
+                <TabsTrigger Value="password" data-testid="trigger-password">Password</TabsTrigger>
+            </TabsList>
+            <TabsContent Value="account">Account settings</TabsContent>
+            <TabsContent Value="password">Password settings</TabsContent>
+        </Tabs>);
+
+        Assert.Equal("0", cut.Find("[data-testid=trigger-account]").GetAttribute("tabindex"));
+        Assert.Equal("-1", cut.Find("[data-testid=trigger-password]").GetAttribute("tabindex"));
+    }
+}

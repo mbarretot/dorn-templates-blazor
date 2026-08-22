@@ -1,0 +1,30 @@
+@inherits UiTestContext
+@using Bunit
+@using CleanArchBlazorWasm.Web.Components.Theme
+@using CleanArchBlazorWasm.Web.Components.Ui.Toast
+@using CleanArchBlazorWasm.Web.Features.Playground
+@using Dorn.WebUI.Primitives.Theme
+@using Dorn.WebUI.Primitives.Toast
+@using Microsoft.Extensions.DependencyInjection
+@using Xunit
+
+@code {
+    public ToastPlaygroundLayoutTests()
+    {
+        Services.AddSingleton(new ToastStore());
+        Services.AddScoped<ThemeInterop>();
+        Services.AddScoped<ThemeState>();
+    }
+
+    [Fact]
+    public void PlaygroundLayout_RendersToastHost()
+    {
+        JSInterop
+            .Setup<ThemeSnapshot>("dornTheme.getSnapshot")
+            .SetResult(new ThemeSnapshot("slate", "light", false));
+
+        var playground = Render<PlaygroundLayout>();
+
+        Assert.Single(playground.FindAll("[data-testid='toast-viewport']"));
+    }
+}

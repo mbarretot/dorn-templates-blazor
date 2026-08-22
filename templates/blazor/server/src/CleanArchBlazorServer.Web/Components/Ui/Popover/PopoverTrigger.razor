@@ -1,0 +1,54 @@
+<button
+    type="button"
+    @ref="_element"
+    id="@Context.TriggerId"
+    aria-haspopup="dialog"
+    aria-expanded="@(Context.IsOpen ? "true" : "false")"
+    aria-controls="@Context.ContentId"
+    class="@Cn.Merge(Class)"
+    @onclick="HandleClickAsync"
+    @onkeydown="OnKeyDownAsync"
+    @onkeydown:preventDefault="true"
+    @attributes="AdditionalAttributes"
+>
+    @ChildContent
+</button>
+
+@code {
+    // preventDefault avoids double-activation from the button's native Enter/Space click default.
+    private ElementReference _element;
+
+    [CascadingParameter]
+    private PopoverContext Context { get; set; } = default!;
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? AdditionalAttributes { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        if (Context is null)
+        {
+            throw new InvalidOperationException(
+                "PopoverTrigger must be rendered inside a <Popover>."
+            );
+        }
+    }
+
+    protected override void OnAfterRender(bool firstRender) => Context.TriggerElement = _element;
+
+    private Task HandleClickAsync() =>
+        Context.IsOpen ? Context.RequestClose() : Context.RequestOpen();
+
+    private Task OnKeyDownAsync(KeyboardEventArgs e) =>
+        e.Key switch
+        {
+            "Enter" or " " => HandleClickAsync(),
+            _ => Task.CompletedTask,
+        };
+}

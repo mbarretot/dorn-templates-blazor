@@ -1,0 +1,36 @@
+@using System.Globalization
+<div
+    role="progressbar"
+    aria-valuenow="@ClampedValue.ToString(CultureInfo.InvariantCulture)"
+    aria-valuemin="0"
+    aria-valuemax="@Max.ToString(CultureInfo.InvariantCulture)"
+    class="@ComputedClass"
+    @attributes="AdditionalAttributes"
+>
+    <div
+        class="h-full w-full flex-1 bg-primary transition-all"
+        style="width: @(Percentage.ToString(CultureInfo.InvariantCulture))%"
+    ></div>
+</div>
+
+@code {
+    private const string BaseClass = "relative h-4 w-full overflow-hidden rounded-full bg-secondary";
+
+    [Parameter]
+    public double Value { get; set; }
+
+    [Parameter]
+    public double Max { get; set; } = 100;
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? AdditionalAttributes { get; set; }
+
+    private string ComputedClass => Cn.Merge(BaseClass, Class);
+
+    private double ClampedValue => Math.Clamp(Value, 0, Max);
+
+    private double Percentage => Max <= 0 ? 0 : Math.Clamp(ClampedValue / Max * 100, 0, 100);
+}

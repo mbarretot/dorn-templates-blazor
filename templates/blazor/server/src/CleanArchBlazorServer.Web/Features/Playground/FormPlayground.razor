@@ -1,0 +1,64 @@
+@page "/playground/form"
+@layout PlaygroundLayout
+
+<PageTitle>Playground · Form</PageTitle>
+
+<ComponentPlayground
+    Title="Input"
+    Description="Bound directly to a local value with no ambient EditForm/EditContext."
+    CodeSnippet="@CodeSnippet"
+    ApiParameters="ApiParameters"
+>
+    <Controls>
+        <TextControl Label="Value" @bind-Value="_standaloneName" />
+    </Controls>
+    <Preview>
+        <FormField>
+            <Label For="standalone-name">Name</Label>
+            <Input @bind-Value="_standaloneName" id="standalone-name" placeholder="Ada Lovelace" />
+        </FormField>
+        <p class="text-sm text-muted-foreground">You typed: @_standaloneName</p>
+    </Preview>
+</ComponentPlayground>
+
+<PlaygroundSection
+    Title="EditForm-integrated input"
+    Description="Reflects the ambient EditContext's validation state via aria-invalid and FormMessage."
+>
+    <EditForm Model="_model" OnValidSubmit="@(() => _submitted = true)">
+        <DataAnnotationsValidator />
+        <div class="flex flex-col gap-4">
+            <FormField>
+                <Label For="email">Email</Label>
+                <Input @bind-Value="_model.Email" id="email" placeholder="you@example.com" />
+                <ValidationMessage For="@(() => _model.Email)" class="text-sm text-destructive" />
+            </FormField>
+            <Button Type="submit">Submit</Button>
+            @if (_submitted)
+            {
+                <p class="text-sm text-muted-foreground">Form submitted successfully.</p>
+            }
+        </div>
+    </EditForm>
+</PlaygroundSection>
+
+@code {
+    private string _standaloneName = "";
+    private bool _submitted;
+    private readonly PlaygroundModel _model = new();
+
+    private const string CodeSnippet = """<Input @bind-Value="_name" placeholder="Ada Lovelace" />""";
+
+    private static readonly PlaygroundParameter[] ApiParameters =
+    [
+        new("Value", "string", "\"\"", "The bound text value (two-way bindable)."),
+        new("Type", "string", "\"text\"", "The native input type attribute."),
+    ];
+
+    private sealed class PlaygroundModel
+    {
+        [System.ComponentModel.DataAnnotations.Required]
+        [System.ComponentModel.DataAnnotations.EmailAddress]
+        public string Email { get; set; } = "";
+    }
+}

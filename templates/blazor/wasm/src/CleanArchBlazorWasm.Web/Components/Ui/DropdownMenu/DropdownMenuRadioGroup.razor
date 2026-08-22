@@ -1,0 +1,17 @@
+@typeparam TValue
+<CascadingValue Value="this" IsFixed="false">@ChildContent</CascadingValue>
+
+@code {
+    private readonly UiValueComponent<TValue> _value = new();
+
+    [Parameter] public TValue? Value { get; set; }
+    [Parameter] public EventCallback<TValue> ValueChanged { get; set; }
+    [Parameter] public TValue? DefaultValue { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    public bool IsSelected(TValue value) => EqualityComparer<TValue>.Default.Equals(_value.CurrentValue, value);
+
+    protected override void OnParametersSet() => _value.SetParameters(Value, ValueChanged, DefaultValue);
+
+    public Task SelectAsync(TValue value) => _value.SetValueAsync(value);
+}

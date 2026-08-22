@@ -1,0 +1,26 @@
+<label
+    for="@ResolvedFor"
+    class="@Cn.Merge("text-sm font-medium leading-none text-foreground", Class)"
+    @attributes="AdditionalAttributes"
+>
+    @ChildContent
+</label>
+
+@code {
+    [CascadingParameter]
+    private FieldContext? Context { get; set; }
+
+    [Parameter]
+    public string? For { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? AdditionalAttributes { get; set; }
+
+    private string? ResolvedFor => For ?? Context?.Id;
+}

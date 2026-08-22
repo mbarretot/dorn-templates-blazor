@@ -1,0 +1,28 @@
+@inherits UiTestContext
+@using Bunit
+@using CleanArchBlazorServer.Web.Features.Playground
+@using Xunit
+
+@code {
+    [Fact]
+    public void SelectingSizeControl_UpdatesPreviewAvatarSizeClass()
+    {
+        AnchorModule.SetupVoid("show", _ => true).SetVoidResult();
+        AnchorModule.SetupVoid("position", _ => true).SetVoidResult();
+        DismissModule.SetupVoid("activate", _ => true).SetVoidResult();
+        DismissModule.SetupVoid("deactivate", _ => true).SetVoidResult();
+        AnchorModule.SetupVoid("dispose", _ => true).SetVoidResult();
+        AnchorModule.SetupVoid("hide", _ => true).SetVoidResult();
+
+        var cut = Render(@<AvatarPlayground />);
+
+        var avatar = cut.FindAll("[data-testid=playground-preview] span.relative")[0];
+        Assert.Contains("size-10", avatar.ClassList);
+
+        cut.Find("[data-testid='control-Size'] button[role=combobox]").Click();
+        cut.FindAll("[role=option]").First(o => o.TextContent.Trim() == "Lg").Click();
+
+        avatar = cut.FindAll("[data-testid=playground-preview] span.relative")[0];
+        Assert.Contains("size-12", avatar.ClassList);
+    }
+}

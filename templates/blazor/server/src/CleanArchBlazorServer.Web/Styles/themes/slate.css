@@ -1,0 +1,60 @@
+/* Layer 1 (design B1): --ui-* custom properties are the only surface a theme file owns.
+   app.tailwind.css's `@theme inline` block maps them into Tailwind's own --color-* and
+   --radius-* namespaces so bg-primary/rounded-lg etc. resolve at runtime instead of build
+   time. Selectors
+   use single-quoted attribute values on purpose: the `Theme` template symbol replaces the exact
+   double-quoted literal "slate" (design B6), and a double-quoted selector here would collide
+   with that replacement and corrupt this file when a project is generated with --theme rose. */
+
+[data-ui-theme='slate'] {
+  --ui-background: oklch(1 0 0);
+  --ui-foreground: oklch(0.129 0.042 264.695);
+  --ui-card: oklch(1 0 0);
+  --ui-card-foreground: oklch(0.129 0.042 264.695);
+  --ui-popover: oklch(1 0 0);
+  --ui-popover-foreground: oklch(0.129 0.042 264.695);
+  --ui-primary: oklch(0.208 0.042 265.755);
+  --ui-primary-foreground: oklch(0.984 0.003 247.858);
+  --ui-secondary: oklch(0.968 0.007 247.896);
+  --ui-secondary-foreground: oklch(0.208 0.042 265.755);
+  --ui-muted: oklch(0.968 0.007 247.896);
+  --ui-muted-foreground: oklch(0.554 0.046 257.417);
+  --ui-accent: oklch(0.968 0.007 247.896);
+  --ui-accent-foreground: oklch(0.208 0.042 265.755);
+  --ui-destructive: oklch(0.577 0.245 27.325);
+  --ui-destructive-foreground: oklch(0.984 0.003 247.858);
+  --ui-success: oklch(0.548 0.14 152);
+  --ui-success-foreground: oklch(0.984 0.003 247.858);
+  --ui-warning: oklch(0.64 0.13 75);
+  --ui-warning-foreground: oklch(0.984 0.003 247.858);
+  --ui-border: oklch(0.929 0.013 255.508);
+  --ui-input: oklch(0.929 0.013 255.508);
+  --ui-ring: oklch(0.704 0.04 256.788);
+  --ui-radius: 0.625rem;
+}
+
+[data-ui-theme='slate'][data-ui-mode='dark'] {
+  --ui-background: oklch(0.129 0.042 264.695);
+  --ui-foreground: oklch(0.984 0.003 247.858);
+  --ui-card: oklch(0.208 0.042 265.755);
+  --ui-card-foreground: oklch(0.984 0.003 247.858);
+  --ui-popover: oklch(0.208 0.042 265.755);
+  --ui-popover-foreground: oklch(0.984 0.003 247.858);
+  --ui-primary: oklch(0.929 0.013 255.508);
+  --ui-primary-foreground: oklch(0.208 0.042 265.755);
+  --ui-secondary: oklch(0.279 0.041 260.031);
+  --ui-secondary-foreground: oklch(0.984 0.003 247.858);
+  --ui-muted: oklch(0.279 0.041 260.031);
+  --ui-muted-foreground: oklch(0.704 0.04 256.788);
+  --ui-accent: oklch(0.279 0.041 260.031);
+  --ui-accent-foreground: oklch(0.984 0.003 247.858);
+  --ui-destructive: oklch(0.704 0.191 22.216);
+  --ui-destructive-foreground: oklch(0.984 0.003 247.858);
+  --ui-success: oklch(0.7 0.16 150);
+  --ui-success-foreground: oklch(0.129 0.042 264.695);
+  --ui-warning: oklch(0.78 0.14 80);
+  --ui-warning-foreground: oklch(0.129 0.042 264.695);
+  --ui-border: oklch(1 0 0 / 10%);
+  --ui-input: oklch(1 0 0 / 15%);
+  --ui-ring: oklch(0.551 0.027 264.364);
+}

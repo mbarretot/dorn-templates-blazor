@@ -1,0 +1,63 @@
+@page "/playground/hover-card"
+@layout PlaygroundLayout
+
+<PageTitle>Playground · HoverCard</PageTitle>
+
+<ComponentPlayground
+    Title="HoverCard"
+    Description="Opens on pointer hover or keyboard focus after OpenDelay; closes after CloseDelay so the pointer can travel from the trigger into the card. Not focus-stealing."
+    CodeSnippet="@CodeSnippet"
+    ApiParameters="ApiParameters"
+>
+    <Controls>
+        <NumberControl Label="OpenDelay" @bind-Value="_openDelay" />
+        <NumberControl Label="CloseDelay" @bind-Value="_closeDelay" />
+    </Controls>
+    <Preview>
+        <div class="flex flex-col gap-2">
+            <HoverCard OpenDelay="_openDelay" CloseDelay="_closeDelay">
+                <HoverCardTrigger Class="@Button.ResolveClass(ButtonVariant.Outline, ButtonSize.Default, null)">
+                    @@dorn
+                </HoverCardTrigger>
+                <HoverCardContent>
+                    <p class="text-sm font-medium text-foreground">Dorn</p>
+                    <p class="text-sm text-muted-foreground">A .NET solution template generator.</p>
+                </HoverCardContent>
+            </HoverCard>
+            <p class="text-sm text-muted-foreground">OpenDelay: @(_openDelay)ms · CloseDelay: @(_closeDelay)ms</p>
+        </div>
+    </Preview>
+</ComponentPlayground>
+
+@code {
+    private int _openDelay = 600;
+    private int _closeDelay = 300;
+
+    private string CodeSnippet
+    {
+        get
+        {
+            var attributes = _openDelay != 600 ? $" OpenDelay=\"{_openDelay}\"" : "";
+            attributes += _closeDelay != 300 ? $" CloseDelay=\"{_closeDelay}\"" : "";
+            return $"<HoverCard{attributes}>...</HoverCard>";
+        }
+    }
+
+    private static readonly PlaygroundParameter[] ApiParameters =
+    [
+        new("Open", "bool", "false", "Controls the open state (two-way bindable)."),
+        new("OpenChanged", "EventCallback<bool>", "-", "Fires when the open state changes."),
+        new("DefaultOpen", "bool", "false", "Initial open state when uncontrolled."),
+        new("OpenDelay", "int", "600", "Milliseconds the trigger must stay hovered or focused before opening."),
+        new(
+            "CloseDelay",
+            "int",
+            "300",
+            "Grace period in milliseconds before closing, letting the pointer travel into the card."
+        ),
+        new("Side", "string", "\"bottom\"", "Preferred side to anchor the content."),
+        new("Align", "string", "\"center\"", "Alignment along the anchored side."),
+        new("Offset", "double", "4", "Distance in pixels between the trigger and content."),
+        new("CollisionPadding", "double", "8", "Minimum viewport padding kept during collision avoidance."),
+    ];
+}

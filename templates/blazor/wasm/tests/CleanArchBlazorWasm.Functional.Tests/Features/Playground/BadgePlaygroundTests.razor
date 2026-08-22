@@ -1,0 +1,26 @@
+@inherits UiTestContext
+@using Bunit
+@using CleanArchBlazorWasm.Web.Features.Playground
+@using Xunit
+
+@code {
+    [Fact]
+    public void SelectingVariantControl_UpdatesPreviewBadgeClass()
+    {
+        AnchorModule.SetupVoid("show", _ => true).SetVoidResult();
+        AnchorModule.SetupVoid("position", _ => true).SetVoidResult();
+        DismissModule.SetupVoid("activate", _ => true).SetVoidResult();
+        DismissModule.SetupVoid("deactivate", _ => true).SetVoidResult();
+        AnchorModule.SetupVoid("dispose", _ => true).SetVoidResult();
+        AnchorModule.SetupVoid("hide", _ => true).SetVoidResult();
+
+        var cut = Render(@<BadgePlayground />);
+
+        Assert.Contains("bg-primary", cut.Find("[data-testid=playground-preview] span").ClassList);
+
+        cut.Find("[data-testid='control-Variant'] button[role=combobox]").Click();
+        cut.FindAll("[role=option]").First(o => o.TextContent.Trim() == "Secondary").Click();
+
+        Assert.Contains("bg-secondary", cut.Find("[data-testid=playground-preview] span").ClassList);
+    }
+}

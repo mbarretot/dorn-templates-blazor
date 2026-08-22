@@ -1,0 +1,147 @@
+@inherits UiTestContext
+@using Bunit
+@using CleanArchBlazorServer.Web.Components.Ui.Form
+@using CleanArchBlazorServer.Web.Components.Ui.Textarea
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Forms
+@using Xunit
+
+@code {
+    [Fact]
+    public void RendersTextareaElement()
+    {
+        var model = new TestModel();
+
+        var cut = Render(@<Textarea
+            Value="@model.Bio"
+            ValueChanged="@(v => model.Bio = v)"
+            ValueExpression="@(() => model.Bio)"
+        />);
+
+        Assert.NotNull(cut.Find("textarea"));
+    }
+
+    [Fact]
+    public void Label_And_Textarea_ShareGeneratedId_ViaFormField()
+    {
+        var model = new TestModel();
+
+        var cut = Render(@<FormField>
+            <Label>Bio</Label>
+            <Textarea
+                Value="@model.Bio"
+                ValueChanged="@(v => model.Bio = v)"
+                ValueExpression="@(() => model.Bio)"
+            />
+        </FormField>);
+
+        var label = cut.Find("label");
+        var textarea = cut.Find("textarea");
+
+        Assert.False(string.IsNullOrEmpty(textarea.GetAttribute("id")));
+        Assert.Equal(textarea.GetAttribute("id"), label.GetAttribute("for"));
+    }
+
+    [Fact]
+    public void BindsStandalone_WithNoAmbientEditForm()
+    {
+        var model = new TestModel { Bio = "seed" };
+
+        var cut = Render(@<Textarea
+            Value="@model.Bio"
+            ValueChanged="@(v => model.Bio = v)"
+            ValueExpression="@(() => model.Bio)"
+        />);
+
+        cut.Find("textarea").Input("typed-value");
+
+        Assert.Equal("typed-value", model.Bio);
+    }
+
+    [Fact]
+    public void WithAmbientEditContext_SetsAriaInvalid_WhenValidationFails()
+    {
+        var model = new TestModel { Bio = "" };
+        var editContext = new EditContext(model);
+
+        var cut = Render(@<CascadingValue Value="@editContext" IsFixed="true">
+            <Textarea
+                Value="@model.Bio"
+                ValueChanged="@(v => model.Bio = v)"
+                ValueExpression="@(() => model.Bio)"
+            />
+        </CascadingValue>);
+
+        var messageStore = new ValidationMessageStore(editContext);
+        messageStore.Add(editContext.Field(nameof(TestModel.Bio)), "Bio is required.");
+        cut.InvokeAsync(editContext.NotifyValidationStateChanged);
+
+        Assert.Equal("true", cut.Find("textarea").GetAttribute("aria-invalid"));
+    }
+
+    [Fact]
+    public void WithNoValidationError_HasNoAriaInvalidAttribute()
+    {
+        var model = new TestModel { Bio = "seed" };
+        var editContext = new EditContext(model);
+
+        var cut = Render(@<CascadingValue Value="@editContext" IsFixed="true">
+            <Textarea
+                Value="@model.Bio"
+                ValueChanged="@(v => model.Bio = v)"
+                ValueExpression="@(() => model.Bio)"
+            />
+        </CascadingValue>);
+
+        Assert.Null(cut.Find("textarea").GetAttribute("aria-invalid"));
+    }
+
+    [Fact]
+    public void WithRowsParameter_SetsNativeRowsAttribute()
+    {
+        var model = new TestModel();
+
+        var cut = Render(@<Textarea
+            Rows="8"
+            Value="@model.Bio"
+            ValueChanged="@(v => model.Bio = v)"
+            ValueExpression="@(() => model.Bio)"
+        />);
+
+        Assert.Equal("8", cut.Find("textarea").GetAttribute("rows"));
+    }
+
+    [Fact]
+    public void WithOmittedRows_DefaultsToThreeRows()
+    {
+        var model = new TestModel();
+
+        var cut = Render(@<Textarea
+            Value="@model.Bio"
+            ValueChanged="@(v => model.Bio = v)"
+            ValueExpression="@(() => model.Bio)"
+        />);
+
+        Assert.Equal("3", cut.Find("textarea").GetAttribute("rows"));
+    }
+
+    [Fact]
+    public void WithDisabledParameter_SetsNativeDisabledAttribute()
+    {
+        var model = new TestModel();
+
+        var cut = Render(@<Textarea
+            Disabled="true"
+            Value="@model.Bio"
+            ValueChanged="@(v => model.Bio = v)"
+            ValueExpression="@(() => model.Bio)"
+        />);
+
+        Assert.True(cut.Find("textarea").HasAttribute("disabled"));
+    }
+
+    private sealed class TestModel
+    {
+        public string Bio { get; set; } = "";
+    }
+}

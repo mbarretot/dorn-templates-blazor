@@ -1,0 +1,39 @@
+@page "/playground/skeleton"
+@layout PlaygroundLayout
+
+<PageTitle>Playground · Skeleton</PageTitle>
+
+<ComponentPlayground
+    Title="Skeleton"
+    Description="No parameters — the pulsing box gets its meaning from Class/sizing. Composed here into a card-loading-state look."
+    CodeSnippet="@CodeSnippet"
+    ApiParameters="ApiParameters"
+>
+    <Controls>
+        <p class="text-sm text-muted-foreground">Skeleton has no bindable parameters — this composition is static.</p>
+    </Controls>
+    <Preview>
+        <div class="flex items-center gap-4">
+            <Skeleton Class="size-12 rounded-full" />
+            <div class="flex flex-col gap-2">
+                <Skeleton Class="h-4 w-[200px]" />
+                <Skeleton Class="h-4 w-[150px]" />
+            </div>
+        </div>
+    </Preview>
+</ComponentPlayground>
+
+@code {
+    private const string CodeSnippet =
+        """
+        <div class="flex items-center gap-4">
+            <Skeleton Class="size-12 rounded-full" />
+            <div class="flex flex-col gap-2">
+                <Skeleton Class="h-4 w-[200px]" />
+                <Skeleton Class="h-4 w-[150px]" />
+            </div>
+        </div>
+        """;
+
+    private static readonly PlaygroundParameter[] ApiParameters = [];
+}

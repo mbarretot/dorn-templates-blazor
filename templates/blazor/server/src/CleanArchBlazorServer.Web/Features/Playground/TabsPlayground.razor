@@ -1,0 +1,61 @@
+@page "/playground/tabs"
+@layout PlaygroundLayout
+
+<PageTitle>Playground · Tabs</PageTitle>
+
+<ComponentPlayground
+    Title="Tabs"
+    Description="Active tab is owned by this page and echoed below; use ArrowLeft/ArrowRight to move between triggers."
+    CodeSnippet="@CodeSnippet"
+    ApiParameters="ApiParameters"
+>
+    <Controls>
+        <p class="text-sm text-muted-foreground">Active tab: @_activeTab</p>
+    </Controls>
+    <Preview>
+        <Tabs Value="_activeTab" ValueChanged="@(value => _activeTab = value)">
+            <TabsList>
+                <TabsTrigger Value="overview">Overview</TabsTrigger>
+                <TabsTrigger Value="activity">Activity</TabsTrigger>
+                <TabsTrigger Value="settings">Settings</TabsTrigger>
+            </TabsList>
+            <TabsContent Value="overview">Overview panel content.</TabsContent>
+            <TabsContent Value="activity">Activity panel content.</TabsContent>
+            <TabsContent Value="settings">Settings panel content.</TabsContent>
+        </Tabs>
+    </Preview>
+</ComponentPlayground>
+
+<PlaygroundSection
+    Title="Uncontrolled tabs"
+    Description="Manages its own active tab; use ArrowLeft/ArrowRight to move between triggers."
+>
+    <Tabs DefaultValue="account">
+        <TabsList>
+            <TabsTrigger Value="account">Account</TabsTrigger>
+            <TabsTrigger Value="password">Password</TabsTrigger>
+        </TabsList>
+        <TabsContent Value="account">Update your account details here.</TabsContent>
+        <TabsContent Value="password">Change your password here.</TabsContent>
+    </Tabs>
+</PlaygroundSection>
+
+@code {
+    private string _activeTab = "overview";
+
+    private string CodeSnippet =>
+        $"""<Tabs Value="_activeTab" ValueChanged="v => _activeTab = v">...</Tabs> // active: {_activeTab}""";
+
+    private static readonly PlaygroundParameter[] ApiParameters =
+    [
+        new("Value", "string?", "null", "The active tab value (two-way bindable)."),
+        new("DefaultValue", "string?", "null", "Initial active tab when uncontrolled."),
+        new("Orientation", "TabsOrientation", "Horizontal", "Arrow-key axis for roving focus."),
+        new(
+            "ActivationMode",
+            "TabsActivationMode",
+            "Automatic",
+            "Whether arrow navigation activates a tab immediately or only on Enter/Space."
+        ),
+    ];
+}

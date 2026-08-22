@@ -1,0 +1,18 @@
+@inherits UiTestContext
+@using Bunit
+@using CleanArchBlazorWasm.Web.Features.Playground
+@using Xunit
+
+@code {
+    [Fact]
+    public void ClickingToggleInPreview_TogglesPressedState_AndEchoesIt()
+    {
+        var cut = Render(@<TogglePlayground />);
+
+        Assert.Contains("Pressed: False", cut.Find("[data-testid=playground-preview]").TextContent);
+
+        cut.Find("[data-testid=playground-preview] button[aria-pressed]").Click();
+
+        Assert.Contains("Pressed: True", cut.Find("[data-testid=playground-preview]").TextContent);
+    }
+}

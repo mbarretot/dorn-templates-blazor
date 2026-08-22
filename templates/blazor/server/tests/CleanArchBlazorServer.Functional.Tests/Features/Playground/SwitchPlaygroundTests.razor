@@ -1,0 +1,18 @@
+@inherits UiTestContext
+@using Bunit
+@using CleanArchBlazorServer.Web.Features.Playground
+@using Xunit
+
+@code {
+    [Fact]
+    public void ClickingSwitchInPreview_TogglesCheckedState_AndEchoesIt()
+    {
+        var cut = Render(@<SwitchPlayground />);
+
+        Assert.Contains("Checked: False", cut.Find("[data-testid=playground-preview]").TextContent);
+
+        cut.Find("[data-testid=playground-preview] [role=switch]").Click();
+
+        Assert.Contains("Checked: True", cut.Find("[data-testid=playground-preview]").TextContent);
+    }
+}

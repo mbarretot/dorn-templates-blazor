@@ -1,0 +1,52 @@
+<button
+    type="button"
+    @ref="_element"
+    id="@Context.TriggerId"
+    aria-haspopup="menu"
+    aria-expanded="@(Context.IsOpen ? "true" : "false")"
+    aria-controls="@Context.ContentId"
+    class="@Class"
+    @onclick="HandleClickAsync"
+    @onkeydown="OnKeyDownAsync"
+    @attributes="AdditionalAttributes"
+>
+    @ChildContent
+</button>
+
+@code {
+    private ElementReference _element;
+
+    [CascadingParameter]
+    private DropdownMenuContext Context { get; set; } = default!;
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? AdditionalAttributes { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        if (Context is null)
+        {
+            throw new InvalidOperationException(
+                "DropdownMenuTrigger must be rendered inside a <DropdownMenu>."
+            );
+        }
+    }
+
+    protected override void OnAfterRender(bool firstRender) => Context.TriggerElement = _element;
+
+    private Task HandleClickAsync() =>
+        Context.IsOpen ? Context.CloseChainAsync() : Context.RequestOpen();
+
+    private Task OnKeyDownAsync(KeyboardEventArgs e) =>
+        e.Key switch
+        {
+            "ArrowDown" or "ArrowUp" when !Context.IsOpen => Context.RequestOpen(),
+            _ => Task.CompletedTask,
+        };
+}

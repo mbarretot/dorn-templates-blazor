@@ -1,0 +1,51 @@
+@inherits UiTestContext
+@using Bunit
+@using CleanArchBlazorWasm.Web.Components.Ui.Avatar
+@using Xunit
+
+@code {
+    [Fact]
+    public void AvatarImage_RendersImg_AndFallbackIsAbsent_BeforeError()
+    {
+        var cut = Render(@<Avatar>
+            <AvatarImage Src="/avatar.png" Alt="User" AdditionalAttributes="@ImageAttributes" />
+            <AvatarFallback AdditionalAttributes="@FallbackAttributes">US</AvatarFallback>
+        </Avatar>);
+
+        var image = cut.Find("[data-testid=avatar-image]");
+        Assert.Equal("/avatar.png", image.GetAttribute("src"));
+        Assert.Equal("User", image.GetAttribute("alt"));
+        Assert.Empty(cut.FindAll("[data-testid=avatar-fallback]"));
+    }
+
+    [Fact]
+    public void AvatarImage_OnError_FlipsToFallback_InSameRenderCycle()
+    {
+        var cut = Render(@<Avatar>
+            <AvatarImage Src="/broken.png" Alt="User" AdditionalAttributes="@ImageAttributes" />
+            <AvatarFallback AdditionalAttributes="@FallbackAttributes">US</AvatarFallback>
+        </Avatar>);
+
+        cut.Find("[data-testid=avatar-image]").Error();
+
+        Assert.Empty(cut.FindAll("[data-testid=avatar-image]"));
+        Assert.Equal("US", cut.Find("[data-testid=avatar-fallback]").TextContent);
+    }
+
+    [Theory]
+    [InlineData(AvatarSize.Sm, "size-8")]
+    [InlineData(AvatarSize.Default, "size-10")]
+    [InlineData(AvatarSize.Lg, "size-12")]
+    public void Avatar_RendersSizeClass_ForEachSize(AvatarSize size, string expectedClass)
+    {
+        var cut = Render<Avatar>(parameters => parameters.Add(p => p.Size, size));
+
+        Assert.Contains(expectedClass, cut.Find("span").GetAttribute("class"));
+    }
+
+    private static readonly Dictionary<string, object> ImageAttributes =
+        new() { ["data-testid"] = "avatar-image" };
+
+    private static readonly Dictionary<string, object> FallbackAttributes =
+        new() { ["data-testid"] = "avatar-fallback" };
+}

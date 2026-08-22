@@ -1,0 +1,233 @@
+<Project>
+  <!-- Resolves, and invokes the pinned Tailwind CSS v4 standalone CLI to build wwwroot/app.css.
+       No Node, no npm, no dotnet tool wrapper — only first-party MSBuild tasks (design A1, A3).
+       Checksum enforcement, unmapped-RID handling, and DORN_TAILWIND_PATH validation are
+       layered on in build/Tailwind.targets' later revisions (design A2, A4, A7). -->
+
+  <PropertyGroup>
+    <TailwindVersion>4.3.1</TailwindVersion>
+    <TailwindEntryCss>$(MSBuildProjectDirectory)/Styles/app.tailwind.css</TailwindEntryCss>
+    <TailwindOutputCss>$(MSBuildProjectDirectory)/wwwroot/app.css</TailwindOutputCss>
+
+    <DornToolsHome Condition="'$(DornToolsHome)' == '' and '$(DORN_TOOLS_HOME)' != ''"
+      >$(DORN_TOOLS_HOME)</DornToolsHome>
+    <DornToolsHome Condition="'$(DornToolsHome)' == '' and '$(OS)' == 'Windows_NT'"
+      >$(USERPROFILE)\.dorn\tools</DornToolsHome>
+    <DornToolsHome Condition="'$(DornToolsHome)' == '' and '$(OS)' != 'Windows_NT'"
+      >$(HOME)/.dorn/tools</DornToolsHome>
+  </PropertyGroup>
+
+  <!-- RID map (design A7). $(DornTailwindRidOverride) is a test-only escape hatch so the
+       unmapped-RID path is deterministically reproducible without a real unsupported host. -->
+  <PropertyGroup>
+    <TailwindRid Condition="'$(DornTailwindRidOverride)' != ''"
+      >$(DornTailwindRidOverride)</TailwindRid>
+    <TailwindRid
+      Condition="'$(TailwindRid)' == '' and '$(NETCoreSdkRuntimeIdentifier)' == 'linux-x64'"
+      >linux-x64</TailwindRid>
+    <TailwindRid
+      Condition="'$(TailwindRid)' == '' and '$(NETCoreSdkRuntimeIdentifier)' == 'linux-arm64'"
+      >linux-arm64</TailwindRid>
+    <TailwindRid
+      Condition="'$(TailwindRid)' == '' and '$(NETCoreSdkRuntimeIdentifier)' == 'linux-musl-x64'"
+      >linux-x64-musl</TailwindRid>
+    <TailwindRid
+      Condition="'$(TailwindRid)' == '' and '$(NETCoreSdkRuntimeIdentifier)' == 'linux-musl-arm64'"
+      >linux-arm64-musl</TailwindRid>
+    <TailwindRid
+      Condition="'$(TailwindRid)' == '' and '$(NETCoreSdkRuntimeIdentifier)' == 'osx-x64'"
+      >macos-x64</TailwindRid>
+    <TailwindRid
+      Condition="'$(TailwindRid)' == '' and '$(NETCoreSdkRuntimeIdentifier)' == 'osx-arm64'"
+      >macos-arm64</TailwindRid>
+    <TailwindRid
+      Condition="'$(TailwindRid)' == '' and '$(NETCoreSdkRuntimeIdentifier)' == 'win-x64'"
+      >windows-x64</TailwindRid>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TailwindAssetName Condition="'$(TailwindRid)' == 'linux-x64'"
+      >tailwindcss-linux-x64</TailwindAssetName>
+    <TailwindAssetName Condition="'$(TailwindRid)' == 'linux-arm64'"
+      >tailwindcss-linux-arm64</TailwindAssetName>
+    <TailwindAssetName Condition="'$(TailwindRid)' == 'linux-x64-musl'"
+      >tailwindcss-linux-x64-musl</TailwindAssetName>
+    <TailwindAssetName Condition="'$(TailwindRid)' == 'linux-arm64-musl'"
+      >tailwindcss-linux-arm64-musl</TailwindAssetName>
+    <TailwindAssetName Condition="'$(TailwindRid)' == 'macos-x64'"
+      >tailwindcss-macos-x64</TailwindAssetName>
+    <TailwindAssetName Condition="'$(TailwindRid)' == 'macos-arm64'"
+      >tailwindcss-macos-arm64</TailwindAssetName>
+    <TailwindAssetName Condition="'$(TailwindRid)' == 'windows-x64'"
+      >tailwindcss-windows-x64.exe</TailwindAssetName>
+
+    <!-- Official per-release sha256sums.txt, verified against github.com/tailwindlabs/tailwindcss v4.3.1. -->
+    <TailwindSha256 Condition="'$(TailwindRid)' == 'linux-x64'"
+      >2526d063ba03b71f9a3ea7d5cee14f0aec147f117f222d5adc97b1d736d45999</TailwindSha256>
+    <TailwindSha256 Condition="'$(TailwindRid)' == 'linux-arm64'"
+      >3d662377a86d71c43b549dc06b90db4586b4acd412bf827a3268e951661e5adf</TailwindSha256>
+    <TailwindSha256 Condition="'$(TailwindRid)' == 'linux-x64-musl'"
+      >daeabe94235912b3773273053d5c8a16325af3fa513aa03b7295d6f445093cf2</TailwindSha256>
+    <TailwindSha256 Condition="'$(TailwindRid)' == 'linux-arm64-musl'"
+      >7ed72712429166d869dc8472e0cd8c61cd46e565a5bc1ba8810612bedfe61e7b</TailwindSha256>
+    <TailwindSha256 Condition="'$(TailwindRid)' == 'macos-x64'"
+      >e9e830ceb3e70b7e0775a3dd79eee8ec82c6b31270f08f2fa2857d0077045ac3</TailwindSha256>
+    <TailwindSha256 Condition="'$(TailwindRid)' == 'macos-arm64'"
+      >a27c43626185953ee19bdace1939c7601e55da654e0b2fc4461e3e29957aa739</TailwindSha256>
+    <TailwindSha256 Condition="'$(TailwindRid)' == 'windows-x64'"
+      >dc4fd46acd354d976df2a31b6425fbe865a38229a06bc005a4c59f2b3d24ab4a</TailwindSha256>
+
+    <TailwindExeExtension Condition="'$(TailwindRid)' == 'windows-x64'">.exe</TailwindExeExtension>
+    <TailwindCacheDir>$(DornToolsHome)/tailwindcss/$(TailwindVersion)/$(TailwindRid)/</TailwindCacheDir>
+    <TailwindCachedExePath>$(TailwindCacheDir)tailwindcss$(TailwindExeExtension)</TailwindCachedExePath>
+    <TailwindDownloadUrl>https://github.com/tailwindlabs/tailwindcss/releases/download/v$(TailwindVersion)/$(TailwindAssetName)</TailwindDownloadUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <_DornTailwindCssSourceFiles
+      Include="$(MSBuildProjectDirectory)/Styles/**/*.css;$(MSBuildProjectDirectory)/**/*.razor;$(MSBuildProjectDirectory)/wwwroot/index.html"
+      Exclude="$(MSBuildProjectDirectory)/wwwroot/app.css;$(MSBuildProjectDirectory)/bin/**;$(MSBuildProjectDirectory)/obj/**"
+    />
+  </ItemGroup>
+
+  <Target Name="DornResolveTailwindCli" BeforeTargets="DornBuildTailwindCss">
+    <!-- (1) DORN_TAILWIND_PATH env var override — used verbatim (design A2). A set-but-missing
+         override is an operator mistake, not a fallback trigger: fail loud with an actionable
+         message instead of silently falling through to the cache/PATH/download resolution. -->
+    <PropertyGroup Condition="'$(DORN_TAILWIND_PATH)' != ''">
+      <TailwindExePath>$(DORN_TAILWIND_PATH)</TailwindExePath>
+    </PropertyGroup>
+    <Error
+      Condition="'$(DORN_TAILWIND_PATH)' != '' and !Exists('$(DORN_TAILWIND_PATH)')"
+      Text="DORN_TAILWIND_PATH is set to '$(DORN_TAILWIND_PATH)' but no file exists at that path. Point DORN_TAILWIND_PATH at a valid Tailwind CSS CLI executable, or unset it to use the pinned download."
+    />
+
+    <!-- (2) cached binary. -->
+    <PropertyGroup Condition="'$(TailwindExePath)' == '' and Exists('$(TailwindCachedExePath)')">
+      <TailwindExePath>$(TailwindCachedExePath)</TailwindExePath>
+    </PropertyGroup>
+
+    <!-- (3) tailwindcss on PATH — best-effort, never fails the build if absent. On Windows,
+         `where.exe`'s "not found" message is written to STDOUT (unlike POSIX `command -v`,
+         which prints nothing on a miss), so ConsoleOutput alone cannot distinguish a hit from a
+         miss — the ExitCode must be checked too, or a not-found "INFO: Could not find files for
+         the given pattern(s)." line gets treated as a resolved executable path. -->
+    <Exec
+      Condition="'$(TailwindExePath)' == '' and '$(OS)' != 'Windows_NT'"
+      Command="command -v tailwindcss"
+      ContinueOnError="WarnAndContinue"
+      ConsoleToMSBuild="true"
+      StandardOutputImportance="low"
+      IgnoreExitCode="true"
+    >
+      <Output TaskParameter="ConsoleOutput" ItemName="_DornTailwindOnPath" />
+      <Output TaskParameter="ExitCode" PropertyName="_DornTailwindOnPathExitCode" />
+    </Exec>
+    <Exec
+      Condition="'$(TailwindExePath)' == '' and '$(OS)' == 'Windows_NT'"
+      Command="where tailwindcss"
+      ContinueOnError="WarnAndContinue"
+      ConsoleToMSBuild="true"
+      StandardOutputImportance="low"
+      IgnoreExitCode="true"
+    >
+      <Output TaskParameter="ConsoleOutput" ItemName="_DornTailwindOnPath" />
+      <Output TaskParameter="ExitCode" PropertyName="_DornTailwindOnPathExitCode" />
+    </Exec>
+    <PropertyGroup Condition="'$(TailwindExePath)' == '' and '$(_DornTailwindOnPathExitCode)' == '0' and '@(_DornTailwindOnPath)' != ''">
+      <TailwindExePath>%(_DornTailwindOnPath.Identity)</TailwindExePath>
+    </PropertyGroup>
+
+    <!-- (4) unmapped RID guard: no override, no cache hit, not on PATH, and no asset name for
+         this RID means there is no URL to download at all — refuse instead of downloading
+         something arbitrary (A7). Covers both a truly unmapped host RID and a bogus
+         DornTailwindRidOverride value (test-only escape hatch, see the RID map above). -->
+    <Error
+      Condition="'$(TailwindExePath)' == '' and '$(TailwindAssetName)' == ''"
+      Text="No Tailwind CSS CLI binary is mapped for RID '$(TailwindRid)'. Set DORN_TAILWIND_PATH to a local Tailwind CSS CLI executable, install tailwindcss on PATH, or add a mapping to build/Tailwind.targets."
+    />
+
+    <!-- (5) download to cache. -->
+    <MakeDir Condition="'$(TailwindExePath)' == ''" Directories="$(TailwindCacheDir)" />
+    <DownloadFile
+      Condition="'$(TailwindExePath)' == ''"
+      SourceUrl="$(TailwindDownloadUrl)"
+      DestinationFolder="$(TailwindCacheDir)"
+      DestinationFileName="tailwindcss$(TailwindExeExtension).download.$([System.Guid]::NewGuid())"
+      Retries="3"
+    >
+      <Output TaskParameter="DownloadedFile" ItemName="_DornTailwindDownload" />
+    </DownloadFile>
+
+    <GetFileHash
+      Condition="'$(TailwindExePath)' == ''"
+      Files="@(_DornTailwindDownload)"
+      Algorithm="SHA256"
+    >
+      <Output TaskParameter="Items" ItemName="_DornTailwindDownloadHashed" />
+    </GetFileHash>
+
+    <!-- Mandatory SHA-256 verification before the binary is ever moved into the cache or
+         executed (A4, A3 threat matrix). A mismatch deletes the partial download and fails the
+         build loudly — never a silent skip. -->
+    <PropertyGroup Condition="'$(TailwindExePath)' == ''">
+      <_DornTailwindDownloadedHash>@(_DornTailwindDownloadHashed->'%(FileHash)')</_DornTailwindDownloadedHash>
+      <_DornTailwindChecksumMismatch
+        Condition="'$(_DornTailwindDownloadedHash)' != '$(TailwindSha256)'"
+        >true</_DornTailwindChecksumMismatch>
+    </PropertyGroup>
+    <Delete
+      Condition="'$(_DornTailwindChecksumMismatch)' == 'true'"
+      Files="@(_DornTailwindDownload)"
+    />
+    <Error
+      Condition="'$(_DornTailwindChecksumMismatch)' == 'true'"
+      Text="Tailwind CSS CLI download checksum mismatch for RID '$(TailwindRid)': expected '$(TailwindSha256)' but computed '$(_DornTailwindDownloadedHash)'. The corrupt download has been deleted."
+    />
+
+    <PropertyGroup Condition="'$(TailwindExePath)' == '' and '$(_DornTailwindChecksumMismatch)' != 'true' and Exists('$(TailwindCachedExePath)')">
+      <_DornTailwindAlreadyCachedByAnotherProcess>true</_DornTailwindAlreadyCachedByAnotherProcess>
+    </PropertyGroup>
+    <Delete
+      Condition="'$(_DornTailwindAlreadyCachedByAnotherProcess)' == 'true'"
+      Files="@(_DornTailwindDownload)"
+    />
+
+    <Move
+      Condition="'$(TailwindExePath)' == '' and '$(_DornTailwindChecksumMismatch)' != 'true' and '$(_DornTailwindAlreadyCachedByAnotherProcess)' != 'true'"
+      SourceFiles="@(_DornTailwindDownload)"
+      DestinationFiles="$(TailwindCachedExePath)"
+    />
+    <!-- chmod +x runs only after the download is in its final cached location. -->
+    <Exec
+      Condition="'$(TailwindExePath)' == '' and '$(_DornTailwindChecksumMismatch)' != 'true' and '$(_DornTailwindAlreadyCachedByAnotherProcess)' != 'true' and '$(OS)' != 'Windows_NT'"
+      Command="chmod +x &quot;$(TailwindCachedExePath)&quot;"
+    />
+    <PropertyGroup Condition="'$(TailwindExePath)' == '' and '$(_DornTailwindChecksumMismatch)' != 'true'">
+      <TailwindExePath>$(TailwindCachedExePath)</TailwindExePath>
+    </PropertyGroup>
+  </Target>
+
+  <Target
+    Name="DornBuildTailwindCss"
+    BeforeTargets="ResolveStaticWebAssetsInputs;Compile"
+    Inputs="@(_DornTailwindCssSourceFiles)"
+    Outputs="$(TailwindOutputCss)"
+  >
+    <Exec
+      Command="&quot;$(TailwindExePath)&quot; -i &quot;$(TailwindEntryCss)&quot; -o &quot;$(TailwindOutputCss)&quot; --minify"
+      WorkingDirectory="$(MSBuildProjectDirectory)"
+    />
+
+    <!-- app.css is created after item-glob evaluation on a clean first build; re-add it
+         explicitly so the static-web-asset pipeline (which already ran its glob) still picks
+         it up (design A5). Exclude="@(Content)" avoids a duplicate-item warning on rebuilds. -->
+    <ItemGroup>
+      <Content
+        Include="$(TailwindOutputCss)"
+        Condition="Exists('$(TailwindOutputCss)')"
+        Exclude="@(Content)"
+      />
+    </ItemGroup>
+  </Target>
+</Project>

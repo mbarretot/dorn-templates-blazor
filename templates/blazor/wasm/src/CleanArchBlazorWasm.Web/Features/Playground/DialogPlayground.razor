@@ -1,0 +1,51 @@
+@page "/playground/dialog"
+@layout PlaygroundLayout
+
+<PageTitle>Playground · Dialog</PageTitle>
+
+<ComponentPlayground
+    Title="Dialog"
+    Description="Opens above all page content with a backdrop, traps focus, locks background scroll, and dismisses on Escape or an outside click."
+    CodeSnippet="@CodeSnippet"
+    ApiParameters="ApiParameters"
+>
+    <Controls>
+        <BoolControl Label="Open" @bind-Value="_open" />
+    </Controls>
+    <Preview>
+        <Dialog @bind-Open="_open">
+            <DialogTrigger Class="@Button.ResolveClass(ButtonVariant.Default, ButtonSize.Default, null)">
+                Open dialog
+            </DialogTrigger>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Edit profile</DialogTitle>
+                    <DialogDescription>
+                        Make changes to your profile here. Press Escape or click outside to close.
+                    </DialogDescription>
+                </DialogHeader>
+                <DialogFooter>
+                    <DialogClose Class="@Button.ResolveClass(ButtonVariant.Outline, ButtonSize.Default, null)">
+                        Cancel
+                    </DialogClose>
+                    <DialogClose Class="@Button.ResolveClass(ButtonVariant.Default, ButtonSize.Default, null)">
+                        Save
+                    </DialogClose>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+    </Preview>
+</ComponentPlayground>
+
+@code {
+    private bool _open;
+
+    private string CodeSnippet => $"<Dialog{(_open ? " Open=\"true\"" : "")}>...</Dialog>";
+
+    private static readonly PlaygroundParameter[] ApiParameters =
+    [
+        new("Open", "bool", "false", "Controls the open state (two-way bindable)."),
+        new("OpenChanged", "EventCallback<bool>", "-", "Fires when the open state changes."),
+        new("DefaultOpen", "bool", "false", "Initial open state when uncontrolled."),
+    ];
+}

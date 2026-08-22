@@ -1,0 +1,18 @@
+@inherits UiTestContext
+@using Bunit
+@using CleanArchBlazorServer.Web.Features.Playground
+@using Xunit
+
+@code {
+    [Fact]
+    public void ClickingRadioItemInPreview_UpdatesEchoedSelectedValue()
+    {
+        var cut = Render(@<RadioGroupPlayground />);
+
+        Assert.Contains("Selected: default", cut.Find("[data-testid=playground-preview]").TextContent);
+
+        cut.FindAll("[data-testid=playground-preview] [role=radio]")[1].Click();
+
+        Assert.Contains("Selected: comfortable", cut.Find("[data-testid=playground-preview]").TextContent);
+    }
+}
