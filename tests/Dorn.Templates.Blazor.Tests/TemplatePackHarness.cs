@@ -34,19 +34,6 @@ internal static class TemplatePackHarness
             packageId,
             $"{packageId}.csproj"
         );
-        // Unique per-call obj/ and bin/ paths: two concurrent packs of the same csproj (this
-        // harness's install fixture vs. PackedContentTests, different xUnit collections) collide
-        // on Windows' stricter file locking when they share the default obj/*.nuspec path, and
-        // isolating only BaseIntermediateOutputPath leaves stale AssemblyInfo.cs objects in a
-        // shared bin/, causing duplicate-attribute compile errors.
-        var buildScratchRoot = Path.Combine(
-            Path.GetTempPath(),
-            $"dorn-templates-blazor-build-{Guid.NewGuid():N}"
-        );
-        var intermediateDirectory =
-            Path.Combine(buildScratchRoot, "obj") + Path.DirectorySeparatorChar;
-        var baseOutputDirectory =
-            Path.Combine(buildScratchRoot, "bin") + Path.DirectorySeparatorChar;
         var result = await RunProcessAsync(
             RepoRoot,
             null,
@@ -55,8 +42,6 @@ internal static class TemplatePackHarness
             "-c",
             "Release",
             "-p:PackageVersion=0.0.1-test",
-            $"-p:BaseIntermediateOutputPath={intermediateDirectory}",
-            $"-p:BaseOutputPath={baseOutputDirectory}",
             "-o",
             outputDirectory
         );

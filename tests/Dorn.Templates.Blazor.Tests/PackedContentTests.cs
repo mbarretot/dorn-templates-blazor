@@ -3,6 +3,10 @@ using Xunit;
 
 namespace Dorn.Templates.Blazor.Tests;
 
+// Same collection as TemplatePackCollection's install fixture: both pack the same csprojs to
+// their shared default obj/ path, and concurrent xUnit collections running that in parallel
+// collide under Windows' stricter file locking.
+[Collection(TemplatePackCollection.Name)]
 public class PackedContentTests
 {
     [Theory]
@@ -20,7 +24,7 @@ public class PackedContentTests
             var nupkgPath = await TemplatePackHarness.PackAsync(packageId, outputDirectory);
 
             var extractDirectory = Path.Combine(outputDirectory, "extracted");
-            ZipFile.ExtractToDirectory(nupkgPath, extractDirectory);
+            await ZipFile.ExtractToDirectoryAsync(nupkgPath, extractDirectory);
 
             Assert.True(
                 File.Exists(
