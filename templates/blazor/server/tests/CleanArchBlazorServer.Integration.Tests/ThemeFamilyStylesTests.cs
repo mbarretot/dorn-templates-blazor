@@ -6,7 +6,15 @@ namespace CleanArchBlazorServer.Integration.Tests;
 
 public class ThemeFamilyStylesTests
 {
-    private static readonly string[] Themes = ["slate", "rose", "neutral", "linear", "primer", "lightning"];
+    private static readonly string[] Themes =
+    [
+        "slate",
+        "rose",
+        "neutral",
+        "linear",
+        "primer",
+        "lightning",
+    ];
 
     private static readonly (string Foreground, string Background)[] ContrastPairs =
     [
@@ -60,9 +68,15 @@ public class ThemeFamilyStylesTests
 
         foreach (var (foreground, background) in ContrastPairs)
         {
-            var ratio = ContrastRatio(Token(tokens, $"--ui-{foreground}"), Token(tokens, $"--ui-{background}"));
+            var ratio = ContrastRatio(
+                Token(tokens, $"--ui-{foreground}"),
+                Token(tokens, $"--ui-{background}")
+            );
 
-            Assert.True(ratio >= 4.5, $"{theme} {(isDark ? "dark" : "light")} {foreground}/{background} was {ratio:F2}:1.");
+            Assert.True(
+                ratio >= 4.5,
+                $"{theme} {(isDark ? "dark" : "light")} {foreground}/{background} was {ratio:F2}:1."
+            );
         }
     }
 
@@ -71,7 +85,11 @@ public class ThemeFamilyStylesTests
     {
         var appCss = File.ReadAllText(Path.Combine(WebProjectRoot(), "Styles", "app.tailwind.css"));
 
-        Assert.Contains("@media (prefers-reduced-motion: reduce)", appCss, StringComparison.Ordinal);
+        Assert.Contains(
+            "@media (prefers-reduced-motion: reduce)",
+            appCss,
+            StringComparison.Ordinal
+        );
         Assert.Contains("transition-duration: 0.01ms !important", appCss, StringComparison.Ordinal);
 
         foreach (var theme in Themes)
@@ -82,15 +100,26 @@ public class ThemeFamilyStylesTests
     }
 
     public static IEnumerable<object[]> ThemeModes() =>
-        Themes.SelectMany(theme => new[] { new object[] { theme, false }, new object[] { theme, true } });
+        Themes.SelectMany(theme =>
+            new[] { new object[] { theme, false }, new object[] { theme, true } }
+        );
 
     private static string ReadThemeBlock(string theme, bool isDark)
     {
-        var css = File.ReadAllText(Path.Combine(WebProjectRoot(), "Styles", "themes", $"{theme}.css"));
+        var css = File.ReadAllText(
+            Path.Combine(WebProjectRoot(), "Styles", "themes", $"{theme}.css")
+        );
         var selector = $"[data-ui-theme='{theme}']" + (isDark ? "[data-ui-mode='dark']" : "");
-        var match = Regex.Match(css, Regex.Escape(selector) + @"\s*\{(?<block>[^}]*)\}", RegexOptions.Singleline);
+        var match = Regex.Match(
+            css,
+            Regex.Escape(selector) + @"\s*\{(?<block>[^}]*)\}",
+            RegexOptions.Singleline
+        );
 
-        Assert.True(match.Success, $"Expected the {theme} {(isDark ? "dark" : "light")} token block.");
+        Assert.True(
+            match.Success,
+            $"Expected the {theme} {(isDark ? "dark" : "light")} token block."
+        );
         return match.Groups["block"].Value;
     }
 
@@ -122,7 +151,8 @@ public class ThemeFamilyStylesTests
         Assert.True(match.Success, $"Expected an opaque oklch color, received '{color}'.");
         var lightness = double.Parse(match.Groups["lightness"].Value, CultureInfo.InvariantCulture);
         var chroma = double.Parse(match.Groups["chroma"].Value, CultureInfo.InvariantCulture);
-        var hue = double.Parse(match.Groups["hue"].Value, CultureInfo.InvariantCulture) * Math.PI / 180;
+        var hue =
+            double.Parse(match.Groups["hue"].Value, CultureInfo.InvariantCulture) * Math.PI / 180;
         var a = chroma * Math.Cos(hue);
         var b = chroma * Math.Sin(hue);
         var l = Cube(lightness + 0.3963377774 * a + 0.2158037573 * b);
@@ -140,7 +170,10 @@ public class ThemeFamilyStylesTests
     private static string WebProjectRoot()
     {
         var current = new DirectoryInfo(AppContext.BaseDirectory);
-        while (current is not null && !File.Exists(Path.Combine(current.FullName, "CleanArchBlazorServer.slnx")))
+        while (
+            current is not null
+            && !File.Exists(Path.Combine(current.FullName, "CleanArchBlazorServer.slnx"))
+        )
         {
             current = current.Parent;
         }
