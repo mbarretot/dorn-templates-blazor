@@ -8,16 +8,22 @@ namespace Dorn.Templates.Blazor.BrowserTests;
 public sealed class ObservatoryBrowserTests(BrowserHostFixture fixture)
 {
     [Theory]
-    [InlineData("wasm")]
-    [InlineData("server")]
-    public async Task Observatory_is_accessible_responsive_and_persistent(string host)
+    [InlineData("wasm", 390, 844)]
+    [InlineData("wasm", 1440, 900)]
+    [InlineData("server", 390, 844)]
+    [InlineData("server", 1440, 900)]
+    public async Task Observatory_is_accessible_responsive_and_persistent(
+        string host,
+        int width,
+        int height
+    )
     {
         await using var context = await fixture.Browser.NewContextAsync(
             new() { ColorScheme = ColorScheme.Dark }
         );
         var page = await context.NewPageAsync();
         page.SetDefaultTimeout(5000);
-        await page.SetViewportSizeAsync(390, 844);
+        await page.SetViewportSizeAsync(width, height);
         await page.GotoAsync(fixture.Url(host));
         await page.GetByRole(AriaRole.Link, new() { Name = "Playground", Exact = true })
             .ClickAsync();
