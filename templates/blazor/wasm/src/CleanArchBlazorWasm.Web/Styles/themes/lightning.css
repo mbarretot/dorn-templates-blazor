@@ -5,6 +5,9 @@
   --ui-card-foreground: oklch(0.216 0.014 256.5);
   --ui-popover: oklch(1 0 0);
   --ui-popover-foreground: oklch(0.216 0.014 256.5);
+  --ui-surface: oklch(0.965 0.008 250);
+  --ui-density: 1.06;
+  --ui-motion-easing: cubic-bezier(0.16, 1, 0.3, 1);
   --ui-primary: oklch(0.556 0.161 250.6);
   --ui-primary-foreground: oklch(1 0 0);
   --ui-secondary: oklch(0.93 0.006 250);
@@ -18,14 +21,14 @@
   --ui-success: oklch(0.532 0.117 152.5);
   --ui-success-foreground: oklch(1 0 0);
   --ui-warning: oklch(0.63 0.135 62);
-  --ui-warning-foreground: oklch(1 0 0);
+  --ui-warning-foreground: oklch(0.216 0.014 256.5);
   --ui-border: oklch(0.855 0.005 250);
   --ui-input: oklch(0.855 0.005 250);
   --ui-ring: oklch(0.556 0.161 250.6);
-  --ui-font-sans: ui-sans-serif, system-ui, sans-serif;
-  --ui-shadow-elevation: 0 1px 2px rgb(15 23 42 / 12%);
+  --ui-font-sans: "Avenir Next", Avenir, ui-sans-serif, system-ui, sans-serif;
+  --ui-shadow-elevation: 0 20px 44px rgb(25 54 110 / 14%);
   --ui-focus-ring: var(--ui-ring);
-  --ui-motion-duration: 160ms;
+  --ui-motion-duration: 200ms;
   --ui-radius: 0.25rem;
 }
 
