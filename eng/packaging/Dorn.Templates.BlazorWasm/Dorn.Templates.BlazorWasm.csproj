@@ -6,6 +6,11 @@
         <Authors>Dorn Contributors</Authors>
         <Description>Blazor WebAssembly app with a Tailwind design system and Aspire orchestration. Install via `dotnet new install Dorn.Templates.BlazorWasm`.</Description>
         <PackageTags>dotnet-new;templates;blazor;webassembly;tailwind;design-system</PackageTags>
+        <PackageProjectUrl>https://github.com/mbarretot/dorn-templates-blazor</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/mbarretot/dorn-templates-blazor.git</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageIcon>dorn-icon.jpg</PackageIcon>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
         <TargetFramework>netstandard2.0</TargetFramework>
         <IncludeContentInPack>true</IncludeContentInPack>
         <IncludeBuildOutput>false</IncludeBuildOutput>
@@ -17,6 +22,8 @@
         <PackageVersion Condition="'$(PackageVersion)'==''">0.0.1-local</PackageVersion>
     </PropertyGroup>
     <ItemGroup>
+        <None Include="README.md" Pack="true" PackagePath="\" />
+        <None Include="../assets/dorn-icon.jpg" Pack="true" PackagePath="\" />
         <Content
             Include="../../../templates/blazor/wasm/**/*"
             Exclude="../../../templates/blazor/wasm/**/bin/**;../../../templates/blazor/wasm/**/obj/**;../../../templates/blazor/wasm/**/TestResults/**;../../../templates/blazor/wasm/**/*.user"
