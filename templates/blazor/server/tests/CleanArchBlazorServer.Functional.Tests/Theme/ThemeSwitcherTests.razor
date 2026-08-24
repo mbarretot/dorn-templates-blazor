@@ -1,0 +1,51 @@
+@inherits UiTestContext
+@using Bunit
+@using CleanArchBlazorServer.Web.Components.Theme
+@using Dorn.WebUI.Primitives.Theme
+@using Microsoft.Extensions.DependencyInjection
+@using Xunit
+
+@code {
+    public ThemeSwitcherTests()
+    {
+        Services.AddScoped<ThemeInterop>();
+        Services.AddScoped<ThemeState>();
+    }
+
+    private void SetupMenuInterop()
+    {
+        AnchorModule.SetupVoid("show", _ => true).SetVoidResult();
+        AnchorModule.SetupVoid("position", _ => true).SetVoidResult();
+        AnchorModule.SetupVoid("hide", _ => true).SetVoidResult();
+        AnchorModule.SetupVoid("dispose", _ => true).SetVoidResult();
+        DismissModule.SetupVoid("activate", _ => true).SetVoidResult();
+        DismissModule.SetupVoid("deactivate", _ => true).SetVoidResult();
+    }
+
+    [Fact]
+    public void OnFirstRender_ShowsConfiguredMode_WhenSystemResolvesDark()
+    {
+        JSInterop
+            .Setup<ThemeSnapshot>("dornTheme.getSnapshot")
+            .SetResult(new ThemeSnapshot("rose", "system", true));
+
+        var cut = Render(@<ThemeSwitcher />);
+
+        Assert.Equal("System", cut.Find("[data-testid=mode-trigger]").TextContent.Trim());
+        Assert.Equal("rose", cut.Find("[data-testid=theme-trigger]").TextContent.Trim());
+    }
+
+    [Fact]
+    public void OnFirstRender_MarksConfiguredModeAsCurrent()
+    {
+        SetupMenuInterop();
+        JSInterop
+            .Setup<ThemeSnapshot>("dornTheme.getSnapshot")
+            .SetResult(new ThemeSnapshot("slate", "system", true));
+
+        var cut = Render(@<ThemeSwitcher />);
+        cut.Find("[data-testid=mode-trigger]").Click();
+
+        Assert.Equal("true", cut.Find("[data-testid=mode-option-System]").GetAttribute("aria-current"));
+    }
+}
