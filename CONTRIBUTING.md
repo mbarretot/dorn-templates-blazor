@@ -14,13 +14,32 @@ nuget.org.
 ```bash
 dotnet test templates/blazor/wasm/CleanArchBlazorWasm.slnx
 dotnet test templates/blazor/server/CleanArchBlazorServer.slnx
-dotnet test DornTemplatesBlazor.slnx
+dotnet test tests/Dorn.Templates.Blazor.Tests/Dorn.Templates.Blazor.Tests.csproj
 ```
 
 The first two commands run each template's own Application/Architecture/Functional/Integration test
 tiers. The third packs both template packs, installs them via `dotnet new install`, generates real
 projects across all 6 themes and the playground toggle, and builds the result — this is the
 CLI-channel proof that mirrors what `dorn new blazor-wasm`/`blazor-server` do downstream.
+
+Run it as its own project, not via `dotnet test DornTemplatesBlazor.slnx`: that command would also
+run the browser quality suite below in the same pass, and both projects install/uninstall the same
+two template package IDs into the shared, global `dotnet new` template store — running them
+concurrently races and fails intermittently.
+
+### Browser quality suite
+
+```bash
+dotnet test tests/Dorn.Templates.Blazor.BrowserTests/Dorn.Templates.Blazor.BrowserTests.csproj -c Release
+```
+
+Packs and publishes both templates, launches the generated WASM and Server hosts on loopback ports,
+and drives the Observatory shell with Playwright across mobile and desktop viewports for each host:
+Home → Playground navigation, keyboard focus, 200% zoom, `axe-core` accessibility scan, navigation
+performance, and System-mode theme persistence. The Server host runs from its published output
+(`dotnet publish` + the published dll) rather than `dotnet run`, because .NET 10's
+`MapStaticAssets()` mis-serves framework assets when run from source; run it from its own directory,
+since ASP.NET Core derives the content root from the working directory, not the executable's path.
 
 ## Versioning
 
