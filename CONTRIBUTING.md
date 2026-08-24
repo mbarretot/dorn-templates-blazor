@@ -41,6 +41,34 @@ performance, and System-mode theme persistence. The Server host runs from its pu
 `MapStaticAssets()` mis-serves framework assets when run from source; run it from its own directory,
 since ASP.NET Core derives the content root from the working directory, not the executable's path.
 
+## Theme system
+
+Each host ships six theme families under `Styles/themes/*.css` — `slate` (default), `rose`,
+`neutral`, `linear`, `primer`, `lightning` — selected at generation time by the template's `--theme`
+parameter (`.template.config/template.json`). `wwwroot/theme-boot.js` is a classic, non-module
+`<script>` that must stay synchronous: it sets `data-ui-theme`/`data-ui-mode` on `<html>` before
+first paint, so C#/Blazor never has to and a themed reload never flashes the wrong theme. To add a
+theme family: add a `Styles/themes/<name>.css` file with light/dark token blocks (mirrored in both
+`templates/blazor/{wasm,server}`), add its `choice` entry to both `template.json` files, and add it
+to the Phase 4 `ThemeFamilyStylesTests` parsing coverage in both hosts.
+
+## Playground
+
+`Features/Playground/PlaygroundCatalog.cs` is the single source of truth for the Playground's nav
+and routes — each entry maps to a `/playground/<slug>` route and a `<Component>Playground.razor`
+page. To add a new component: create its playground page (reusing `EnumControl`/`BoolControl`/
+`TextControl`/`NumberControl` for its inspector controls, each of which forwards `aria-label` and
+other unmatched attributes straight to the underlying `Select`/`Switch`/`Input`), then add a
+`PlaygroundEntry` to the matching category in both hosts' `PlaygroundCatalog.cs`.
+
+## Assets
+
+Static assets referenced from Razor (`theme-boot.js`, `app.css`) MUST go through `@Assets["..."]`,
+never a literal `href`/`src`, so ASP.NET Core's `MapStaticAssets()` fingerprints the URL for cache
+busting. The Server host's `App.razor` deliberately sets no `data-ui-theme`/`data-ui-mode` inline
+because the server can't read `localStorage` during a static render — `theme-boot.js` stays the sole
+writer for both hosts.
+
 ## Versioning
 
 Versioning is tag-derived, not GitVersion. Pushing a `v<version>` tag (e.g. `v1.2.0`) triggers
