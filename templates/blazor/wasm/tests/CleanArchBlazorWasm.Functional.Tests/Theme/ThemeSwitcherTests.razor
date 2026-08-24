@@ -27,16 +27,30 @@
     }
 
     [Fact]
-    public void OnFirstRender_ReadsSnapshot_AndShowsResolvedMode()
+    public void OnFirstRender_ShowsConfiguredMode_WhenSystemResolvesDark()
     {
         JSInterop
             .Setup<ThemeSnapshot>("dornTheme.getSnapshot")
-            .SetResult(new ThemeSnapshot("rose", "dark", true));
+            .SetResult(new ThemeSnapshot("rose", "system", true));
 
         var cut = Render(@<ThemeSwitcher />);
 
-        Assert.Contains("Dark", cut.Markup);
+        Assert.Contains("System", cut.Markup);
         Assert.Contains("rose", cut.Markup);
+    }
+
+    [Fact]
+    public void OnFirstRender_MarksConfiguredModeAsCurrent()
+    {
+        SetupMenuInterop();
+        JSInterop
+            .Setup<ThemeSnapshot>("dornTheme.getSnapshot")
+            .SetResult(new ThemeSnapshot("slate", "system", true));
+
+        var cut = Render(@<ThemeSwitcher />);
+        cut.Find("[data-testid=mode-trigger]").Click();
+
+        Assert.Equal("true", cut.Find("[data-testid=mode-option-System]").GetAttribute("aria-current"));
     }
 
     [Fact]

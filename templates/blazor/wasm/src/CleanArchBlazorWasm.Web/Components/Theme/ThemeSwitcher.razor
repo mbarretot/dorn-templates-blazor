@@ -3,15 +3,16 @@
 
 <div class="flex items-center gap-2" @attributes="AdditionalAttributes">
     <DropdownMenu>
-        <DropdownMenuTrigger data-testid="mode-trigger" Class="@TriggerClass" aria-label="Change color mode">
-            @ThemeState.ResolvedMode
+        <DropdownMenuTrigger data-testid="mode-trigger" Class="@TriggerClass" aria-label="Configured color mode">
+            @ThemeState.Mode
         </DropdownMenuTrigger>
         <DropdownMenuContent>
-            <DropdownMenuLabel>Mode</DropdownMenuLabel>
+            <DropdownMenuLabel>Configured mode</DropdownMenuLabel>
             @foreach (var mode in Modes)
             {
                 <DropdownMenuItem
                     data-testid="@($"mode-option-{mode}")"
+                    aria-current="@(ThemeState.Mode == mode ? "true" : "false")"
                     OnClick="@(() => ThemeState.SetModeAsync(mode))"
                 >
                     @mode
