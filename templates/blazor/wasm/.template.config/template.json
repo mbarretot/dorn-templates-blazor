@@ -41,6 +41,12 @@
       "defaultValue": "slate",
       "replaces": "__DORN_DEFAULT_THEME__",
       "description": "Boot-default theme (matches Styles/themes/*.css and wwwroot/theme-boot.js). Both theme stylesheets always ship regardless of this choice."
+    },
+    "IncludeAspire": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "false",
+      "description": "Include .NET Aspire orchestration: an AppHost project that registers the WebAssembly front-end as a resource. Off by default — the generated app runs as a plain Blazor WebAssembly app."
     }
   },
   "sources": [
@@ -70,6 +76,24 @@
             "src/CleanArchBlazorWasm.Web/Components/Layout/NavMenu.Lean.razor": "src/CleanArchBlazorWasm.Web/Components/Layout/NavMenu.razor"
           },
           "exclude": ["src/CleanArchBlazorWasm.Web/Components/Layout/NavMenu.Playground.razor"]
+        },
+        {
+          "condition": "(!IncludeAspire)",
+          "exclude": ["src/CleanArchBlazorWasm.AppHost/**"]
+        },
+        {
+          "condition": "(IncludeAspire)",
+          "rename": {
+            "CleanArchBlazorWasm.WithAspire.slnx": "CleanArchBlazorWasm.slnx"
+          },
+          "exclude": ["CleanArchBlazorWasm.NoAspire.slnx"]
+        },
+        {
+          "condition": "(!IncludeAspire)",
+          "rename": {
+            "CleanArchBlazorWasm.NoAspire.slnx": "CleanArchBlazorWasm.slnx"
+          },
+          "exclude": ["CleanArchBlazorWasm.WithAspire.slnx"]
         }
       ]
     }

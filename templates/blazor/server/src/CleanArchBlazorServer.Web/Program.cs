@@ -2,7 +2,9 @@ using Dorn.WebUI.Primitives.Toast;
 
 var builder = WebApplication.CreateBuilder(args);
 
+#if (IncludeAspire)
 builder.AddServiceDefaults();
+#endif
 builder.Services.AddRazorComponents().AddInteractiveServerComponents();
 
 builder.Services.AddScoped<ThemeInterop>();
@@ -21,7 +23,9 @@ app.UseHttpsRedirection();
 app.UseAntiforgery();
 app.MapStaticAssets();
 app.MapRazorComponents<App>().AddInteractiveServerRenderMode();
+#if (IncludeAspire)
 app.MapDefaultEndpoints();
+#endif
 
 app.Run();
 

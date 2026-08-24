@@ -342,6 +342,150 @@ public class BlazorWasmTemplateGenerationTests
         }
     }
 
+    /// <summary>Aspire opt-in toggle: default generation must NOT include AppHost.</summary>
+    [Fact]
+    public async Task GenerateWithDefaultIncludeAspire_ExcludesAppHost_AndBuilds()
+    {
+        var outputDirectory = Path.Combine(
+            BuildSupport.RealTempRoot,
+            $"dorn-tests-blazor-wasm-noaspire-{Guid.NewGuid():N}"
+        );
+        var toolsHome = Path.Combine(
+            BuildSupport.RealTempRoot,
+            $"dorn-tests-blazor-wasm-noaspire-tools-{Guid.NewGuid():N}"
+        );
+        try
+        {
+            var result = await TemplatePackHarness.GenerateAsync(
+                "dorn-blazor-wasm",
+                "DornNoAspireBlazorWasmApp",
+                outputDirectory
+            );
+
+            Assert.True(
+                result.ExitCode == 0,
+                $"Template generation failed (exit {result.ExitCode})."
+                    + $"{Environment.NewLine}STDOUT:{Environment.NewLine}{result.StdOut}"
+                    + $"{Environment.NewLine}STDERR:{Environment.NewLine}{result.StdErr}"
+            );
+
+            var srcRoot = Path.Combine(outputDirectory, "src");
+            Assert.False(
+                Directory.Exists(Path.Combine(srcRoot, "DornNoAspireBlazorWasmApp.AppHost")),
+                "AppHost must be excluded when IncludeAspire is false (default)."
+            );
+
+            var slnFiles = Directory.GetFiles(
+                outputDirectory,
+                "*.slnx",
+                SearchOption.TopDirectoryOnly
+            );
+            Assert.Single(slnFiles);
+            var slnContent = await File.ReadAllTextAsync(slnFiles[0]);
+            Assert.DoesNotContain("AppHost", slnContent, StringComparison.Ordinal);
+
+            var buildResult = await BuildSupport.RunDotnetBuildAsync(slnFiles[0], toolsHome);
+
+            Assert.True(
+                buildResult.ExitCode == 0,
+                $"dotnet build exited with {buildResult.ExitCode}."
+                    + $"{Environment.NewLine}STDOUT:{Environment.NewLine}{buildResult.StdOut}"
+                    + $"{Environment.NewLine}STDERR:{Environment.NewLine}{buildResult.StdErr}"
+            );
+        }
+        finally
+        {
+            if (Environment.GetEnvironmentVariable("DORN_TEST_KEEP_TEMP") != "true")
+            {
+                if (Directory.Exists(outputDirectory))
+                {
+                    await BuildSupport.DeleteDirectoryWithRetryAsync(outputDirectory);
+                }
+                if (Directory.Exists(toolsHome))
+                {
+                    await BuildSupport.DeleteDirectoryWithRetryAsync(toolsHome);
+                }
+            }
+            else
+            {
+                Console.WriteLine("KEPT: " + outputDirectory);
+            }
+        }
+    }
+
+    /// <summary>Aspire opt-in toggle: --IncludeAspire true must include AppHost.</summary>
+    [Fact]
+    public async Task GenerateWithIncludeAspireTrue_IncludesAppHost_AndBuilds()
+    {
+        var outputDirectory = Path.Combine(
+            BuildSupport.RealTempRoot,
+            $"dorn-tests-blazor-wasm-aspire-{Guid.NewGuid():N}"
+        );
+        var toolsHome = Path.Combine(
+            BuildSupport.RealTempRoot,
+            $"dorn-tests-blazor-wasm-aspire-tools-{Guid.NewGuid():N}"
+        );
+        try
+        {
+            var result = await TemplatePackHarness.GenerateAsync(
+                "dorn-blazor-wasm",
+                "DornAspireBlazorWasmApp",
+                outputDirectory,
+                "--IncludeAspire",
+                "true"
+            );
+
+            Assert.True(
+                result.ExitCode == 0,
+                $"Template generation failed (exit {result.ExitCode})."
+                    + $"{Environment.NewLine}STDOUT:{Environment.NewLine}{result.StdOut}"
+                    + $"{Environment.NewLine}STDERR:{Environment.NewLine}{result.StdErr}"
+            );
+
+            var srcRoot = Path.Combine(outputDirectory, "src");
+            Assert.True(
+                Directory.Exists(Path.Combine(srcRoot, "DornAspireBlazorWasmApp.AppHost")),
+                "AppHost must be included when IncludeAspire is true."
+            );
+
+            var slnFiles = Directory.GetFiles(
+                outputDirectory,
+                "*.slnx",
+                SearchOption.TopDirectoryOnly
+            );
+            Assert.Single(slnFiles);
+            var slnContent = await File.ReadAllTextAsync(slnFiles[0]);
+            Assert.Contains("AppHost", slnContent, StringComparison.Ordinal);
+
+            var buildResult = await BuildSupport.RunDotnetBuildAsync(slnFiles[0], toolsHome);
+
+            Assert.True(
+                buildResult.ExitCode == 0,
+                $"dotnet build exited with {buildResult.ExitCode}."
+                    + $"{Environment.NewLine}STDOUT:{Environment.NewLine}{buildResult.StdOut}"
+                    + $"{Environment.NewLine}STDERR:{Environment.NewLine}{buildResult.StdErr}"
+            );
+        }
+        finally
+        {
+            if (Environment.GetEnvironmentVariable("DORN_TEST_KEEP_TEMP") != "true")
+            {
+                if (Directory.Exists(outputDirectory))
+                {
+                    await BuildSupport.DeleteDirectoryWithRetryAsync(outputDirectory);
+                }
+                if (Directory.Exists(toolsHome))
+                {
+                    await BuildSupport.DeleteDirectoryWithRetryAsync(toolsHome);
+                }
+            }
+            else
+            {
+                Console.WriteLine("KEPT: " + outputDirectory);
+            }
+        }
+    }
+
     [Fact]
     public async Task GenerateAndVerify_DornBlazorWasmTemplate_WiresWave2ToastSelectDropdownMenu()
     {

@@ -1,0 +1,13 @@
+<Solution>
+    <Folder Name="/src/">
+        <Project Path="src/CleanArchBlazorServer.AppHost/CleanArchBlazorServer.AppHost.csproj" />
+        <Project Path="src/CleanArchBlazorServer.ServiceDefaults/CleanArchBlazorServer.ServiceDefaults.csproj" />
+        <Project Path="src/CleanArchBlazorServer.Web/CleanArchBlazorServer.Web.csproj" />
+    </Folder>
+    <Folder Name="/tests/">
+        <Project Path="tests/CleanArchBlazorServer.Application.Tests/CleanArchBlazorServer.Application.Tests.csproj" />
+        <Project Path="tests/CleanArchBlazorServer.Architecture.Tests/CleanArchBlazorServer.Architecture.Tests.csproj" />
+        <Project Path="tests/CleanArchBlazorServer.Functional.Tests/CleanArchBlazorServer.Functional.Tests.csproj" />
+        <Project Path="tests/CleanArchBlazorServer.Integration.Tests/CleanArchBlazorServer.Integration.Tests.csproj" />
+    </Folder>
+</Solution>
