@@ -101,16 +101,4 @@ public class RootDocumentTests : IClassFixture<WebApplicationFactory<Program>>
         Assert.Contains("Component Observatory", html, StringComparison.Ordinal);
         Assert.Contains("_framework/blazor.web.js", html, StringComparison.Ordinal);
     }
-
-    [Theory]
-    [InlineData("/health")]
-    [InlineData("/alive")]
-    public async Task HealthEndpoints_RespondSuccessfully(string path)
-    {
-        var client = _factory.CreateClient();
-
-        var response = await client.GetAsync(path);
-
-        response.EnsureSuccessStatusCode();
-    }
 }

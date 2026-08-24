@@ -1,0 +1,71 @@
+@inherits UiTestContext
+@using Bunit
+@using CleanArchBlazorServer.Web.Components.Theme
+@using Dorn.WebUI.Primitives.Theme
+@using Microsoft.Extensions.DependencyInjection
+@using Xunit
+
+@code {
+    public ThemeToggleTests()
+    {
+        Services.AddScoped<ThemeInterop>();
+        Services.AddScoped<ThemeState>();
+    }
+
+    [Fact]
+    public void OnFirstRender_ShowsSunIcon_WhenResolvedModeIsLight()
+    {
+        JSInterop
+            .Setup<ThemeSnapshot>("dornTheme.getSnapshot")
+            .SetResult(new ThemeSnapshot("slate", "light", false));
+
+        var cut = Render(@<ThemeToggle />);
+
+        var toggle = cut.Find("[data-testid=theme-mode-toggle]");
+        Assert.Equal("false", toggle.GetAttribute("aria-pressed"));
+        Assert.Equal("Switch to dark mode", toggle.GetAttribute("aria-label"));
+    }
+
+    [Fact]
+    public void OnFirstRender_ShowsMoonIcon_WhenResolvedModeIsDark()
+    {
+        JSInterop
+            .Setup<ThemeSnapshot>("dornTheme.getSnapshot")
+            .SetResult(new ThemeSnapshot("slate", "dark", false));
+
+        var cut = Render(@<ThemeToggle />);
+
+        var toggle = cut.Find("[data-testid=theme-mode-toggle]");
+        Assert.Equal("true", toggle.GetAttribute("aria-pressed"));
+        Assert.Equal("Switch to light mode", toggle.GetAttribute("aria-label"));
+    }
+
+    [Fact]
+    public void OnFirstRender_ResolvesDark_WhenModeIsSystemAndSystemPrefersDark()
+    {
+        JSInterop
+            .Setup<ThemeSnapshot>("dornTheme.getSnapshot")
+            .SetResult(new ThemeSnapshot("slate", "system", true));
+
+        var cut = Render(@<ThemeToggle />);
+
+        Assert.Equal(
+            "true",
+            cut.Find("[data-testid=theme-mode-toggle]").GetAttribute("aria-pressed")
+        );
+    }
+
+    [Fact]
+    public async Task Click_WhenLight_CallsSetModeDark()
+    {
+        JSInterop
+            .Setup<ThemeSnapshot>("dornTheme.getSnapshot")
+            .SetResult(new ThemeSnapshot("slate", "light", false));
+        var setMode = JSInterop.SetupVoid("dornTheme.setMode", "dark").SetVoidResult();
+
+        var cut = Render(@<ThemeToggle />);
+        await cut.InvokeAsync(() => cut.Find("[data-testid=theme-mode-toggle]").Click());
+
+        Assert.Single(setMode.Invocations);
+    }
+}

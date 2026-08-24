@@ -332,6 +332,194 @@ public class BlazorServerTemplateGenerationTests
         }
     }
 
+    /// <summary>Aspire opt-in toggle: default generation must NOT include AppHost/ServiceDefaults.</summary>
+    [Fact]
+    public async Task GenerateWithDefaultIncludeAspire_ExcludesAppHostAndServiceDefaults_AndBuilds()
+    {
+        var outputDirectory = Path.Combine(
+            BuildSupport.RealTempRoot,
+            $"dorn-tests-blazor-server-noaspire-{Guid.NewGuid():N}"
+        );
+        var toolsHome = Path.Combine(
+            BuildSupport.RealTempRoot,
+            $"dorn-tests-blazor-server-noaspire-tools-{Guid.NewGuid():N}"
+        );
+        try
+        {
+            var result = await TemplatePackHarness.GenerateAsync(
+                "dorn-blazor-server",
+                "DornNoAspireBlazorServerApp",
+                outputDirectory
+            );
+
+            Assert.True(
+                result.ExitCode == 0,
+                $"Template generation failed (exit {result.ExitCode})."
+                    + $"{Environment.NewLine}STDOUT:{Environment.NewLine}{result.StdOut}"
+                    + $"{Environment.NewLine}STDERR:{Environment.NewLine}{result.StdErr}"
+            );
+
+            var srcRoot = Path.Combine(outputDirectory, "src");
+            Assert.False(
+                Directory.Exists(Path.Combine(srcRoot, "DornNoAspireBlazorServerApp.AppHost")),
+                "AppHost must be excluded when IncludeAspire is false (default)."
+            );
+            Assert.False(
+                Directory.Exists(
+                    Path.Combine(srcRoot, "DornNoAspireBlazorServerApp.ServiceDefaults")
+                ),
+                "ServiceDefaults must be excluded when IncludeAspire is false (default)."
+            );
+
+            var webCsproj = await File.ReadAllTextAsync(
+                Path.Combine(
+                    srcRoot,
+                    "DornNoAspireBlazorServerApp.Web",
+                    "DornNoAspireBlazorServerApp.Web.csproj"
+                )
+            );
+            Assert.DoesNotContain("ServiceDefaults", webCsproj, StringComparison.Ordinal);
+
+            var program = await File.ReadAllTextAsync(
+                Path.Combine(srcRoot, "DornNoAspireBlazorServerApp.Web", "Program.cs")
+            );
+            Assert.DoesNotContain("AddServiceDefaults", program, StringComparison.Ordinal);
+            Assert.DoesNotContain("MapDefaultEndpoints", program, StringComparison.Ordinal);
+
+            var slnFiles = Directory.GetFiles(
+                outputDirectory,
+                "*.slnx",
+                SearchOption.TopDirectoryOnly
+            );
+            Assert.Single(slnFiles);
+            var slnContent = await File.ReadAllTextAsync(slnFiles[0]);
+            Assert.DoesNotContain("AppHost", slnContent, StringComparison.Ordinal);
+            Assert.DoesNotContain("ServiceDefaults", slnContent, StringComparison.Ordinal);
+
+            var buildResult = await BuildSupport.RunDotnetBuildAsync(slnFiles[0], toolsHome);
+
+            Assert.True(
+                buildResult.ExitCode == 0,
+                $"dotnet build exited with {buildResult.ExitCode}."
+                    + $"{Environment.NewLine}STDOUT:{Environment.NewLine}{buildResult.StdOut}"
+                    + $"{Environment.NewLine}STDERR:{Environment.NewLine}{buildResult.StdErr}"
+            );
+        }
+        finally
+        {
+            if (Environment.GetEnvironmentVariable("DORN_TEST_KEEP_TEMP") != "true")
+            {
+                if (Directory.Exists(outputDirectory))
+                {
+                    await BuildSupport.DeleteDirectoryWithRetryAsync(outputDirectory);
+                }
+                if (Directory.Exists(toolsHome))
+                {
+                    await BuildSupport.DeleteDirectoryWithRetryAsync(toolsHome);
+                }
+            }
+            else
+            {
+                Console.WriteLine("KEPT: " + outputDirectory);
+            }
+        }
+    }
+
+    /// <summary>Aspire opt-in toggle: --IncludeAspire true must include AppHost/ServiceDefaults.</summary>
+    [Fact]
+    public async Task GenerateWithIncludeAspireTrue_IncludesAppHostAndServiceDefaults_AndBuilds()
+    {
+        var outputDirectory = Path.Combine(
+            BuildSupport.RealTempRoot,
+            $"dorn-tests-blazor-server-aspire-{Guid.NewGuid():N}"
+        );
+        var toolsHome = Path.Combine(
+            BuildSupport.RealTempRoot,
+            $"dorn-tests-blazor-server-aspire-tools-{Guid.NewGuid():N}"
+        );
+        try
+        {
+            var result = await TemplatePackHarness.GenerateAsync(
+                "dorn-blazor-server",
+                "DornAspireBlazorServerApp",
+                outputDirectory,
+                "--IncludeAspire",
+                "true"
+            );
+
+            Assert.True(
+                result.ExitCode == 0,
+                $"Template generation failed (exit {result.ExitCode})."
+                    + $"{Environment.NewLine}STDOUT:{Environment.NewLine}{result.StdOut}"
+                    + $"{Environment.NewLine}STDERR:{Environment.NewLine}{result.StdErr}"
+            );
+
+            var srcRoot = Path.Combine(outputDirectory, "src");
+            Assert.True(
+                Directory.Exists(Path.Combine(srcRoot, "DornAspireBlazorServerApp.AppHost")),
+                "AppHost must be included when IncludeAspire is true."
+            );
+            Assert.True(
+                Directory.Exists(
+                    Path.Combine(srcRoot, "DornAspireBlazorServerApp.ServiceDefaults")
+                ),
+                "ServiceDefaults must be included when IncludeAspire is true."
+            );
+
+            var webCsproj = await File.ReadAllTextAsync(
+                Path.Combine(
+                    srcRoot,
+                    "DornAspireBlazorServerApp.Web",
+                    "DornAspireBlazorServerApp.Web.csproj"
+                )
+            );
+            Assert.Contains("ServiceDefaults", webCsproj, StringComparison.Ordinal);
+
+            var program = await File.ReadAllTextAsync(
+                Path.Combine(srcRoot, "DornAspireBlazorServerApp.Web", "Program.cs")
+            );
+            Assert.Contains("AddServiceDefaults();", program, StringComparison.Ordinal);
+            Assert.Contains("MapDefaultEndpoints();", program, StringComparison.Ordinal);
+
+            var slnFiles = Directory.GetFiles(
+                outputDirectory,
+                "*.slnx",
+                SearchOption.TopDirectoryOnly
+            );
+            Assert.Single(slnFiles);
+            var slnContent = await File.ReadAllTextAsync(slnFiles[0]);
+            Assert.Contains("AppHost", slnContent, StringComparison.Ordinal);
+            Assert.Contains("ServiceDefaults", slnContent, StringComparison.Ordinal);
+
+            var buildResult = await BuildSupport.RunDotnetBuildAsync(slnFiles[0], toolsHome);
+
+            Assert.True(
+                buildResult.ExitCode == 0,
+                $"dotnet build exited with {buildResult.ExitCode}."
+                    + $"{Environment.NewLine}STDOUT:{Environment.NewLine}{buildResult.StdOut}"
+                    + $"{Environment.NewLine}STDERR:{Environment.NewLine}{buildResult.StdErr}"
+            );
+        }
+        finally
+        {
+            if (Environment.GetEnvironmentVariable("DORN_TEST_KEEP_TEMP") != "true")
+            {
+                if (Directory.Exists(outputDirectory))
+                {
+                    await BuildSupport.DeleteDirectoryWithRetryAsync(outputDirectory);
+                }
+                if (Directory.Exists(toolsHome))
+                {
+                    await BuildSupport.DeleteDirectoryWithRetryAsync(toolsHome);
+                }
+            }
+            else
+            {
+                Console.WriteLine("KEPT: " + outputDirectory);
+            }
+        }
+    }
+
     [Fact]
     public async Task GenerateAndVerify_DornBlazorServerTemplate_WiresWave2ToastSelectDropdownMenu()
     {

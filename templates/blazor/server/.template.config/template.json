@@ -41,6 +41,12 @@
       "defaultValue": "slate",
       "replaces": "__DORN_DEFAULT_THEME__",
       "description": "Boot-default theme (matches Styles/themes/*.css and wwwroot/theme-boot.js). Both theme stylesheets always ship regardless of this choice."
+    },
+    "IncludeAspire": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "false",
+      "description": "Include .NET Aspire orchestration: an AppHost project and a ServiceDefaults project (OpenTelemetry, health checks, service discovery). Off by default — the generated app runs as a plain ASP.NET Core web app."
     }
   },
   "sources": [
@@ -70,6 +76,24 @@
             "src/CleanArchBlazorServer.Web/Components/Layout/NavMenu.Lean.razor": "src/CleanArchBlazorServer.Web/Components/Layout/NavMenu.razor"
           },
           "exclude": ["src/CleanArchBlazorServer.Web/Components/Layout/NavMenu.Playground.razor"]
+        },
+        {
+          "condition": "(!IncludeAspire)",
+          "exclude": [
+            "src/CleanArchBlazorServer.AppHost/**",
+            "src/CleanArchBlazorServer.ServiceDefaults/**"
+          ]
+        },
+        {
+          "condition": "(IncludeAspire)",
+          "exclude": ["CleanArchBlazorServer.NoAspire.slnx"]
+        },
+        {
+          "condition": "(!IncludeAspire)",
+          "rename": {
+            "CleanArchBlazorServer.NoAspire.slnx": "CleanArchBlazorServer.slnx"
+          },
+          "exclude": ["CleanArchBlazorServer.slnx"]
         }
       ]
     }

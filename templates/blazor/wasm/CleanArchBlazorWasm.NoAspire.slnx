@@ -1,6 +1,5 @@
 <Solution>
     <Folder Name="/src/">
-        <Project Path="src/CleanArchBlazorWasm.AppHost/CleanArchBlazorWasm.AppHost.csproj" />
         <Project Path="src/CleanArchBlazorWasm.Web/CleanArchBlazorWasm.Web.csproj" />
     </Folder>
     <Folder Name="/tests/">
