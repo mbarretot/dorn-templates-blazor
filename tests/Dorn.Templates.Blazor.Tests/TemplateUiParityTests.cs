@@ -12,19 +12,13 @@ public class TemplateUiParityTests
             Normalize(ReadWebFile("server", "CleanArchBlazorServer", "Styles", "app.tailwind.css"))
         );
         Assert.Equal(
-            ReadWebFile(
-                "wasm",
-                "CleanArchBlazorWasm",
-                "Components",
-                "Theme",
-                "ThemeSwitcher.razor"
-            ),
+            ReadWebFile("wasm", "CleanArchBlazorWasm", "Components", "Theme", "ThemeToggle.razor"),
             ReadWebFile(
                 "server",
                 "CleanArchBlazorServer",
                 "Components",
                 "Theme",
-                "ThemeSwitcher.razor"
+                "ThemeToggle.razor"
             )
         );
         Assert.Equal(
