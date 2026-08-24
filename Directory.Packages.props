@@ -7,7 +7,7 @@
         <PackageVersion Include="xunit" Version="2.9.3" />
         <PackageVersion Include="xunit.runner.visualstudio" Version="2.8.2" />
         <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
-        <PackageVersion Include="coverlet.collector" Version="6.0.2" />
+        <PackageVersion Include="coverlet.collector" Version="10.0.1" />
         <PackageVersion Include="Microsoft.Playwright" Version="1.55.0" />
         <PackageVersion Include="Deque.AxeCore.Playwright" Version="4.13.0" />
     </ItemGroup>
