@@ -86,9 +86,6 @@
         },
         {
           "condition": "(IncludeAspire)",
-          "rename": {
-            "CleanArchBlazorServer.WithAspire.slnx": "CleanArchBlazorServer.slnx"
-          },
           "exclude": ["CleanArchBlazorServer.NoAspire.slnx"]
         },
         {
@@ -96,7 +93,7 @@
           "rename": {
             "CleanArchBlazorServer.NoAspire.slnx": "CleanArchBlazorServer.slnx"
           },
-          "exclude": ["CleanArchBlazorServer.WithAspire.slnx"]
+          "exclude": ["CleanArchBlazorServer.slnx"]
         }
       ]
     }
