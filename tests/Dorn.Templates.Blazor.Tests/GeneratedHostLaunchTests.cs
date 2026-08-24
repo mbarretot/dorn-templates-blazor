@@ -66,10 +66,7 @@ public class GeneratedHostLaunchTests
                 await StopAsync(process);
                 process.Dispose();
             }
-            if (Directory.Exists(outputDirectory))
-            {
-                Directory.Delete(outputDirectory, recursive: true);
-            }
+            await DeleteWithRetryAsync(outputDirectory);
         }
     }
 
@@ -127,5 +124,33 @@ public class GeneratedHostLaunchTests
             process.Kill(entireProcessTree: true);
         }
         await process.WaitForExitAsync();
+    }
+
+    private static async Task DeleteWithRetryAsync(string path)
+    {
+        // Windows can keep a brief file-system lock on the killed host's exe/dlls even after
+        // WaitForExitAsync returns, so an immediate recursive delete intermittently throws
+        // UnauthorizedAccessException/IOException. Retry with backoff instead of failing the test.
+        const int maxAttempts = 5;
+        for (var attempt = 1; attempt <= maxAttempts; attempt++)
+        {
+            try
+            {
+                if (Directory.Exists(path))
+                {
+                    Directory.Delete(path, recursive: true);
+                }
+                return;
+            }
+            catch (Exception exception)
+                when (exception is IOException or UnauthorizedAccessException)
+            {
+                if (attempt == maxAttempts)
+                {
+                    throw;
+                }
+                await Task.Delay(attempt * 200);
+            }
+        }
     }
 }
