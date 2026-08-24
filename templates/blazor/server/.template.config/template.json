@@ -98,6 +98,11 @@
       ]
     }
   ],
+  "primaryOutputs": [
+    {
+      "path": "CleanArchBlazorServer.slnx"
+    }
+  ],
   "postActions": [
     {
       "description": "Restore NuGet packages required by this project.",
