@@ -6,4 +6,5 @@ public enum IconName
     Playground,
     Sun,
     Moon,
+    Menu,
 }

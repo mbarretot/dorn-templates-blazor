@@ -117,4 +117,29 @@
 
         Assert.Single(main.FindAll("[data-testid='toast-viewport']"));
     }
+
+    [Fact]
+    public void MainLayout_NavToggle_HidesAndShowsNavAside()
+    {
+        JSInterop
+            .Setup<ThemeSnapshot>("dornTheme.getSnapshot")
+            .SetResult(new ThemeSnapshot("slate", "light", false));
+
+        var main = Render<MainLayout>();
+
+        Assert.Single(main.FindAll("aside"));
+        Assert.Equal("true", main.Find("[data-testid='nav-toggle']").GetAttribute("aria-pressed"));
+
+        main.Find("[data-testid='nav-toggle']").Click();
+
+        Assert.Empty(main.FindAll("aside"));
+        Assert.Equal(
+            "false",
+            main.Find("[data-testid='nav-toggle']").GetAttribute("aria-pressed")
+        );
+
+        main.Find("[data-testid='nav-toggle']").Click();
+
+        Assert.Single(main.FindAll("aside"));
+    }
 }
