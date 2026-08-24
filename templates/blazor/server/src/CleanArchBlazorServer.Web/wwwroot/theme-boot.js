@@ -41,10 +41,9 @@
     root.setAttribute("data-ui-mode", resolveMode(mode));
   }
 
-  // Runs synchronously, before any interactive circuit connects (design S-B): the mechanism is
-  // hosting-agnostic — a classic, non-module <script> in <head> before the stylesheet <link>
-  // always executes before first paint, whether the document was streamed by Kestrel or served
-  // from disk.
+  // Runs synchronously, before Blazor WASM has even started downloading (design B5): WASM
+  // starts after first paint, so applying the theme from C# would flash the wrong theme on
+  // every load. This classic (non-module) script is the only thing that can run early enough.
   root.setAttribute("data-ui-theme", readStoredTheme());
   applyMode(readStoredMode());
 

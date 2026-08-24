@@ -15,4 +15,22 @@
 
         Assert.True(cut.Find("[data-testid=playground-preview] button").HasAttribute("disabled"));
     }
+
+
+    [Fact]
+    public void ChangingDisabledControl_SynchronizesPreviewAndInspectorEffectiveState()
+    {
+        var cut = Render(@<ButtonPlayground />);
+
+        var inspector = cut.Find("[data-testid='playground-inspector']");
+        Assert.Contains("Selected component: Button", inspector.TextContent);
+        Assert.Contains("<Button>Save</Button>", inspector.TextContent);
+
+        cut.Find("[data-testid='control-Disabled'] button").Click();
+
+        Assert.True(cut.Find("[data-testid=playground-preview] button").HasAttribute("disabled"));
+        Assert.Contains("<Button Disabled=\"true\">Save</Button>", inspector.TextContent);
+        Assert.Contains("Disabled", cut.Find("[data-testid='playground-api']").TextContent);
+    }
+
 }

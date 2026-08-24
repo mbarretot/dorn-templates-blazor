@@ -1,0 +1,47 @@
+@if (IsAvailable)
+{
+    <section id="live-specimen" aria-label="Live specimen" class="grid gap-4 rounded-lg border border-border bg-card p-6 text-card-foreground shadow-sm">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+                <p class="font-mono text-xs font-semibold tracking-[0.16em] text-muted-foreground uppercase">
+                    Live specimen
+                </p>
+                <h2 class="mt-1 text-2xl font-semibold">Status card</h2>
+            </div>
+            <span class="rounded-full bg-secondary px-3 py-1 text-xs font-medium text-secondary-foreground">
+                Ready to inspect
+            </span>
+        </div>
+        <div class="grid gap-3 border-t border-border pt-4 sm:grid-cols-3">
+            <div>
+                <p class="text-sm text-muted-foreground">Focus</p>
+                <p class="mt-1 font-medium">Keyboard-visible</p>
+            </div>
+            <div>
+                <p class="text-sm text-muted-foreground">Mode</p>
+                <p class="mt-1 font-medium">System-aware</p>
+            </div>
+            <div>
+                <p class="text-sm text-muted-foreground">Surface</p>
+                <p class="mt-1 font-medium">Token-driven</p>
+            </div>
+        </div>
+    </section>
+}
+else
+{
+    <section role="alert" class="grid gap-3 rounded-lg border border-destructive bg-card p-6 text-card-foreground">
+        <h2 class="text-xl font-semibold">Specimen unavailable</h2>
+        <p class="text-muted-foreground">
+            Open the Playground to inspect components while this specimen is unavailable.
+        </p>
+        <a href="/playground" class="w-fit rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">
+            Open Playground
+        </a>
+    </section>
+}
+
+@code {
+    [Parameter]
+    public bool IsAvailable { get; set; } = true;
+}

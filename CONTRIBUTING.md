@@ -1,42 +1,60 @@
 # Contributing
 
-This repository owns the Blazor template family (`templates/blazor/{wasm,server}`) and publishes it
-as two `dotnet new` template packs, `Dorn.Templates.BlazorWasm` and `Dorn.Templates.BlazorServer`,
-consumed by [`mbarretot/dorn`](https://github.com/mbarretot/dorn). Dorn vendors the packed `content/`
-back into its own `templates/blazor/{wasm,server}` at build time (see dorn's ADR 0027); it never
-references this repository's source directly.
+Thanks for improving the Dorn Blazor templates. Keep changes focused, mirrored across hosting models when applicable, and backed by tests.
 
-## Local dev loop
+---
 
-No local NuGet feed setup is needed — everything (including `Dorn.WebUI.Primitives`) resolves from
-nuget.org.
+## 🔁 Development loop
+
+1. Create a focused branch.
+2. Follow **RED → GREEN → REFACTOR** for new logic.
+3. Keep WASM and Server behavior aligned.
+4. Format touched files with CSharpier.
+5. Run the relevant suites below.
 
 ```bash
 dotnet test templates/blazor/wasm/CleanArchBlazorWasm.slnx
 dotnet test templates/blazor/server/CleanArchBlazorServer.slnx
-dotnet test DornTemplatesBlazor.slnx
+dotnet test tests/Dorn.Templates.Blazor.Tests/Dorn.Templates.Blazor.Tests.csproj
+dotnet test tests/Dorn.Templates.Blazor.BrowserTests/Dorn.Templates.Blazor.BrowserTests.csproj -c Release
 ```
 
-The first two commands run each template's own Application/Architecture/Functional/Integration test
-tiers. The third packs both template packs, installs them via `dotnet new install`, generates real
-projects across all 6 themes and the playground toggle, and builds the result — this is the
-CLI-channel proof that mirrors what `dorn new blazor-wasm`/`blazor-server` do downstream.
+> [!IMPORTANT]
+> Run test projects separately. The template and browser suites share the global `dotnet new` store and can race when executed together.
 
-## Versioning
+---
 
-Versioning is tag-derived, not GitVersion. Pushing a `v<version>` tag (e.g. `v1.2.0`) triggers
-`.github/workflows/publish.yml`, which packs both template projects at that exact version and
-publishes them to nuget.org via NuGet Trusted Publishing (no manual API key). Outside of a tag push,
-packages built locally or in CI fall back to `0.0.1-local`/`0.0.1-test`, values that can never be
-mistaken for a real release.
+## 🧭 Where to change things
 
-## Conventions
+| Area | Source of truth | Keep aligned |
+| --- | --- | --- |
+| Themes | `Styles/themes/*.css` | Theme choices and tests in both templates |
+| Observatory | `Features/Playground/PlaygroundCatalog.cs` | Routes and pages in both templates |
+| UI primitives | `Components/Ui` | WASM and Server component contracts |
+| Static assets | Razor asset references | Use `@Assets["..."]` for fingerprinting |
 
-This is the same author's sibling repository to `dorn` and mirrors its conventions:
+> [!NOTE]
+> `theme-boot.js` must stay synchronous so the selected theme is applied before first paint.
 
-- Plain conventional commits (`type(scope): message`); never add `Co-Authored-By` or other AI
-  attribution.
-- Run `dotnet csharpier format <touched-paths>` before every commit.
-- xUnit with plain `Assert.*`; never add FluentAssertions or Moq.
-- English only in code, comments, commit messages, and documentation.
-- Strict TDD (RED → GREEN → REFACTOR) for new test logic.
+<details>
+<summary><strong>Browser-suite hosting detail</strong></summary>
+
+The Server fixture runs published output from its own directory. This avoids the .NET 10 development-time `MapStaticAssets()` issue and preserves the correct content root.
+
+</details>
+
+---
+
+## 📦 Releases
+
+- Packages: `Dorn.Templates.BlazorWasm` and `Dorn.Templates.BlazorServer`
+- Tags: push `v<version>` to trigger NuGet Trusted Publishing
+- Local builds: use non-release fallback versions and are never published
+
+## ✅ Conventions
+
+- Conventional commits: `type(scope): message`
+- No `Co-Authored-By` or AI attribution
+- English in code, comments, commits, and documentation
+- xUnit with plain `Assert.*`; no FluentAssertions or Moq
+- Comments only for a compact, non-obvious **why**

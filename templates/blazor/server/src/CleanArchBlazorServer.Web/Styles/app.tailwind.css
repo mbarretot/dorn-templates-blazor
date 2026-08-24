@@ -43,6 +43,8 @@
   --color-border: var(--ui-border);
   --color-input: var(--ui-input);
   --color-ring: var(--ui-ring);
+  --font-sans: var(--ui-font-sans);
+  --shadow-elevation: var(--ui-shadow-elevation);
   --radius-sm: calc(var(--ui-radius) - 4px);
   --radius-md: calc(var(--ui-radius) - 2px);
   --radius-lg: var(--ui-radius);
@@ -50,8 +52,41 @@
 }
 
 @layer base {
+  :root {
+    --ui-font-sans: ui-sans-serif, system-ui, sans-serif;
+    --ui-shadow-elevation: 0 1px 2px rgb(15 23 42 / 12%);
+    --ui-focus-ring: var(--ui-ring);
+    --ui-motion-duration: 160ms;
+    --ui-motion-easing: cubic-bezier(0.2, 0, 0, 1);
+    --ui-surface: var(--ui-card);
+    --ui-density: 1;
+  }
+
   body {
     @apply bg-background text-foreground;
+    font-family: var(--ui-font-sans);
+  }
+
+  :where(a, button, input, select, textarea) {
+    transition-duration: var(--ui-motion-duration);
+    transition-timing-function: var(--ui-motion-easing);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ui-focus-ring);
+    outline-offset: 2px;
+  }
+
+  #blazor-error-ui {
+    @apply fixed inset-x-0 bottom-0 z-50 hidden bg-destructive px-5 py-3 text-destructive-foreground shadow-lg;
+  }
+
+  #blazor-error-ui .reload {
+    @apply ml-2 underline;
+  }
+
+  #blazor-error-ui .dismiss {
+    @apply absolute right-3 top-2 cursor-pointer;
   }
 
   @media (prefers-reduced-motion: reduce) {

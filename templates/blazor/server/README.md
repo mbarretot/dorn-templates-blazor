@@ -1,11 +1,19 @@
+<div align="center">
+
+<img src="docs/assets/dorn-icon.jpg" alt="Dorn" width="112" />
+
 # CleanArchBlazorServer
 
-[![Scaffolded with Dorn](https://img.shields.io/badge/scaffolded_with-Dorn-1A1A1A?style=flat-square)](https://github.com/mbarretot/dorn)
+[![Scaffolded with Dorn](https://img.shields.io/badge/scaffolded_with-Dorn-7C3AED?style=flat-square)](https://github.com/mbarretot/dorn)
+[![.NET 10](https://img.shields.io/badge/.NET-10-512BD4?style=flat-square&logo=dotnet)](https://dotnet.microsoft.com/)
 
-A front-end-only Blazor Server app with Interactive Server rendering, a Tailwind CSS pipeline,
-and Aspire orchestration.
+**Interactive Server rendering with Aspire, Tailwind CSS, and an accessible UI foundation.**
 
-## ⚡ Start here
+</div>
+
+---
+
+## ⚡ Start
 
 ```bash
 dotnet dev-certs https --trust
@@ -13,38 +21,40 @@ dotnet tool restore
 dotnet dorn run
 ```
 
-Verify the project:
+The Aspire dashboard opens the application and its development resources.
 
-```bash
-dotnet dorn test
-```
+> [!TIP]
+> Run `dotnet dorn test` before your first feature to confirm the generated solution is healthy.
 
-## 🏛️ Project map
+---
 
-| Area | Responsibility |
+## 🧭 Project map
+
+| Project | Purpose |
 | --- | --- |
-| `Web` | The Blazor Server app: components, styles, and static assets, served by Kestrel |
-| `ServiceDefaults` | Shared Aspire wiring: OpenTelemetry, health checks, service discovery |
-| `AppHost` | Aspire orchestration for local `dotnet run` |
+| `Web` | Interactive Server application, UI components, and static assets |
+| `ServiceDefaults` | OpenTelemetry, health checks, and service discovery |
+| `AppHost` | Local Aspire orchestration |
 
-## 🎨 Styling
+## 🎨 UI foundation
 
-`wwwroot/app.css` is generated at build time from `Styles/app.tailwind.css` by the pinned,
-checksum-verified Tailwind CSS standalone CLI (`build/Tailwind.targets`) — no Node, no npm.
-The file is gitignored; it always regenerates from source.
+- Accessible Razor primitives under `Components/Ui`
+- Six runtime themes with light, dark, and system modes
+- Optional component observatory under `Features/Playground`
+- Tailwind CSS generated during build—no Node or npm
 
-## ⌨️ Project CLI
+> [!NOTE]
+> Edit `Styles/app.tailwind.css`, not the generated `wwwroot/app.css` file.
+
+## ⌨️ Commands
 
 | Command | Action |
 | --- | --- |
 | `dotnet dorn run` | Run the Aspire AppHost |
-| `dotnet dorn test` | Run every tier |
+| `dotnet dorn test` | Run all test tiers |
 | `dotnet dorn coverage` | Test with the coverage gate |
 
-> [!NOTE]
-> This scoped template does not generate a CI workflow yet.
+## 📚 Reference
 
-## 📚 Details
-
-- [Blazor Server template reference](https://github.com/mbarretot/dorn/blob/main/docs/templates/blazor-server.md)
+- [Blazor Server template guide](https://github.com/mbarretot/dorn/blob/main/docs/templates/blazor-server.md)
 - [Dorn architecture decisions](https://github.com/mbarretot/dorn/tree/main/docs/adr)
