@@ -19,9 +19,10 @@ public sealed class ObservatoryBrowserTests(BrowserHostFixture fixture)
     )
     {
         await using var context = await fixture.Browser.NewContextAsync(
-            new() { ColorScheme = ColorScheme.Dark }
+            new() { ColorScheme = ColorScheme.Dark, DeviceScaleFactor = 1 }
         );
         var page = await context.NewPageAsync();
+        await page.EmulateMediaAsync(new() { ReducedMotion = ReducedMotion.Reduce });
         page.SetDefaultTimeout(5000);
         await page.SetViewportSizeAsync(width, height);
         await page.GotoAsync(fixture.Url(host));
@@ -29,6 +30,7 @@ public sealed class ObservatoryBrowserTests(BrowserHostFixture fixture)
             .ClickAsync();
         await page.GotoAsync($"{fixture.Url(host)}/playground/button");
         await page.GetByTestId("playground-preview").WaitForAsync();
+        await page.EvaluateAsync("document.fonts.ready");
         await page.EvaluateAsync("document.body.style.zoom = '2'");
         await page.Keyboard.PressAsync("Tab");
         Assert.Equal(
