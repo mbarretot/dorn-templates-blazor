@@ -1,4 +1,5 @@
 @inherits UiTestContext
+@using AngleSharp.Dom
 @using Bunit
 @using CleanArchBlazorWasm.Web.Features.Playground
 @using Xunit
@@ -87,4 +88,43 @@
         Assert.Equal("Copy variant", cut.Find("[data-testid='api-copy-variant']").GetAttribute("aria-label"));
         Assert.Equal("Copy disabled", cut.Find("[data-testid='api-copy-disabled']").GetAttribute("aria-label"));
     }
+
+
+    [Fact]
+    public void WorkbenchRegionNavigation_ConnectsEveryEssentialRegion()
+    {
+        var cut = Render(
+            @<ComponentPlayground Title="Test" CodeSnippet="<Test />" ApiParameters="Parameters">
+                <Controls>
+                    <div>controls</div>
+                </Controls>
+                <Preview>
+                    <div>preview</div>
+                </Preview>
+            </ComponentPlayground>
+        );
+
+        var navigation = cut.Find("[data-testid='playground-region-navigation']");
+
+        AssertRegionLink(navigation, "Preview", "playground-preview");
+        AssertRegionLink(navigation, "Controls", "playground-controls");
+        AssertRegionLink(navigation, "Inspector", "playground-inspector");
+        AssertRegionLink(navigation, "Code", "playground-code");
+        AssertRegionLink(navigation, "API", "playground-api");
+
+        Assert.Equal("Preview", cut.Find("#playground-preview").GetAttribute("aria-label"));
+        Assert.Equal("Controls", cut.Find("#playground-controls").GetAttribute("aria-label"));
+        Assert.Equal("Inspector", cut.Find("#playground-inspector").GetAttribute("aria-label"));
+        Assert.Equal("Code", cut.Find("#playground-code").GetAttribute("aria-label"));
+        Assert.Equal("API", cut.Find("#playground-api").GetAttribute("aria-label"));
+    }
+
+    private static void AssertRegionLink(IElement navigation, string label, string id)
+    {
+        var link = navigation.QuerySelector($"a[href='#{id}']");
+
+        Assert.NotNull(link);
+        Assert.Equal(label, link.TextContent.Trim());
+    }
+
 }
