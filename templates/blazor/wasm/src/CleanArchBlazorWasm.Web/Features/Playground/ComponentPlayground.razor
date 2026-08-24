@@ -1,5 +1,6 @@
-<div class="mx-auto flex max-w-4xl flex-col gap-8 p-8">
+<div id="playground-workbench" class="mx-auto flex max-w-6xl flex-col gap-8 p-6 sm:p-8">
     <div class="flex flex-col gap-1">
+        <p class="text-sm font-medium uppercase tracking-[0.2em] text-primary">Component Observatory</p>
         <h1 class="text-3xl font-bold text-foreground">@Title</h1>
         @if (Description is not null)
         {
@@ -7,23 +8,54 @@
         }
     </div>
 
-    <div class="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_16rem]">
-        <div class="flex flex-col items-start gap-4 rounded-lg border border-border bg-card p-6" data-testid="playground-preview">
-            @Preview
-        </div>
-        <div class="flex flex-col gap-4" data-testid="playground-controls">
-            @Controls
+    <nav
+        class="flex flex-wrap gap-2 rounded-lg border border-border bg-card p-3 text-sm"
+        aria-label="Workbench regions"
+        data-testid="playground-region-navigation"
+    >
+        <a class="rounded-md px-3 py-2 text-foreground hover:bg-accent" href="#playground-preview">Preview</a>
+        <a class="rounded-md px-3 py-2 text-foreground hover:bg-accent" href="#playground-controls">Controls</a>
+        <a class="rounded-md px-3 py-2 text-foreground hover:bg-accent" href="#playground-inspector">Inspector</a>
+        <a class="rounded-md px-3 py-2 text-foreground hover:bg-accent" href="#playground-code">Code</a>
+        <a class="rounded-md px-3 py-2 text-foreground hover:bg-accent" href="#playground-api">API</a>
+    </nav>
+
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_18rem]">
+        <section
+            id="playground-preview"
+            class="flex min-w-0 flex-col gap-4 rounded-lg border border-border bg-card p-6"
+            aria-label="Preview"
+            data-testid="playground-preview"
+        >
+            <h2 class="text-lg font-semibold text-foreground">Preview</h2>
+            <div class="flex min-h-32 items-center">@Preview</div>
+        </section>
+        <div class="flex min-w-0 flex-col gap-6">
+            <section
+                id="playground-controls"
+                class="flex flex-col gap-4"
+                aria-label="Controls"
+                data-testid="playground-controls"
+            >
+                <h2 class="text-lg font-semibold text-foreground">Controls</h2>
+                @Controls
+            </section>
+            <PlaygroundInspector
+                Title="@Title"
+                CodeSnippet="@CodeSnippet"
+                ApiParameters="@ApiParameters"
+            />
         </div>
     </div>
 
-    <PlaygroundSection Title="Code">
+    <PlaygroundSection Id="playground-code" TestId="playground-code" Title="Code">
         <div class="relative">
             <pre class="overflow-x-auto rounded-md border border-border bg-muted p-4 text-sm text-foreground"><code>@CodeSnippet</code></pre>
             <CopyButton Text="@CodeSnippet" Class="absolute right-2 top-2" />
         </div>
     </PlaygroundSection>
 
-    <PlaygroundSection Title="API">
+    <PlaygroundSection Id="playground-api" TestId="playground-api" Title="API">
         <div class="overflow-x-auto rounded-md border border-border">
             <table class="w-full text-left text-sm">
                 <thead class="border-b border-border bg-muted/50 text-foreground">

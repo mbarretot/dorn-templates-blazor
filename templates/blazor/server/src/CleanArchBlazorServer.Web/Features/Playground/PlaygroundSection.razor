@@ -1,4 +1,4 @@
-<section class="flex flex-col gap-4">
+<section id="@Id" class="flex flex-col gap-4" aria-label="@Title" data-testid="@TestId">
     <div class="flex flex-col gap-1">
         <h2 class="text-xl font-semibold text-foreground">@Title</h2>
         @if (Description is not null)
@@ -12,6 +12,12 @@
 </section>
 
 @code {
+    [Parameter]
+    public string? Id { get; set; }
+
+    [Parameter]
+    public string? TestId { get; set; }
+
     [Parameter, EditorRequired]
     public string Title { get; set; } = "";
 

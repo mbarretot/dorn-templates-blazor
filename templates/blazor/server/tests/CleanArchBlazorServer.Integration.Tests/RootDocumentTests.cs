@@ -98,7 +98,7 @@ public class RootDocumentTests : IClassFixture<WebApplicationFactory<Program>>
         var client = _factory.CreateClient();
         var html = await (await client.GetAsync("/")).Content.ReadAsStringAsync();
 
-        Assert.Contains("Hello, Dorn Blazor Server!", html, StringComparison.Ordinal);
+        Assert.Contains("Component Observatory", html, StringComparison.Ordinal);
         Assert.Contains("_framework/blazor.web.js", html, StringComparison.Ordinal);
     }
 

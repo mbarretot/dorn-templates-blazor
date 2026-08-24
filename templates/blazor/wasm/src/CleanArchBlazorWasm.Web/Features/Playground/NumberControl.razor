@@ -4,7 +4,7 @@
 
 <div class="flex flex-col gap-1.5" data-testid="@($"control-{Label}")">
     <span class="text-sm font-medium text-foreground">@Label</span>
-    <Input Type="number" Value="@ValueAsString" ValueChanged="HandleChangedAsync" ValueExpression="() => ValueAsString" />
+    <Input Type="number" Value="@ValueAsString" ValueChanged="HandleChangedAsync" ValueExpression="() => ValueAsString" aria-label="@Label" />
 </div>
 
 @code {
