@@ -521,7 +521,8 @@ public class BlazorWasmTemplateGenerationTests
             var playgroundLayout = await File.ReadAllTextAsync(
                 Path.Combine(webRoot, "Features", "Playground", "PlaygroundLayout.razor")
             );
-            Assert.Contains("<ToastHost />", playgroundLayout, StringComparison.Ordinal);
+            Assert.Contains("@layout MainLayout", playgroundLayout, StringComparison.Ordinal);
+            Assert.DoesNotContain("<ToastHost />", playgroundLayout, StringComparison.Ordinal);
 
             var selectDir = Path.Combine(webRoot, "Components", "Ui", "Select");
             Assert.True(File.Exists(Path.Combine(selectDir, "SelectGroup.razor")));

@@ -1,23 +1,9 @@
 @inherits UiTestContext
 @using Bunit
-@using CleanArchBlazorServer.Web.Components.Theme
 @using CleanArchBlazorServer.Web.Features.Playground
-@using Dorn.WebUI.Primitives.Theme
-@using Dorn.WebUI.Primitives.Toast
-@using Microsoft.Extensions.DependencyInjection
 @using Xunit
 
 @code {
-    public PlaygroundLayoutTests()
-    {
-        Services.AddSingleton(new ToastStore());
-        Services.AddScoped<ThemeInterop>();
-        Services.AddScoped<ThemeState>();
-        JSInterop
-            .Setup<ThemeSnapshot>("dornTheme.getSnapshot")
-            .SetResult(new ThemeSnapshot("slate", "light", false));
-    }
-
     [Fact]
     public void NavDrawerTrigger_IsHiddenAboveLargeBreakpoint()
     {
@@ -51,17 +37,6 @@
         var drawer = cut.Find("[data-testid='playground-nav-drawer']");
 
         Assert.NotEmpty(drawer.QuerySelectorAll("h2"));
-    }
-
-    [Fact]
-    public void OpenDrawer_ToastHostRemainsMounted()
-    {
-        ModalModule.SetupVoid("open", _ => true).SetVoidResult();
-
-        var cut = Render<PlaygroundLayout>();
-        cut.Find("[data-testid='playground-nav-drawer-trigger']").Click();
-
-        Assert.Single(cut.FindAll("[data-testid='toast-viewport']"));
     }
 
     [Fact]
