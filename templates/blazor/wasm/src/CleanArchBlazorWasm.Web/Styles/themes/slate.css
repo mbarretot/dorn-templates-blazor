@@ -13,6 +13,9 @@
   --ui-card-foreground: oklch(0.129 0.042 264.695);
   --ui-popover: oklch(1 0 0);
   --ui-popover-foreground: oklch(0.129 0.042 264.695);
+  --ui-surface: oklch(0.985 0.004 255.5);
+  --ui-density: 1;
+  --ui-motion-easing: cubic-bezier(0.2, 0, 0, 1);
   --ui-primary: oklch(0.208 0.042 265.755);
   --ui-primary-foreground: oklch(0.984 0.003 247.858);
   --ui-secondary: oklch(0.968 0.007 247.896);
@@ -23,15 +26,15 @@
   --ui-accent-foreground: oklch(0.208 0.042 265.755);
   --ui-destructive: oklch(0.577 0.245 27.325);
   --ui-destructive-foreground: oklch(0.984 0.003 247.858);
-  --ui-success: oklch(0.548 0.14 152);
+  --ui-success: oklch(0.54 0.14 152);
   --ui-success-foreground: oklch(0.984 0.003 247.858);
   --ui-warning: oklch(0.64 0.13 75);
-  --ui-warning-foreground: oklch(0.984 0.003 247.858);
+  --ui-warning-foreground: oklch(0.129 0.042 264.695);
   --ui-border: oklch(0.929 0.013 255.508);
   --ui-input: oklch(0.929 0.013 255.508);
   --ui-ring: oklch(0.704 0.04 256.788);
   --ui-font-sans: ui-sans-serif, system-ui, sans-serif;
-  --ui-shadow-elevation: 0 1px 2px rgb(15 23 42 / 12%);
+  --ui-shadow-elevation: 0 12px 30px rgb(15 23 42 / 10%);
   --ui-focus-ring: var(--ui-ring);
   --ui-motion-duration: 160ms;
   --ui-radius: 0.625rem;
@@ -53,7 +56,7 @@
   --ui-accent: oklch(0.279 0.041 260.031);
   --ui-accent-foreground: oklch(0.984 0.003 247.858);
   --ui-destructive: oklch(0.704 0.191 22.216);
-  --ui-destructive-foreground: oklch(0.984 0.003 247.858);
+  --ui-destructive-foreground: oklch(0.129 0.042 264.695);
   --ui-success: oklch(0.7 0.16 150);
   --ui-success-foreground: oklch(0.129 0.042 264.695);
   --ui-warning: oklch(0.78 0.14 80);

@@ -58,11 +58,19 @@
     --ui-shadow-elevation: 0 1px 2px rgb(15 23 42 / 12%);
     --ui-focus-ring: var(--ui-ring);
     --ui-motion-duration: 160ms;
+    --ui-motion-easing: cubic-bezier(0.2, 0, 0, 1);
+    --ui-surface: var(--ui-card);
+    --ui-density: 1;
   }
 
   body {
     @apply bg-background text-foreground;
     font-family: var(--ui-font-sans);
+  }
+
+  :where(a, button, input, select, textarea) {
+    transition-duration: var(--ui-motion-duration);
+    transition-timing-function: var(--ui-motion-easing);
   }
 
   :focus-visible {
