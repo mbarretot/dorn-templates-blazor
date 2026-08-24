@@ -64,6 +64,7 @@ internal static class TemplatePackHarness
 
     public static async Task InstallAsync(string packageId)
     {
+        await UninstallAsync(packageId);
         var packDirectory = Path.Combine(
             Path.GetTempPath(),
             $"dorn-templates-blazor-install-{Guid.NewGuid():N}"
