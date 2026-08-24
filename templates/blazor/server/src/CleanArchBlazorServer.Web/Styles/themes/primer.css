@@ -22,6 +22,10 @@
   --ui-border: oklch(0.884 0.011 251.9);
   --ui-input: oklch(0.884 0.011 251.9);
   --ui-ring: oklch(0.518 0.187 256.4);
+  --ui-font-sans: ui-sans-serif, system-ui, sans-serif;
+  --ui-shadow-elevation: 0 1px 2px rgb(15 23 42 / 12%);
+  --ui-focus-ring: var(--ui-ring);
+  --ui-motion-duration: 160ms;
   --ui-radius: 0.375rem;
 }
 
