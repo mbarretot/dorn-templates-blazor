@@ -21,6 +21,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageVersion Include="MudBlazor" Version="9.9.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <!-- Aspire orchestration (design F): AppHost registers the WASM front-end as a project
          resource. No ServiceDefaults — OpenTelemetry/health-check/service-discovery are
          server-side APIs with no meaning inside the browser sandbox. -->

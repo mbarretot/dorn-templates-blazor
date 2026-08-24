@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!-- No data-ui-theme/data-ui-mode here: the server can't read localStorage, so theme-boot.js stays the sole writer (design S-B1). -->
 <html lang="en">
 
 <head>
@@ -7,18 +6,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CleanArchBlazorServer</title>
     <base href="/" />
-    <!-- Classic script, no type="module"/defer/async: must run synchronously before the
-         stylesheet is applied so data-ui-theme/data-ui-mode exist on <html> before first
-         paint (design S-B). -->
+    <!-- Classic script, no type="module"/defer/async: must run synchronously before first
+         paint so the resolved light/dark mode is known before Blazor's own first render. -->
     <script src="@Assets["theme-boot.js"]"></script>
-    <!-- @Assets fingerprints the URL; a literal href="app.css" would silently drop fingerprinting (design S-T4). -->
-    <link rel="stylesheet" href="@Assets["app.css"]" />
+    <!-- @Assets fingerprints the URL; a literal href would silently drop fingerprinting. -->
+    <link rel="stylesheet" href="@Assets["_content/MudBlazor/MudBlazor.min.css"]" />
+    <link rel="stylesheet" href="@Assets["css/brand-font.css"]" />
     <HeadOutlet @rendermode="InteractiveServer" />
 </head>
 
 <body>
     <Routes @rendermode="InteractiveServer" />
     <script src="_framework/blazor.web.js"></script>
+    <script src="@Assets["_content/MudBlazor/MudBlazor.min.js"]"></script>
 </body>
 
 </html>

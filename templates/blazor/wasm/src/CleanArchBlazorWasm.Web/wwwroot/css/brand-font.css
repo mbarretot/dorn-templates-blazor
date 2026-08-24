@@ -1,0 +1,12 @@
+@font-face {
+  font-family: "Kaushan Script";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/KaushanScript-Regular.woff2") format("woff2");
+}
+
+.brand-script {
+  font-family: "Kaushan Script", cursive;
+  font-weight: 400;
+}

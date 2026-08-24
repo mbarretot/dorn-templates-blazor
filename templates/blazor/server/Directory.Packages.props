@@ -13,6 +13,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageVersion Include="MudBlazor" Version="9.9.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <!-- Aspire orchestration (design S-A): 3-project shape with ServiceDefaults, following
          grpc/worker rather than WASM's 2-project shape — this template is a real server
          process with OpenTelemetry/health checks/service discovery, not a browser sandbox. -->

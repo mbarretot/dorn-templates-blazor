@@ -1,6 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
-  <Import Project="../../build/Tailwind.targets" />
-
   <PropertyGroup>
     <OutputType>Exe</OutputType>
   </PropertyGroup>
@@ -15,5 +13,6 @@
 
   <ItemGroup>
     <PackageReference Include="Dorn.WebUI.Primitives" />
+    <PackageReference Include="MudBlazor" />
   </ItemGroup>
 </Project>

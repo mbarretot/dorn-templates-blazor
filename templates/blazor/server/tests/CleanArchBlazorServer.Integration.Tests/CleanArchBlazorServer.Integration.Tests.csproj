@@ -5,8 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- The ProjectReference guarantees DornBuildTailwindCss (build/Tailwind.targets) has
-         already run and produced a real wwwroot/app.css, and gives WebApplicationFactory<Program>
+    <!-- The ProjectReference guarantees the Web project's build has already copied the
+         vendored Bootstrap assets into wwwroot, and gives WebApplicationFactory<Program>
          access to the Web project's static-asset endpoint manifest. -->
     <ProjectReference Include="..\..\src\CleanArchBlazorServer.Web\CleanArchBlazorServer.Web.csproj" />
   </ItemGroup>

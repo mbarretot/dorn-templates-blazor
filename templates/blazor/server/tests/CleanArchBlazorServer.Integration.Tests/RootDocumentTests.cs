@@ -13,7 +13,7 @@ namespace CleanArchBlazorServer.Integration.Tests;
 public class RootDocumentTests : IClassFixture<WebApplicationFactory<Program>>
 {
     private static readonly Regex StylesheetHrefPattern = new(
-        "<link rel=\"stylesheet\" href=\"([^\"]*app\\.[a-z0-9]{8,}\\.css)\" ?/?>",
+        "<link rel=\"stylesheet\" href=\"([^\"]*MudBlazor\\.min\\.[a-z0-9]{8,}\\.css)\" ?/?>",
         RegexOptions.IgnoreCase
     );
 
@@ -37,12 +37,12 @@ public class RootDocumentTests : IClassFixture<WebApplicationFactory<Program>>
         var match = StylesheetHrefPattern.Match(html);
         Assert.True(
             match.Success,
-            $"Expected a fingerprinted app.css href in:{Environment.NewLine}{html}"
+            $"Expected a fingerprinted MudBlazor.min.css href in:{Environment.NewLine}{html}"
         );
     }
 
     [Fact]
-    public async Task FingerprintedStylesheetUrl_ServesRealTailwindCss()
+    public async Task FingerprintedStylesheetUrl_ServesRealMudBlazorCss()
     {
         var client = _factory.CreateClient();
 
@@ -52,7 +52,7 @@ public class RootDocumentTests : IClassFixture<WebApplicationFactory<Program>>
         var cssResponse = await client.GetAsync(href);
         cssResponse.EnsureSuccessStatusCode();
         var css = await cssResponse.Content.ReadAsStringAsync();
-        Assert.Contains("--ui-background", css, StringComparison.Ordinal);
+        Assert.Contains(".mud-", css, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -88,8 +88,8 @@ public class RootDocumentTests : IClassFixture<WebApplicationFactory<Program>>
 
         var htmlTagMatch = Regex.Match(html, "<html[^>]*>");
         Assert.True(htmlTagMatch.Success);
-        Assert.DoesNotContain("data-ui-theme", htmlTagMatch.Value, StringComparison.Ordinal);
-        Assert.DoesNotContain("data-ui-mode", htmlTagMatch.Value, StringComparison.Ordinal);
+        Assert.DoesNotContain("data-bs-theme", htmlTagMatch.Value, StringComparison.Ordinal);
+        Assert.DoesNotContain("data-theme", htmlTagMatch.Value, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -98,7 +98,7 @@ public class RootDocumentTests : IClassFixture<WebApplicationFactory<Program>>
         var client = _factory.CreateClient();
         var html = await (await client.GetAsync("/")).Content.ReadAsStringAsync();
 
-        Assert.Contains("Component Observatory", html, StringComparison.Ordinal);
+        Assert.Contains("CleanArchBlazorServer", html, StringComparison.Ordinal);
         Assert.Contains("_framework/blazor.web.js", html, StringComparison.Ordinal);
     }
 }

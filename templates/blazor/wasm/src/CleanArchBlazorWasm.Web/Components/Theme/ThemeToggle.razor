@@ -1,22 +1,17 @@
 @inject ThemeState ThemeState
 @implements IDisposable
 
-<button
-    type="button"
-    class="@ButtonClass"
+<MudIconButton
+    Icon="@(IsDark ? Icons.Material.Filled.DarkMode : Icons.Material.Filled.LightMode)"
+    Color="Color.Inherit"
     aria-label="@AriaLabel"
     aria-pressed="@(IsDark ? "true" : "false")"
     data-testid="theme-mode-toggle"
     @attributes="AdditionalAttributes"
-    @onclick="ToggleAsync"
->
-    <Icon Name="@(IsDark ? IconName.Moon : IconName.Sun)" />
-</button>
+    OnClick="ToggleAsync"
+/>
 
 @code {
-    private const string ButtonClass =
-        "inline-flex size-9 items-center justify-center rounded-md border border-input bg-background text-foreground transition-colors hover:bg-accent hover:text-accent-foreground";
-
     [Parameter(CaptureUnmatchedValues = true)]
     public Dictionary<string, object>? AdditionalAttributes { get; set; }
 

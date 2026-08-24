@@ -6,11 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CleanArchBlazorWasm</title>
     <base href="/" />
-    <!-- Classic script, no type="module"/defer/async: must run synchronously before the
-         stylesheet is applied so data-ui-theme/data-ui-mode exist on <html> before first
-         paint (design B5) — Blazor WASM only starts after that paint. -->
     <script src="theme-boot.js"></script>
-    <link rel="stylesheet" href="app.css" />
+    <link rel="stylesheet" href="_content/MudBlazor/MudBlazor.min.css" />
+    <link rel="stylesheet" href="css/brand-font.css" />
 </head>
 
 <body>
@@ -23,6 +21,7 @@
     </div>
 
     <script src="_framework/blazor.webassembly.js"></script>
+    <script src="_content/MudBlazor/MudBlazor.min.js"></script>
 </body>
 
 </html>

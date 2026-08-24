@@ -5,8 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- The ProjectReference guarantees DornBuildTailwindCss (build/Tailwind.targets) has
-         already run and produced a real wwwroot/app.css by the time this test executes. -->
+    <!-- The ProjectReference guarantees the Web project's build has already copied the
+         vendored Bootstrap assets into wwwroot by the time this test executes. -->
     <ProjectReference Include="..\..\src\CleanArchBlazorWasm.Web\CleanArchBlazorWasm.Web.csproj" />
   </ItemGroup>
 
