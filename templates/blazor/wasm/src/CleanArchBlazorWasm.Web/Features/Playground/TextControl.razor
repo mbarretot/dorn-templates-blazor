@@ -1,6 +1,6 @@
 <div class="flex flex-col gap-1.5" data-testid="@($"control-{Label}")">
     <span class="text-sm font-medium text-foreground">@Label</span>
-    <Input Value="Value" ValueChanged="HandleChangedAsync" ValueExpression="() => Value" />
+    <Input Value="Value" ValueChanged="HandleChangedAsync" ValueExpression="() => Value" aria-label="@Label" />
 </div>
 
 @code {

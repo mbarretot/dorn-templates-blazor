@@ -1,5 +1,5 @@
 <div class="flex items-center gap-2" data-testid="@($"control-{Label}")">
-    <Switch Value="Value" ValueChanged="HandleChangedAsync" ValueExpression="() => Value" />
+    <Switch Value="Value" ValueChanged="HandleChangedAsync" ValueExpression="() => Value" aria-label="@Label" />
     <span class="text-sm font-medium text-foreground">@Label</span>
 </div>
 
