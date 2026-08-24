@@ -8,5 +8,6 @@
     </Folder>
     <Folder Name="/tests/">
         <Project Path="tests/Dorn.Templates.Blazor.Tests/Dorn.Templates.Blazor.Tests.csproj" />
+        <Project Path="tests/Dorn.Templates.Blazor.BrowserTests/Dorn.Templates.Blazor.BrowserTests.csproj" />
     </Folder>
 </Solution>
