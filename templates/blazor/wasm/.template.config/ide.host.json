@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json.schemastore.org/vs-2017.3.host",
+  "icon": "icon.png",
+  "symbolInfo": [
+    {
+      "id": "IncludeTests",
+      "name": { "text": "Include Test Projects" },
+      "isVisible": true
+    },
+    {
+      "id": "IncludePlayground",
+      "name": { "text": "Include Playground Showcase" },
+      "isVisible": true
+    },
+    {
+      "id": "Theme",
+      "name": { "text": "Boot-Default Theme" },
+      "isVisible": true
+    },
+    {
+      "id": "IncludeAspire",
+      "name": { "text": "Include .NET Aspire Orchestration" },
+      "isVisible": true
+    }
+  ]
+}
