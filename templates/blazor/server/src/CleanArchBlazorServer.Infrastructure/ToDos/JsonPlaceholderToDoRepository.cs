@@ -5,8 +5,6 @@ using CleanArchBlazorServer.Domain.Entities;
 
 namespace CleanArchBlazorServer.Infrastructure.ToDos;
 
-/// Talks to https://jsonplaceholder.typicode.com/todos — a public fake REST API, used here only
-/// to give the opt-in layers a real, wired example instead of shipping them empty.
 public sealed class JsonPlaceholderToDoRepository(HttpClient httpClient) : IToDoRepository
 {
     public async Task<IReadOnlyList<ToDoItem>> GetAllAsync(

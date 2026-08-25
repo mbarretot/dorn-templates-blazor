@@ -3,7 +3,7 @@
 
 # Dorn Blazor Templates
 
-**Polished .NET 10 Blazor applications—ready in one command.**
+**Polished .NET 10 Blazor applications, ready in one command.**
 
 [![.NET 10](https://img.shields.io/badge/.NET-10-512BD4?style=flat-square&logo=dotnet)](https://dotnet.microsoft.com/)
 [![Blazor](https://img.shields.io/badge/Blazor-WASM%20%2B%20Server-7C3AED?style=flat-square&logo=blazor)](https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor)
@@ -50,7 +50,7 @@ dotnet run --project src/Acme.Portal.AppHost
 | | Capability |
 | --- | --- |
 | 🧩 | MudBlazor (Material components) and a responsive shell |
-| 🎨 | A branded `AppTheme` palette, self-hosted—no CDN or Node/npm required |
+| 🎨 | A branded `AppTheme` palette, self-hosted (no CDN or Node/npm required) |
 | 🌗 | Light, dark, and system modes without first-paint theme flash |
 | 🧪 | xUnit, bUnit, and integration test coverage |
 
@@ -62,7 +62,7 @@ dotnet run --project src/Acme.Portal.AppHost
 | --- | --- | --- |
 | `--IncludeAspire <bool>` | `false` | Add an AppHost and ServiceDefaults project for Aspire orchestration. |
 | `--IncludeTests <bool>` | `true` | Exclude generated test projects. |
-| `--IncludeCleanArchitecture <bool>` (Server only) | `false` | Add `{App}.Domain`, `{App}.Application`, and `{App}.Infrastructure` class libraries wired to `{App}.Web`. `Features/{Name}/` stays the top-level shape either way — this only adds an internal layering option, enforced by ArchUnitNET rules once opted in. |
+| `--IncludeCleanArchitecture <bool>` (Server only) | `false` | Add `{App}.Domain`, `{App}.Application`, and `{App}.Infrastructure` class libraries wired to `{App}.Web`. `Features/{Name}/` stays the top-level shape either way; this only adds an internal layering option, enforced by ArchUnitNET rules once opted in. |
 
 ```bash
 dotnet new dorn-blazor-server -n Acme.Backoffice \

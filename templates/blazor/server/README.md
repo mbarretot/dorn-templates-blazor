@@ -40,7 +40,7 @@ The Aspire dashboard opens the application and its development resources.
 
 - MudBlazor (Material components) under `Components/Layout` and `Components/Theme`
 - A branded `AppTheme` palette with light, dark, and system modes
-- Self-hosted static assets—no CDN or Node/npm
+- Self-hosted static assets (no CDN or Node/npm)
 
 ## ⌨️ Commands
 

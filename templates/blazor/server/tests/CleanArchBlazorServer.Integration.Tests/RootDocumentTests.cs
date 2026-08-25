@@ -4,12 +4,6 @@ using Xunit;
 
 namespace CleanArchBlazorServer.Integration.Tests;
 
-/// <summary>
-/// Asserts what the build actually produced for the root HTML document, not what the source
-/// declares. The fingerprinted-asset reference (design S-T4) and the bare-&lt;html&gt; rule
-/// (design S-B1) both fail silently if broken — a build stays green and the page still looks
-/// right — so only a rendered-response assertion can catch a regression.
-/// </summary>
 public class RootDocumentTests : IClassFixture<WebApplicationFactory<Program>>
 {
     private static readonly Regex StylesheetHrefPattern = new(
