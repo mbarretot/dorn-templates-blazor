@@ -27,6 +27,10 @@ public sealed class HomePageBrowserTests(BrowserHostFixture fixture)
         await page.GetByTestId("theme-mode-toggle").WaitForAsync();
         await page.EvaluateAsync("document.fonts.ready");
 
+        await page.WaitForFunctionAsync(
+            "() => getComputedStyle(document.body).backgroundColor === 'rgb(34, 29, 23)'"
+        );
+
         Assert.Equal(
             "system",
             await page.EvaluateAsync<string>("localStorage.getItem('ui-mode') || 'system'")
