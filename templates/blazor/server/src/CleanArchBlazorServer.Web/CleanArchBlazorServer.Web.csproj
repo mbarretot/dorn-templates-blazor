@@ -3,6 +3,10 @@
 <!--#if (IncludeAspire) -->
     <ProjectReference Include="..\CleanArchBlazorServer.ServiceDefaults\CleanArchBlazorServer.ServiceDefaults.csproj" />
 <!--#endif -->
+<!--#if (IncludeCleanArchitecture) -->
+    <ProjectReference Include="..\CleanArchBlazorServer.Application\CleanArchBlazorServer.Application.csproj" />
+    <ProjectReference Include="..\CleanArchBlazorServer.Infrastructure\CleanArchBlazorServer.Infrastructure.csproj" />
+<!--#endif -->
   </ItemGroup>
 
   <ItemGroup>

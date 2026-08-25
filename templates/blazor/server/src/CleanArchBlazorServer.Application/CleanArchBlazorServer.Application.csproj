@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\CleanArchBlazorServer.Domain\CleanArchBlazorServer.Domain.csproj" />
+  </ItemGroup>
+</Project>

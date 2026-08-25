@@ -323,6 +323,62 @@ public class BlazorWasmTemplateGenerationTests
         }
     }
 
+    [Fact]
+    public async Task GenerateWithDefaultParameters_FeaturesHomeFolder_HasNoLayeringSubfolders()
+    {
+        var outputDirectory = Path.Combine(
+            BuildSupport.RealTempRoot,
+            $"dorn-tests-blazor-wasm-defaultshape-{Guid.NewGuid():N}"
+        );
+        try
+        {
+            var result = await TemplatePackHarness.GenerateAsync(
+                "dorn-blazor-wasm",
+                "DornDefaultShapeBlazorWasmApp",
+                outputDirectory
+            );
+
+            Assert.True(
+                result.ExitCode == 0,
+                $"Template generation failed (exit {result.ExitCode})."
+                    + $"{Environment.NewLine}STDOUT:{Environment.NewLine}{result.StdOut}"
+                    + $"{Environment.NewLine}STDERR:{Environment.NewLine}{result.StdErr}"
+            );
+
+            var homeFeatureDir = Path.Combine(
+                outputDirectory,
+                "src",
+                "DornDefaultShapeBlazorWasmApp.Web",
+                "Features",
+                "Home"
+            );
+            Assert.True(Directory.Exists(homeFeatureDir), $"Expected {homeFeatureDir} to exist.");
+            Assert.True(
+                File.Exists(Path.Combine(homeFeatureDir, "Home.razor")),
+                "Features/Home must contain Home.razor."
+            );
+
+            foreach (var layer in new[] { "Domain", "Application", "Infrastructure" })
+            {
+                Assert.False(
+                    Directory.Exists(Path.Combine(homeFeatureDir, layer)),
+                    $"Features/Home must not have a {layer} subfolder on a default generate — "
+                        + "layering subfolders are opt-in per feature, not scaffolded by default."
+                );
+            }
+        }
+        finally
+        {
+            if (
+                Environment.GetEnvironmentVariable("DORN_TEST_KEEP_TEMP") != "true"
+                && Directory.Exists(outputDirectory)
+            )
+            {
+                await BuildSupport.DeleteDirectoryWithRetryAsync(outputDirectory);
+            }
+        }
+    }
+
     [Theory]
     [InlineData(false, false)]
     [InlineData(false, true)]

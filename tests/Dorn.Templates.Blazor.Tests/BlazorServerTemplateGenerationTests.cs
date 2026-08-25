@@ -368,17 +368,22 @@ public class BlazorServerTemplateGenerationTests
     }
 
     [Theory]
-    [InlineData(false, false)]
-    [InlineData(false, true)]
-    [InlineData(true, false)]
-    [InlineData(true, true)]
+    [InlineData(false, false, false)]
+    [InlineData(false, true, false)]
+    [InlineData(true, false, false)]
+    [InlineData(true, true, false)]
+    [InlineData(false, false, true)]
+    [InlineData(false, true, true)]
+    [InlineData(true, false, true)]
+    [InlineData(true, true, true)]
     public async Task GenerateMatrix_SlnxEntriesMatchFileSystem(
         bool includeAspire,
-        bool includeTests
+        bool includeTests,
+        bool includeCleanArchitecture
     )
     {
         var name =
-            $"DornMatrixServer{(includeAspire ? "Aspire" : "NoAspire")}{(includeTests ? "Tests" : "NoTests")}App";
+            $"DornMatrixServer{(includeAspire ? "Aspire" : "NoAspire")}{(includeTests ? "Tests" : "NoTests")}{(includeCleanArchitecture ? "CleanArch" : "NoCleanArch")}App";
         var outputDirectory = Path.Combine(
             BuildSupport.RealTempRoot,
             $"dorn-tests-blazor-server-matrix-{Guid.NewGuid():N}"
@@ -392,7 +397,9 @@ public class BlazorServerTemplateGenerationTests
                 "--IncludeAspire",
                 includeAspire.ToString(),
                 "--IncludeTests",
-                includeTests.ToString()
+                includeTests.ToString(),
+                "--IncludeCleanArchitecture",
+                includeCleanArchitecture.ToString()
             );
 
             Assert.True(
@@ -418,6 +425,23 @@ public class BlazorServerTemplateGenerationTests
             Assert.Equal(
                 includeTests,
                 slnContent.Contains(".Tests.csproj", StringComparison.Ordinal)
+            );
+            Assert.Equal(
+                includeCleanArchitecture,
+                slnContent.Contains(".Domain.csproj", StringComparison.Ordinal)
+            );
+            Assert.Equal(
+                includeCleanArchitecture,
+                slnContent.Contains(".Infrastructure.csproj", StringComparison.Ordinal)
+            );
+
+            var webCsprojPath = Directory
+                .GetFiles(outputDirectory, "*.Web.csproj", SearchOption.AllDirectories)
+                .Single();
+            var webCsproj = await File.ReadAllTextAsync(webCsprojPath);
+            Assert.Equal(
+                includeCleanArchitecture,
+                webCsproj.Contains("Application.csproj", StringComparison.Ordinal)
             );
 
             var document = XDocument.Parse(slnContent);
@@ -446,6 +470,232 @@ public class BlazorServerTemplateGenerationTests
             )
             {
                 await BuildSupport.DeleteDirectoryWithRetryAsync(outputDirectory);
+            }
+        }
+    }
+
+    [Fact]
+    public async Task GenerateWithDefaultParameters_FeaturesHomeFolder_HasNoLayeringSubfolders()
+    {
+        var outputDirectory = Path.Combine(
+            BuildSupport.RealTempRoot,
+            $"dorn-tests-blazor-server-defaultshape-{Guid.NewGuid():N}"
+        );
+        try
+        {
+            var result = await TemplatePackHarness.GenerateAsync(
+                "dorn-blazor-server",
+                "DornDefaultShapeBlazorServerApp",
+                outputDirectory
+            );
+
+            Assert.True(
+                result.ExitCode == 0,
+                $"Template generation failed (exit {result.ExitCode})."
+                    + $"{Environment.NewLine}STDOUT:{Environment.NewLine}{result.StdOut}"
+                    + $"{Environment.NewLine}STDERR:{Environment.NewLine}{result.StdErr}"
+            );
+
+            var homeFeatureDir = Path.Combine(
+                outputDirectory,
+                "src",
+                "DornDefaultShapeBlazorServerApp.Web",
+                "Features",
+                "Home"
+            );
+            Assert.True(Directory.Exists(homeFeatureDir), $"Expected {homeFeatureDir} to exist.");
+            Assert.True(
+                File.Exists(Path.Combine(homeFeatureDir, "Home.razor")),
+                "Features/Home must contain Home.razor."
+            );
+
+            foreach (var layer in new[] { "Domain", "Application", "Infrastructure" })
+            {
+                Assert.False(
+                    Directory.Exists(Path.Combine(homeFeatureDir, layer)),
+                    $"Features/Home must not have a {layer} subfolder on a default generate — "
+                        + "layering subfolders are opt-in per feature, not scaffolded by default."
+                );
+            }
+        }
+        finally
+        {
+            if (
+                Environment.GetEnvironmentVariable("DORN_TEST_KEEP_TEMP") != "true"
+                && Directory.Exists(outputDirectory)
+            )
+            {
+                await BuildSupport.DeleteDirectoryWithRetryAsync(outputDirectory);
+            }
+        }
+    }
+
+    [Fact]
+    public async Task GenerateWithIncludeCleanArchitectureTrue_IncludesLibrariesAndReferences_AndBuilds()
+    {
+        var outputDirectory = Path.Combine(
+            BuildSupport.RealTempRoot,
+            $"dorn-tests-blazor-server-cleanarch-{Guid.NewGuid():N}"
+        );
+        var toolsHome = Path.Combine(
+            BuildSupport.RealTempRoot,
+            $"dorn-tests-blazor-server-cleanarch-tools-{Guid.NewGuid():N}"
+        );
+        try
+        {
+            var result = await TemplatePackHarness.GenerateAsync(
+                "dorn-blazor-server",
+                "DornCleanArchBlazorServerApp",
+                outputDirectory,
+                "--IncludeCleanArchitecture",
+                "true"
+            );
+
+            Assert.True(
+                result.ExitCode == 0,
+                $"Template generation failed (exit {result.ExitCode})."
+                    + $"{Environment.NewLine}STDOUT:{Environment.NewLine}{result.StdOut}"
+                    + $"{Environment.NewLine}STDERR:{Environment.NewLine}{result.StdErr}"
+            );
+
+            var srcRoot = Path.Combine(outputDirectory, "src");
+            foreach (var layer in new[] { "Domain", "Application", "Infrastructure" })
+            {
+                var layerDir = Path.Combine(srcRoot, $"DornCleanArchBlazorServerApp.{layer}");
+                Assert.True(Directory.Exists(layerDir), $"{layer} project must be included.");
+                Assert.True(
+                    File.Exists(Path.Combine(layerDir, "README.md")),
+                    $"{layer} project must ship a README.md."
+                );
+            }
+
+            var archTestsDir = Path.Combine(
+                outputDirectory,
+                "tests",
+                "DornCleanArchBlazorServerApp.Application.Tests",
+                "Architecture"
+            );
+            Assert.True(
+                File.Exists(Path.Combine(archTestsDir, "CleanArchitectureLayeringTests.cs")),
+                "Application.Tests must include the Clean Architecture layering rules."
+            );
+
+            var slnFiles = Directory.GetFiles(
+                outputDirectory,
+                "*.slnx",
+                SearchOption.TopDirectoryOnly
+            );
+            Assert.Single(slnFiles);
+            var buildResult = await BuildSupport.RunDotnetBuildAsync(slnFiles[0], toolsHome);
+
+            Assert.True(
+                buildResult.ExitCode == 0,
+                $"dotnet build exited with {buildResult.ExitCode}."
+                    + $"{Environment.NewLine}STDOUT:{Environment.NewLine}{buildResult.StdOut}"
+                    + $"{Environment.NewLine}STDERR:{Environment.NewLine}{buildResult.StdErr}"
+            );
+        }
+        finally
+        {
+            if (Environment.GetEnvironmentVariable("DORN_TEST_KEEP_TEMP") != "true")
+            {
+                if (Directory.Exists(outputDirectory))
+                {
+                    await BuildSupport.DeleteDirectoryWithRetryAsync(outputDirectory);
+                }
+                if (Directory.Exists(toolsHome))
+                {
+                    await BuildSupport.DeleteDirectoryWithRetryAsync(toolsHome);
+                }
+            }
+            else
+            {
+                Console.WriteLine("KEPT: " + outputDirectory);
+            }
+        }
+    }
+
+    [Fact]
+    public async Task GenerateWithIncludeCleanArchitectureFalse_ExcludesLibraries_AndBuilds()
+    {
+        var outputDirectory = Path.Combine(
+            BuildSupport.RealTempRoot,
+            $"dorn-tests-blazor-server-nocleanarch-{Guid.NewGuid():N}"
+        );
+        var toolsHome = Path.Combine(
+            BuildSupport.RealTempRoot,
+            $"dorn-tests-blazor-server-nocleanarch-tools-{Guid.NewGuid():N}"
+        );
+        try
+        {
+            var result = await TemplatePackHarness.GenerateAsync(
+                "dorn-blazor-server",
+                "DornNoCleanArchBlazorServerApp",
+                outputDirectory,
+                "--IncludeCleanArchitecture",
+                "false"
+            );
+
+            Assert.True(
+                result.ExitCode == 0,
+                $"Template generation failed (exit {result.ExitCode})."
+                    + $"{Environment.NewLine}STDOUT:{Environment.NewLine}{result.StdOut}"
+                    + $"{Environment.NewLine}STDERR:{Environment.NewLine}{result.StdErr}"
+            );
+
+            var srcRoot = Path.Combine(outputDirectory, "src");
+            foreach (var layer in new[] { "Domain", "Application", "Infrastructure" })
+            {
+                Assert.False(
+                    Directory.Exists(
+                        Path.Combine(srcRoot, $"DornNoCleanArchBlazorServerApp.{layer}")
+                    ),
+                    $"{layer} project must be excluded when IncludeCleanArchitecture is false (default)."
+                );
+            }
+
+            var archTestsDir = Path.Combine(
+                outputDirectory,
+                "tests",
+                "DornNoCleanArchBlazorServerApp.Application.Tests",
+                "Architecture"
+            );
+            Assert.False(
+                Directory.Exists(archTestsDir),
+                "Architecture/ must be excluded from Application.Tests when IncludeCleanArchitecture is false."
+            );
+
+            var slnFiles = Directory.GetFiles(
+                outputDirectory,
+                "*.slnx",
+                SearchOption.TopDirectoryOnly
+            );
+            Assert.Single(slnFiles);
+            var buildResult = await BuildSupport.RunDotnetBuildAsync(slnFiles[0], toolsHome);
+
+            Assert.True(
+                buildResult.ExitCode == 0,
+                $"dotnet build exited with {buildResult.ExitCode}."
+                    + $"{Environment.NewLine}STDOUT:{Environment.NewLine}{buildResult.StdOut}"
+                    + $"{Environment.NewLine}STDERR:{Environment.NewLine}{buildResult.StdErr}"
+            );
+        }
+        finally
+        {
+            if (Environment.GetEnvironmentVariable("DORN_TEST_KEEP_TEMP") != "true")
+            {
+                if (Directory.Exists(outputDirectory))
+                {
+                    await BuildSupport.DeleteDirectoryWithRetryAsync(outputDirectory);
+                }
+                if (Directory.Exists(toolsHome))
+                {
+                    await BuildSupport.DeleteDirectoryWithRetryAsync(toolsHome);
+                }
+            }
+            else
+            {
+                Console.WriteLine("KEPT: " + outputDirectory);
             }
         }
     }

@@ -62,11 +62,16 @@ dotnet run --project src/Acme.Portal.AppHost
 | --- | --- | --- |
 | `--IncludeAspire <bool>` | `false` | Add an AppHost and ServiceDefaults project for Aspire orchestration. |
 | `--IncludeTests <bool>` | `true` | Exclude generated test projects. |
+| `--IncludeCleanArchitecture <bool>` (Server only) | `false` | Add `{App}.Domain`, `{App}.Application`, and `{App}.Infrastructure` class libraries wired to `{App}.Web`. `Features/{Name}/` stays the top-level shape either way — this only adds an internal layering option, enforced by ArchUnitNET rules once opted in. |
 
 ```bash
 dotnet new dorn-blazor-server -n Acme.Backoffice \
   --IncludeAspire true \
   --IncludeTests false
+
+# Opt into Clean Architecture class libraries (Server only)
+dotnet new dorn-blazor-server -n Acme.Backoffice \
+  --IncludeCleanArchitecture true
 ```
 
 ---
