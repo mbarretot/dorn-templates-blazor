@@ -28,7 +28,7 @@
     {
         var cut = Render(@<Home />);
 
-        Assert.Contains("Clean Architecture", cut.Markup);
+        Assert.Contains("Feature-first structure", cut.Markup);
         Assert.Contains("Server or WebAssembly", cut.Markup);
         Assert.Contains("Themed and ready", cut.Markup);
     }

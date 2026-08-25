@@ -64,6 +64,20 @@ public class TemplateUiParityTests
         );
     }
 
+    [Theory]
+    [InlineData("wasm", "CleanArchBlazorWasm")]
+    [InlineData("server", "CleanArchBlazorServer")]
+    public void HomeRazor_DoesNotClaimLayeringSeparation(string host, string project)
+    {
+        var document = ReadWebFile(host, project, "Features", "Home", "Home.razor");
+
+        Assert.DoesNotContain(
+            "Domain, Application, Infrastructure",
+            document,
+            StringComparison.Ordinal
+        );
+    }
+
     private static string ReadWebFile(string host, string project, params string[] segments)
     {
         var path = Path.Combine(

@@ -30,6 +30,7 @@ dotnet test tests/Dorn.Templates.Blazor.BrowserTests/Dorn.Templates.Blazor.Brows
 | --- | --- | --- |
 | Layout & theme | `Components/Layout`, `Components/Theme/AppTheme.cs` | Shell and palette in both templates |
 | Home page | `Features/Home/Home.razor` | Branding copy in both templates |
+| Feature structure | `Features/{Name}/` | No `Domain`/`Application`/`Infrastructure` sub-folders by default; add them only when a feature earns internal layering |
 | MudBlazor version | `Directory.Packages.props` | Pinned version in both templates |
 | Static assets | Razor asset references | Use `@Assets["..."]` for fingerprinting |
 
