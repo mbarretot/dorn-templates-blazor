@@ -96,7 +96,7 @@ internal static class BuildSupport
         return result;
     }
 
-    // Windows can briefly hold a handle on the just-exited Tailwind CLI process.
+    // Windows can briefly hold a handle on a just-exited child process's files.
     public static async Task DeleteDirectoryWithRetryAsync(string path)
     {
         var attempt = 0;

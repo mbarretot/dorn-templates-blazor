@@ -6,7 +6,7 @@
 
   <ItemGroup>
     <!-- The ProjectReference guarantees the Web project's build has already copied the
-         vendored Bootstrap assets into wwwroot, and gives WebApplicationFactory<Program>
+         vendored MudBlazor assets into wwwroot, and gives WebApplicationFactory<Program>
          access to the Web project's static-asset endpoint manifest. -->
     <ProjectReference Include="..\..\src\CleanArchBlazorServer.Web\CleanArchBlazorServer.Web.csproj" />
   </ItemGroup>

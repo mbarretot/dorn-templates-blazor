@@ -6,7 +6,7 @@
 
   <ItemGroup>
     <!-- The ProjectReference guarantees the Web project's build has already copied the
-         vendored Bootstrap assets into wwwroot by the time this test executes. -->
+         vendored MudBlazor assets into wwwroot by the time this test executes. -->
     <ProjectReference Include="..\..\src\CleanArchBlazorWasm.Web\CleanArchBlazorWasm.Web.csproj" />
   </ItemGroup>
 

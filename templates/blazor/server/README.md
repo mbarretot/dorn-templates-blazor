@@ -7,7 +7,7 @@
 [![Scaffolded with Dorn](https://img.shields.io/badge/scaffolded_with-Dorn-7C3AED?style=flat-square)](https://github.com/mbarretot/dorn)
 [![.NET 10](https://img.shields.io/badge/.NET-10-512BD4?style=flat-square&logo=dotnet)](https://dotnet.microsoft.com/)
 
-**Interactive Server rendering with Aspire, Tailwind CSS, and an accessible UI foundation.**
+**Interactive Server rendering with Aspire, MudBlazor, and a branded UI foundation.**
 
 </div>
 
@@ -38,13 +38,9 @@ The Aspire dashboard opens the application and its development resources.
 
 ## 🎨 UI foundation
 
-- Accessible Razor primitives under `Components/Ui`
-- Six runtime themes with light, dark, and system modes
-- Optional component observatory under `Features/Playground`
-- Tailwind CSS generated during build—no Node or npm
-
-> [!NOTE]
-> Edit `Styles/app.tailwind.css`, not the generated `wwwroot/app.css` file.
+- MudBlazor (Material components) under `Components/Layout` and `Components/Theme`
+- A branded `AppTheme` palette with light, dark, and system modes
+- Self-hosted static assets—no CDN or Node/npm
 
 ## ⌨️ Commands
 
