@@ -292,8 +292,6 @@ public class BlazorWasmTemplateGenerationTests
             var slnContent = await File.ReadAllTextAsync(slnFiles[0]);
             Assert.DoesNotContain(".Tests.csproj", slnContent, StringComparison.Ordinal);
 
-            // The bug this test guards against: a .slnx referencing four test projects that
-            // IncludeTests=false already deleted from disk, which fails restore/build.
             var buildResult = await BuildSupport.RunDotnetBuildAsync(slnFiles[0], toolsHome);
 
             Assert.True(
@@ -362,7 +360,7 @@ public class BlazorWasmTemplateGenerationTests
             {
                 Assert.False(
                     Directory.Exists(Path.Combine(homeFeatureDir, layer)),
-                    $"Features/Home must not have a {layer} subfolder on a default generate — "
+                    $"Features/Home must not have a {layer} subfolder on a default generate; "
                         + "layering subfolders are opt-in per feature, not scaffolded by default."
                 );
             }

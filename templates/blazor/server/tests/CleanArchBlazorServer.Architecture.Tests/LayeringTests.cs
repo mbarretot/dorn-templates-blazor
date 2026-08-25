@@ -13,15 +13,6 @@ public sealed class LayeringTests
     private static IObjectProvider<IType> InNamespace(string root) =>
         Types().That().ResideInNamespaceMatching($@"^{Regex.Escape(root)}(\.|$)");
 
-    // Matches any feature's given layer sub-folder, e.g. Features.Home.Domain,
-    // Features.Orders.Application. No feature scaffolds these sub-folders by default (see the
-    // feature-slice-convention spec) — they are added only when a feature earns internal layering.
-    // Consequently these providers always match ZERO types on a fresh generate. Every rule using
-    // one of them MUST chain .WithoutRequiringPositiveResults(): ArchUnitNET 0.13.3 fails a rule
-    // whose filtered type set is empty unless that flag is chained, even though no violation
-    // exists — confirmed by the equivalent spike in CleanArchBlazorWasm's LayeringTests.cs before
-    // this rule set was ported here. Without it, `dotnet new` would ship an app that fails its own
-    // test suite immediately.
     private static IObjectProvider<IType> FeatureLayer(string layer) =>
         Types()
             .That()
@@ -90,9 +81,4 @@ public sealed class LayeringTests
             .WithoutRequiringPositiveResults()
             .Check(Architecture);
     }
-
-    // No FeatureInfrastructure_ShouldNot_DependOnServerOnlyPersistence rule here (see WASM's
-    // LayeringTests.cs for the WASM-only equivalent). Blazor Server runs in-process on the
-    // server, so the browser-sandbox constraint that bans EF Core / direct DB access in WASM's
-    // Infrastructure/ does not apply — Server's Infrastructure/ MAY use persistence freely.
 }

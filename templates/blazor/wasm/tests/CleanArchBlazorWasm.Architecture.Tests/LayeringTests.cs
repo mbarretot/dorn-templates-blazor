@@ -13,14 +13,6 @@ public sealed class LayeringTests
     private static IObjectProvider<IType> InNamespace(string root) =>
         Types().That().ResideInNamespaceMatching($@"^{Regex.Escape(root)}(\.|$)");
 
-    // Matches any feature's given layer sub-folder, e.g. Features.Home.Domain,
-    // Features.Orders.Infrastructure. No feature scaffolds these sub-folders by default (see the
-    // feature-slice-convention spec) — they are added only when a feature earns internal layering.
-    // Consequently these providers always match ZERO types on a fresh generate. Every rule using
-    // one of them MUST chain .WithoutRequiringPositiveResults(), confirmed by the task 3.1 spike:
-    // without it, ArchUnitNET 0.13.3 fails a rule whose filtered type set is empty even though no
-    // violation exists; with it, a zero-match rule passes vacuously as intended. Without this,
-    // `dotnet new` would ship an app that fails its own test suite immediately.
     private static IObjectProvider<IType> FeatureLayer(string layer) =>
         Types()
             .That()
@@ -93,8 +85,6 @@ public sealed class LayeringTests
     [Fact]
     public void FeatureInfrastructure_ShouldNot_DependOnServerOnlyPersistence()
     {
-        // WASM ONLY (browser sandbox constraint) — Server's Infrastructure/ carries no such
-        // restriction. See CleanArchBlazorServer's LayeringTests.cs for the documented asymmetry.
         Types()
             .That()
             .Are(FeatureInfrastructure)
@@ -121,7 +111,6 @@ public sealed class LayeringTests
     [Fact]
     public void NoWebAssemblyType_Should_TouchJsRuntimeDirectly()
     {
-        // ArchUnitNET has no member-level type predicate, so this uses reflection directly.
         var violators = WebAssembly.GetTypes().Where(InjectsJsRuntime).ToList();
 
         Assert.Empty(violators);
@@ -130,8 +119,6 @@ public sealed class LayeringTests
     [Fact]
     public void WebAssembly_Should_NeverDefineATemplateLocalClipboardInterop()
     {
-        // ClipboardInterop lives in the Dorn.WebUI.Primitives package (Interop namespace),
-        // matching AnchorInterop/DismissInterop/ModalInterop — never a template-local copy.
         var violators = WebAssembly
             .GetTypes()
             .Where(type => type.Name == "ClipboardInterop")
