@@ -4,7 +4,7 @@
   "classifications": ["Blazor", "WebAssembly", "Design System"],
   "identity": "Dorn.Templates.BlazorWasm",
   "name": "Dorn Blazor WebAssembly App",
-  "description": "Front-end-only Blazor WebAssembly app with a Tailwind CSS pipeline and Aspire orchestration.",
+  "description": "Front-end-only Blazor WebAssembly app with MudBlazor and Aspire orchestration.",
   "shortName": "dorn-blazor-wasm",
   "preferNameDirectory": true,
   "sourceName": "CleanArchBlazorWasm",
@@ -14,33 +14,6 @@
       "datatype": "bool",
       "defaultValue": "true",
       "description": "Include the xUnit test projects (added in a later template slice)."
-    },
-    "IncludePlayground": {
-      "type": "parameter",
-      "datatype": "bool",
-      "defaultValue": "true",
-      "description": "Include the /playground showcase pages demonstrating all seven Ui components. When false, the generated project excludes Features/Playground and its nav link, producing a lean project."
-    },
-    "Theme": {
-      "type": "parameter",
-      "datatype": "choice",
-      "choices": [
-        {
-          "choice": "slate",
-          "description": "Cool neutral gray with a blue-leaning primary accent."
-        },
-        {
-          "choice": "rose",
-          "description": "Warm neutral with a rose/pink primary accent."
-        },
-        { "choice": "neutral", "description": "Neutral grayscale with balanced contrast." },
-        { "choice": "linear", "description": "Cool modern palette with restrained accents." },
-        { "choice": "primer", "description": "Productive blue-gray palette with compact radii." },
-        { "choice": "lightning", "description": "Crisp electric palette with compact radii." }
-      ],
-      "defaultValue": "slate",
-      "replaces": "__DORN_DEFAULT_THEME__",
-      "description": "Boot-default theme (matches Styles/themes/*.css and wwwroot/theme-boot.js). Both theme stylesheets always ship regardless of this choice."
     },
     "IncludeAspire": {
       "type": "parameter",
@@ -57,44 +30,29 @@
           "exclude": ["tests/**"]
         },
         {
-          "condition": "(!IncludePlayground)",
-          "exclude": [
-            "src/CleanArchBlazorWasm.Web/Features/Playground/**",
-            "tests/CleanArchBlazorWasm.Functional.Tests/Features/Playground/**"
-          ]
-        },
-        {
-          "condition": "(IncludePlayground)",
-          "rename": {
-            "src/CleanArchBlazorWasm.Web/Components/Layout/NavMenu.Playground.razor": "src/CleanArchBlazorWasm.Web/Components/Layout/NavMenu.razor"
-          },
-          "exclude": ["src/CleanArchBlazorWasm.Web/Components/Layout/NavMenu.Lean.razor"]
-        },
-        {
-          "condition": "(!IncludePlayground)",
-          "rename": {
-            "src/CleanArchBlazorWasm.Web/Components/Layout/NavMenu.Lean.razor": "src/CleanArchBlazorWasm.Web/Components/Layout/NavMenu.razor"
-          },
-          "exclude": ["src/CleanArchBlazorWasm.Web/Components/Layout/NavMenu.Playground.razor"]
-        },
-        {
           "condition": "(!IncludeAspire)",
           "exclude": ["src/CleanArchBlazorWasm.AppHost/**"]
-        },
-        {
-          "condition": "(IncludeAspire)",
-          "exclude": ["CleanArchBlazorWasm.NoAspire.slnx"]
-        },
-        {
-          "condition": "(!IncludeAspire)",
-          "rename": {
-            "CleanArchBlazorWasm.NoAspire.slnx": "CleanArchBlazorWasm.slnx"
-          },
-          "exclude": ["CleanArchBlazorWasm.slnx"]
         }
       ]
     }
   ],
+  "specialCustomOperations": {
+    "**/*.slnx": {
+      "operations": [
+        {
+          "type": "conditional",
+          "configuration": {
+            "if": ["<!--#if"],
+            "else": ["<!--#else"],
+            "elseif": ["<!--#elseif"],
+            "endif": ["<!--#endif"],
+            "trim": "true",
+            "wholeLine": "true"
+          }
+        }
+      ]
+    }
+  },
   "primaryOutputs": [
     {
       "path": "CleanArchBlazorWasm.slnx"

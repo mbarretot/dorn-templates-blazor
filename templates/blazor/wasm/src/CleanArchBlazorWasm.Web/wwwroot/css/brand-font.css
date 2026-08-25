@@ -1,0 +1,25 @@
+@font-face {
+  font-family: "Kaushan Script";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/KaushanScript-Regular.woff2") format("woff2");
+}
+
+.brand-script {
+  font-family: "Kaushan Script", cursive;
+  font-weight: 400;
+}
+
+/* MudBlazor's own CSS never checks prefers-reduced-motion (its transitions and ripple
+   animations are unconditional), so users who request reduced motion get none of it
+   without this override. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

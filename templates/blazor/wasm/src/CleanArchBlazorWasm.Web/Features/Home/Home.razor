@@ -2,22 +2,63 @@
 
 <PageTitle>CleanArchBlazorWasm</PageTitle>
 
-<div class="mx-auto grid max-w-6xl gap-8 px-6 py-10 sm:px-10 lg:py-16">
-    <ObservatoryHero />
-    <ErrorBoundary>
-        <ChildContent>
-            <LiveSpecimen />
-        </ChildContent>
-        <ErrorContent>
-            <section role="alert" class="grid gap-3 rounded-lg border border-destructive bg-card p-6 text-card-foreground">
-                <h2 class="text-xl font-semibold">Specimen unavailable</h2>
-                <p class="text-muted-foreground">
-                    Open the Playground to inspect components while this specimen is unavailable.
-                </p>
-                <a href="/playground" class="w-fit rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">
-                    Open Playground
-                </a>
-            </section>
-        </ErrorContent>
-    </ErrorBoundary>
-</div>
+<MudContainer MaxWidth="MaxWidth.Medium" Class="d-flex flex-column align-center text-center py-16">
+    <MudStack Spacing="3" AlignItems="AlignItems.Center">
+        <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center">
+            <MudAvatar Color="Color.Primary" Size="Size.Small" aria-label="Dorn">D</MudAvatar>
+            <MudText Typo="Typo.overline" Color="Color.Secondary">Dorn Blazor Templates</MudText>
+        </MudStack>
+
+        <MudText Typo="Typo.h3" HtmlTag="h1" Class="brand-script">Ready in one command.<br />Now make it yours.</MudText>
+
+        <MudText Typo="Typo.subtitle1" Color="Color.Secondary" Style="max-width: 640px;">
+            Dorn is a polished, clean-architecture Blazor starter — Server or WebAssembly, themed and ready to build on.
+        </MudText>
+
+        <MudButton
+            Variant="Variant.Filled"
+            Color="Color.Primary"
+            Size="Size.Large"
+            Href="https://github.com/mbarretot/dorn-templates-blazor"
+            Target="_blank"
+            EndIcon="@Icons.Material.Filled.OpenInNew"
+            Class="mt-4"
+        >
+            View on GitHub
+        </MudButton>
+    </MudStack>
+
+    <MudGrid Class="mt-16" Spacing="6">
+        <MudItem xs="12" sm="4">
+            <MudStack Spacing="1" AlignItems="AlignItems.Center">
+                <MudIcon Icon="@Icons.Material.Filled.AccountTree" Color="Color.Primary" Size="Size.Large" />
+                <MudText Typo="Typo.subtitle1" Class="font-weight-bold">Feature-first structure</MudText>
+                <MudText Typo="Typo.body2" Color="Color.Secondary">
+                    Every capability lives in its own Features/{Name}/ folder — internal Domain, Application, and Infrastructure layers are added only when a feature earns them.
+                </MudText>
+            </MudStack>
+        </MudItem>
+        <MudItem xs="12" sm="4">
+            <MudStack Spacing="1" AlignItems="AlignItems.Center">
+                <MudIcon Icon="@Icons.Material.Filled.SwapHoriz" Color="Color.Primary" Size="Size.Large" />
+                <MudText Typo="Typo.subtitle1" Class="font-weight-bold">Server or WebAssembly</MudText>
+                <MudText Typo="Typo.body2" Color="Color.Secondary">
+                    Same foundation, same components — pick your hosting model.
+                </MudText>
+            </MudStack>
+        </MudItem>
+        <MudItem xs="12" sm="4">
+            <MudStack Spacing="1" AlignItems="AlignItems.Center">
+                <MudIcon Icon="@Icons.Material.Filled.Palette" Color="Color.Primary" Size="Size.Large" />
+                <MudText Typo="Typo.subtitle1" Class="font-weight-bold">Themed and ready</MudText>
+                <MudText Typo="Typo.body2" Color="Color.Secondary">
+                    MudBlazor under the hood, with your own design tokens already wired in.
+                </MudText>
+            </MudStack>
+        </MudItem>
+    </MudGrid>
+
+    <MudAlert Severity="Severity.Info" Variant="Variant.Text" Class="mt-16">
+        This page is yours — start editing <MudText Typo="Typo.body2" Inline="true" Class="font-weight-bold" HtmlTag="code">Features/Home/Home.razor</MudText>.
+    </MudAlert>
+</MudContainer>

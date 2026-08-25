@@ -35,9 +35,6 @@ public class PackedContentTests
                     Path.Combine(extractDirectory, "content", ".config", "dotnet-tools.json")
                 )
             );
-            Assert.True(
-                File.Exists(Path.Combine(extractDirectory, "content", "build", "Tailwind.targets"))
-            );
             Assert.True(File.Exists(Path.Combine(extractDirectory, "README.md")));
             Assert.True(File.Exists(Path.Combine(extractDirectory, "dorn-icon.jpg")));
             Assert.True(

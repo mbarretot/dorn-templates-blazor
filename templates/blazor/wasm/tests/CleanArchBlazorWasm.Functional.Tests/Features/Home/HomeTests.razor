@@ -5,31 +5,31 @@
 
 @code {
     [Fact]
-    public void Home_ExposesObservatoryContextAndPlaygroundPath()
+    public void Home_RendersBrandingAndHeadline()
     {
         var cut = Render(@<Home />);
 
-        Assert.Equal("Component Observatory", cut.Find("h1").TextContent.Trim());
-        Assert.Equal("Open Playground", cut.Find("a[href='/playground']").TextContent.Trim());
-        Assert.Contains("Live specimen", cut.Find("[aria-label='Live specimen']").TextContent);
+        Assert.Contains("Dorn Blazor Templates", cut.Markup);
+        Assert.Contains("Ready in one command.", cut.Find("h1").TextContent);
+        Assert.Contains("Now make it yours.", cut.Find("h1").TextContent);
     }
 
     [Fact]
-    public void LiveSpecimen_WhenUnavailable_RetainsPlaygroundPath()
+    public void Home_RendersGitHubCallToAction()
     {
-        var cut = Render(@<LiveSpecimen IsAvailable="false" />);
+        var cut = Render(@<Home />);
 
-        Assert.Equal("alert", cut.Find("[role='alert']").GetAttribute("role"));
-        Assert.Equal("Open Playground", cut.Find("a[href='/playground']").TextContent.Trim());
+        var cta = cut.Find("a[href='https://github.com/mbarretot/dorn-templates-blazor']");
+        Assert.Equal("View on GitHub", cta.TextContent.Trim());
     }
 
     [Fact]
-    public void ObservatoryHero_ProvidesNamedLiveAndPlaygroundNavigation()
+    public void Home_RendersValueProps()
     {
-        var cut = Render(@<ObservatoryHero />);
+        var cut = Render(@<Home />);
 
-        Assert.Equal("Observatory navigation", cut.Find("nav").GetAttribute("aria-label"));
-        Assert.Equal("Live specimen", cut.Find("a[href='#live-specimen']").TextContent.Trim());
-        Assert.Equal("Open Playground", cut.Find("a[href='/playground']").TextContent.Trim());
+        Assert.Contains("Feature-first structure", cut.Markup);
+        Assert.Contains("Server or WebAssembly", cut.Markup);
+        Assert.Contains("Themed and ready", cut.Markup);
     }
 }

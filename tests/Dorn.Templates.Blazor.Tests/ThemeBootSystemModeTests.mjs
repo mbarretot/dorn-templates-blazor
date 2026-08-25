@@ -46,16 +46,26 @@ for (const [host, project] of [
   ["wasm", "CleanArchBlazorWasm"],
   ["server", "CleanArchBlazorServer"],
 ]) {
-  test(`${host} resolves System mode in the DOM and follows OS changes`, () => {
+  test(`${host} resolves System mode from getSnapshot and follows OS changes`, () => {
     const path = join(templatesRoot, host, "src", `${project}.Web`, "wwwroot", "theme-boot.js");
     const boot = executeThemeBoot(path, false);
 
-    assert.equal(boot.attributes.get("data-ui-mode"), "light");
     assert.equal(boot.window.dornTheme.getSnapshot().mode, "system");
+    assert.equal(boot.window.dornTheme.getSnapshot().systemPrefersDark, false);
 
     boot.media.change(true);
 
-    assert.equal(boot.attributes.get("data-ui-mode"), "dark");
     assert.equal(boot.window.dornTheme.getSnapshot().mode, "system");
+    assert.equal(boot.window.dornTheme.getSnapshot().systemPrefersDark, true);
+  });
+
+  test(`${host} setMode persists the chosen mode for getSnapshot`, () => {
+    const path = join(templatesRoot, host, "src", `${project}.Web`, "wwwroot", "theme-boot.js");
+    const boot = executeThemeBoot(path, false);
+
+    boot.window.dornTheme.setMode("dark");
+
+    assert.equal(boot.window.dornTheme.getSnapshot().mode, "dark");
+    assert.equal(boot.window.localStorage.getItem("ui-mode"), "dark");
   });
 }

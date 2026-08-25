@@ -4,8 +4,8 @@
         <PackageId>Dorn.Templates.BlazorServer</PackageId>
         <Title>Dorn Blazor Server Template</Title>
         <Authors>Dorn Contributors</Authors>
-        <Description>Blazor Server app with a Tailwind design system and Aspire orchestration. Install via `dotnet new install Dorn.Templates.BlazorServer`.</Description>
-        <PackageTags>dotnet-new;templates;blazor;server;tailwind;design-system</PackageTags>
+        <Description>Blazor Server app with MudBlazor and Aspire orchestration. Install via `dotnet new install Dorn.Templates.BlazorServer`.</Description>
+        <PackageTags>dotnet-new;templates;blazor;server;mudblazor;design-system</PackageTags>
         <PackageProjectUrl>https://github.com/mbarretot/dorn-templates-blazor</PackageProjectUrl>
         <RepositoryUrl>https://github.com/mbarretot/dorn-templates-blazor.git</RepositoryUrl>
         <RepositoryType>git</RepositoryType>

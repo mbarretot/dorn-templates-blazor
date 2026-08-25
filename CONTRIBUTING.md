@@ -28,9 +28,11 @@ dotnet test tests/Dorn.Templates.Blazor.BrowserTests/Dorn.Templates.Blazor.Brows
 
 | Area | Source of truth | Keep aligned |
 | --- | --- | --- |
-| Themes | `Styles/themes/*.css` | Theme choices and tests in both templates |
-| Observatory | `Features/Playground/PlaygroundCatalog.cs` | Routes and pages in both templates |
-| UI primitives | `Components/Ui` | WASM and Server component contracts |
+| Layout & theme | `Components/Layout`, `Components/Theme/AppTheme.cs` | Shell and palette in both templates |
+| Home page | `Features/Home/Home.razor` | Branding copy in both templates |
+| Feature structure | `Features/{Name}/` | No `Domain`/`Application`/`Infrastructure` sub-folders by default; add them only when a feature earns internal layering |
+| Clean Architecture opt-in (Server only) | `--IncludeCleanArchitecture` | Adds `{App}.Domain`/`.Application`/`.Infrastructure` class libraries wired to `.Web`; `Features/{Name}/` stays the top-level shape either way — see `CleanArchBlazorServer.slnx` and the `.template.config/template.json` third axis |
+| MudBlazor version | `Directory.Packages.props` | Pinned version in both templates |
 | Static assets | Razor asset references | Use `@Assets["..."]` for fingerprinting |
 
 > [!NOTE]

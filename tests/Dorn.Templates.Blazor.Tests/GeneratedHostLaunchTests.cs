@@ -33,15 +33,8 @@ public class GeneratedHostLaunchTests
                 .GetFiles(outputDirectory, "*.Web.csproj", SearchOption.AllDirectories)
                 .Single();
             Assert.True(
-                File.Exists(
-                    Path.Combine(
-                        Path.GetDirectoryName(project)!,
-                        "Components",
-                        "Ui",
-                        "_Imports.razor"
-                    )
-                ),
-                "Generated host must preserve Components/Ui/_Imports.razor."
+                File.Exists(Path.Combine(Path.GetDirectoryName(project)!, "_Imports.razor")),
+                "Generated host must preserve _Imports.razor."
             );
             var port = ReserveLoopbackPort();
             process = Process.Start(CreateStartInfo(project, port));

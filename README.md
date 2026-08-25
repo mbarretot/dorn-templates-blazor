@@ -12,7 +12,7 @@
 
 </div>
 
-Build with **Blazor WebAssembly** or **Interactive Server** without rebuilding the UI foundation. Both templates include Aspire orchestration, Tailwind CSS, accessible components, six themes, and an optional component observatory.
+Build with **Blazor WebAssembly** or **Interactive Server** without rebuilding the UI foundation. Both templates ship MudBlazor, a branded theme with light/dark mode, and optional Aspire orchestration.
 
 ---
 
@@ -23,11 +23,11 @@ Choose a hosting model:
 ```bash
 # Blazor WebAssembly
 dotnet new install Dorn.Templates.BlazorWasm
-dotnet new dorn-blazor-wasm -n Acme.Portal --Theme primer
+dotnet new dorn-blazor-wasm -n Acme.Portal
 
 # Blazor Server
 dotnet new install Dorn.Templates.BlazorServer
-dotnet new dorn-blazor-server -n Acme.Portal --Theme primer
+dotnet new dorn-blazor-server -n Acme.Portal
 ```
 
 Run the generated application:
@@ -38,7 +38,7 @@ dotnet run --project src/Acme.Portal.AppHost
 ```
 
 > [!TIP]
-> Open the web resource from the Aspire dashboard. The component observatory is available from the application navigation.
+> Open the web resource from the Aspire dashboard.
 
 > [!NOTE]
 > Visual Studio automatically discovers installed `dotnet new` templates and shows the Dorn icon in **Create a new project**.
@@ -49,12 +49,10 @@ dotnet run --project src/Acme.Portal.AppHost
 
 | | Capability |
 | --- | --- |
-| 🧩 | Accessible Razor UI primitives and responsive shell |
-| 🔭 | Searchable observatory with preview, controls, code, and API views |
-| 🎨 | `slate`, `rose`, `neutral`, `linear`, `primer`, and `lightning` themes |
+| 🧩 | MudBlazor (Material components) and a responsive shell |
+| 🎨 | A branded `AppTheme` palette, self-hosted—no CDN or Node/npm required |
 | 🌗 | Light, dark, and system modes without first-paint theme flash |
-| 🧪 | xUnit, bUnit, integration, Playwright, and axe-core coverage |
-| ⚡ | Tailwind standalone CLI—no Node or npm required |
+| 🧪 | xUnit, bUnit, and integration test coverage |
 
 ---
 
@@ -62,14 +60,18 @@ dotnet run --project src/Acme.Portal.AppHost
 
 | Option | Default | Effect |
 | --- | --- | --- |
-| `--Theme <name>` | `slate` | Select the initial theme. All themes still ship. |
-| `--IncludePlayground <bool>` | `true` | Remove the observatory for a lean application. |
+| `--IncludeAspire <bool>` | `false` | Add an AppHost and ServiceDefaults project for Aspire orchestration. |
 | `--IncludeTests <bool>` | `true` | Exclude generated test projects. |
+| `--IncludeCleanArchitecture <bool>` (Server only) | `false` | Add `{App}.Domain`, `{App}.Application`, and `{App}.Infrastructure` class libraries wired to `{App}.Web`. `Features/{Name}/` stays the top-level shape either way — this only adds an internal layering option, enforced by ArchUnitNET rules once opted in. |
 
 ```bash
 dotnet new dorn-blazor-server -n Acme.Backoffice \
-  --Theme neutral \
-  --IncludePlayground false
+  --IncludeAspire true \
+  --IncludeTests false
+
+# Opt into Clean Architecture class libraries (Server only)
+dotnet new dorn-blazor-server -n Acme.Backoffice \
+  --IncludeCleanArchitecture true
 ```
 
 ---
@@ -87,7 +89,3 @@ dotnet new dorn-blazor-server -n Acme.Backoffice \
 ## 🤝 Contributing
 
 Working on the templates themselves? Start with the short [contributor guide](CONTRIBUTING.md).
-
-<div align="center">
-  <sub>Strong foundations first. Product work next.</sub>
-</div>
