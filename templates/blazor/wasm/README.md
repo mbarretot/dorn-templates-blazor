@@ -52,4 +52,3 @@ The Aspire dashboard opens the application and its development resources.
 ## 📚 Reference
 
 - [Blazor WASM template guide](https://github.com/mbarretot/dorn/blob/main/docs/templates/blazor-wasm.md)
-- [Dorn architecture decisions](https://github.com/mbarretot/dorn/tree/main/docs/adr)

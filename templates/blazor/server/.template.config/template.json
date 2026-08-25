@@ -19,13 +19,13 @@
       "type": "parameter",
       "datatype": "bool",
       "defaultValue": "false",
-      "description": "Include .NET Aspire orchestration: an AppHost project and a ServiceDefaults project (OpenTelemetry, health checks, service discovery). Off by default — the generated app runs as a plain ASP.NET Core web app."
+      "description": "Include .NET Aspire orchestration: an AppHost project and a ServiceDefaults project (OpenTelemetry, health checks, service discovery). Off by default: the generated app runs as a plain ASP.NET Core web app."
     },
     "IncludeCleanArchitecture": {
       "type": "parameter",
       "datatype": "bool",
       "defaultValue": "false",
-      "description": "Include Clean Architecture class libraries: {App}.Domain, {App}.Application, and {App}.Infrastructure, wired to {App}.Web by project reference. Off by default — features stay vertical slices under Features/{Name}/, which remains the top-level shape either way."
+      "description": "Include Clean Architecture class libraries: {App}.Domain, {App}.Application, and {App}.Infrastructure, wired to {App}.Web by project reference. Off by default: features stay vertical slices under Features/{Name}/, which remains the top-level shape either way."
     }
   },
   "sources": [

@@ -53,4 +53,3 @@ The Aspire dashboard opens the application and its development resources.
 ## 📚 Reference
 
 - [Blazor Server template guide](https://github.com/mbarretot/dorn/blob/main/docs/templates/blazor-server.md)
-- [Dorn architecture decisions](https://github.com/mbarretot/dorn/tree/main/docs/adr)
