@@ -1,4 +1,8 @@
 using MudBlazor.Services;
+#if (IncludeCleanArchitecture)
+using CleanArchBlazorServer.Application.Interfaces;
+using CleanArchBlazorServer.Infrastructure.ToDos;
+#endif
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +15,13 @@ builder.Services.AddMudServices();
 
 builder.Services.AddScoped<ThemeInterop>();
 builder.Services.AddScoped<ThemeState>();
+
+#if (IncludeCleanArchitecture)
+builder.Services.AddHttpClient<IToDoRepository, JsonPlaceholderToDoRepository>(client =>
+{
+    client.BaseAddress = new Uri("https://jsonplaceholder.typicode.com/");
+});
+#endif
 
 var app = builder.Build();
 
