@@ -3,18 +3,19 @@ name: build-test
 on:
   workflow_call:
 
+env:
+  DOTNET_NOLOGO: "true"
+  DOTNET_CLI_TELEMETRY_OPTOUT: "true"
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "true"
+
 jobs:
-  build-and-test:
-    name: build-and-test (${{ matrix.os }})
+  dev-loop-tests:
+    name: dev-loop-tests (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-    env:
-      DOTNET_NOLOGO: "true"
-      DOTNET_CLI_TELEMETRY_OPTOUT: "true"
-      DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "true"
 
     steps:
       - name: Checkout
@@ -39,6 +40,65 @@ jobs:
       - name: Test blazor-server template's own tiers
         run: dotnet test templates/blazor/server/CleanArchBlazorServer.slnx -c Release
 
+  template-generation-tests:
+    name: template-generation-tests (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v6
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/Directory.Packages.props') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Restore
+        run: dotnet restore DornTemplatesBlazor.slnx
+
+      - name: Build
+        run: dotnet build DornTemplatesBlazor.slnx --no-restore -c Release
+
+      - name: Test template generation matrix
+        run: dotnet test tests/Dorn.Templates.Blazor.Tests/Dorn.Templates.Blazor.Tests.csproj --no-build -c Release
+
+  browser-e2e-tests:
+    name: browser-e2e-tests (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v6
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/Directory.Packages.props') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
       - name: Restore
         run: dotnet restore DornTemplatesBlazor.slnx
 
@@ -47,9 +107,6 @@ jobs:
 
       - name: Install Playwright browsers
         run: pwsh tests/Dorn.Templates.Blazor.BrowserTests/bin/Release/net10.0/playwright.ps1 install --with-deps chromium
-
-      - name: Test
-        run: dotnet test tests/Dorn.Templates.Blazor.Tests/Dorn.Templates.Blazor.Tests.csproj --no-build -c Release
 
       - name: Test browser quality suite
         run: dotnet test tests/Dorn.Templates.Blazor.BrowserTests/Dorn.Templates.Blazor.BrowserTests.csproj --no-build -c Release
