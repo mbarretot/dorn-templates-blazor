@@ -32,7 +32,7 @@
       try {
         window.localStorage.setItem(MODE_STORAGE_KEY, mode);
       } catch (error) {
-        // Storage unavailable (e.g. private browsing) — the choice still applies for
+        // Storage unavailable (e.g. private browsing); the choice still applies for
         // this page load, it just will not survive a refresh.
       }
     },

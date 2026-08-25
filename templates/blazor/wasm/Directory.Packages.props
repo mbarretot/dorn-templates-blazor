@@ -15,8 +15,7 @@
 
   <ItemGroup>
     <!-- Dorn's own packages - resolved from a local feed during development, from NuGet.org
-         for end-user installs. See nuget.config, packages/Directory.Build.props (GitVersion), and
-         docs/adr/0010-*.md and 0026-*.md. -->
+         for end-user installs. See nuget.config and packages/Directory.Build.props (GitVersion). -->
     <PackageVersion Include="Dorn.WebUI.Primitives" Version="1.0.5" />
   </ItemGroup>
 
@@ -26,7 +25,7 @@
 
   <ItemGroup>
     <!-- Aspire orchestration (design F): AppHost registers the WASM front-end as a project
-         resource. No ServiceDefaults — OpenTelemetry/health-check/service-discovery are
+         resource. No ServiceDefaults: OpenTelemetry/health-check/service-discovery are
          server-side APIs with no meaning inside the browser sandbox. -->
     <PackageVersion Include="Aspire.Hosting.AppHost" Version="13.4.6" />
   </ItemGroup>

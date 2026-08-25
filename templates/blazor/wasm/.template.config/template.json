@@ -19,7 +19,7 @@
       "type": "parameter",
       "datatype": "bool",
       "defaultValue": "false",
-      "description": "Include .NET Aspire orchestration: an AppHost project that registers the WebAssembly front-end as a resource. Off by default — the generated app runs as a plain Blazor WebAssembly app."
+      "description": "Include .NET Aspire orchestration: an AppHost project that registers the WebAssembly front-end as a resource. Off by default: the generated app runs as a plain Blazor WebAssembly app."
     }
   },
   "sources": [
