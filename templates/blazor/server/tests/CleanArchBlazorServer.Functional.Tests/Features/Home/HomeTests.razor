@@ -10,8 +10,8 @@
         var cut = Render(@<Home />);
 
         Assert.Contains("Dorn Blazor Templates", cut.Markup);
-        Assert.Contains("Ready in one command.", cut.Find("h3").TextContent);
-        Assert.Contains("Now make it yours.", cut.Find("h3").TextContent);
+        Assert.Contains("Ready in one command.", cut.Find("h1").TextContent);
+        Assert.Contains("Now make it yours.", cut.Find("h1").TextContent);
     }
 
     [Fact]
