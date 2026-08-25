@@ -32,21 +32,27 @@
         {
           "condition": "(!IncludeAspire)",
           "exclude": ["src/CleanArchBlazorWasm.AppHost/**"]
-        },
-        {
-          "condition": "(IncludeAspire)",
-          "exclude": ["CleanArchBlazorWasm.NoAspire.slnx"]
-        },
-        {
-          "condition": "(!IncludeAspire)",
-          "rename": {
-            "CleanArchBlazorWasm.NoAspire.slnx": "CleanArchBlazorWasm.slnx"
-          },
-          "exclude": ["CleanArchBlazorWasm.slnx"]
         }
       ]
     }
   ],
+  "specialCustomOperations": {
+    "**/*.slnx": {
+      "operations": [
+        {
+          "type": "conditional",
+          "configuration": {
+            "if": ["<!--#if"],
+            "else": ["<!--#else"],
+            "elseif": ["<!--#elseif"],
+            "endif": ["<!--#endif"],
+            "trim": "true",
+            "wholeLine": "true"
+          }
+        }
+      ]
+    }
+  },
   "primaryOutputs": [
     {
       "path": "CleanArchBlazorWasm.slnx"

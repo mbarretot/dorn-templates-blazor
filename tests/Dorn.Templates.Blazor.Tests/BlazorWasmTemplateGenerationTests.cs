@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Xml.Linq;
 using Xunit;
 
 namespace Dorn.Templates.Blazor.Tests;
@@ -56,7 +57,11 @@ public class BlazorWasmTemplateGenerationTests
                 "DornIntegrationTestBlazorWasmApp.Web"
             );
             var endpointsManifestPath = Directory
-                .GetFiles(webProjectDir, "*.staticwebassets.endpoints.json", SearchOption.AllDirectories)
+                .GetFiles(
+                    webProjectDir,
+                    "*.staticwebassets.endpoints.json",
+                    SearchOption.AllDirectories
+                )
                 .SingleOrDefault();
             Assert.NotNull(endpointsManifestPath);
 
@@ -241,6 +246,158 @@ public class BlazorWasmTemplateGenerationTests
             else
             {
                 Console.WriteLine("KEPT: " + outputDirectory);
+            }
+        }
+    }
+
+    [Fact]
+    public async Task GenerateWithIncludeTestsFalse_SlnxHasNoTestProjectEntries_AndBuilds()
+    {
+        var outputDirectory = Path.Combine(
+            BuildSupport.RealTempRoot,
+            $"dorn-tests-blazor-wasm-notests-{Guid.NewGuid():N}"
+        );
+        var toolsHome = Path.Combine(
+            BuildSupport.RealTempRoot,
+            $"dorn-tests-blazor-wasm-notests-tools-{Guid.NewGuid():N}"
+        );
+        try
+        {
+            var result = await TemplatePackHarness.GenerateAsync(
+                "dorn-blazor-wasm",
+                "DornNoTestsBlazorWasmApp",
+                outputDirectory,
+                "--IncludeTests",
+                "false"
+            );
+
+            Assert.True(
+                result.ExitCode == 0,
+                $"Template generation failed (exit {result.ExitCode})."
+                    + $"{Environment.NewLine}STDOUT:{Environment.NewLine}{result.StdOut}"
+                    + $"{Environment.NewLine}STDERR:{Environment.NewLine}{result.StdErr}"
+            );
+
+            Assert.False(
+                Directory.Exists(Path.Combine(outputDirectory, "tests")),
+                "tests/ must be excluded from the file system when IncludeTests is false."
+            );
+
+            var slnFiles = Directory.GetFiles(
+                outputDirectory,
+                "*.slnx",
+                SearchOption.TopDirectoryOnly
+            );
+            Assert.Single(slnFiles);
+            var slnContent = await File.ReadAllTextAsync(slnFiles[0]);
+            Assert.DoesNotContain(".Tests.csproj", slnContent, StringComparison.Ordinal);
+
+            // The bug this test guards against: a .slnx referencing four test projects that
+            // IncludeTests=false already deleted from disk, which fails restore/build.
+            var buildResult = await BuildSupport.RunDotnetBuildAsync(slnFiles[0], toolsHome);
+
+            Assert.True(
+                buildResult.ExitCode == 0,
+                $"dotnet build exited with {buildResult.ExitCode}."
+                    + $"{Environment.NewLine}STDOUT:{Environment.NewLine}{buildResult.StdOut}"
+                    + $"{Environment.NewLine}STDERR:{Environment.NewLine}{buildResult.StdErr}"
+            );
+        }
+        finally
+        {
+            if (Environment.GetEnvironmentVariable("DORN_TEST_KEEP_TEMP") != "true")
+            {
+                if (Directory.Exists(outputDirectory))
+                {
+                    await BuildSupport.DeleteDirectoryWithRetryAsync(outputDirectory);
+                }
+                if (Directory.Exists(toolsHome))
+                {
+                    await BuildSupport.DeleteDirectoryWithRetryAsync(toolsHome);
+                }
+            }
+            else
+            {
+                Console.WriteLine("KEPT: " + outputDirectory);
+            }
+        }
+    }
+
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
+    public async Task GenerateMatrix_SlnxEntriesMatchFileSystem(
+        bool includeAspire,
+        bool includeTests
+    )
+    {
+        var name =
+            $"DornMatrixWasm{(includeAspire ? "Aspire" : "NoAspire")}{(includeTests ? "Tests" : "NoTests")}App";
+        var outputDirectory = Path.Combine(
+            BuildSupport.RealTempRoot,
+            $"dorn-tests-blazor-wasm-matrix-{Guid.NewGuid():N}"
+        );
+        try
+        {
+            var result = await TemplatePackHarness.GenerateAsync(
+                "dorn-blazor-wasm",
+                name,
+                outputDirectory,
+                "--IncludeAspire",
+                includeAspire.ToString(),
+                "--IncludeTests",
+                includeTests.ToString()
+            );
+
+            Assert.True(
+                result.ExitCode == 0,
+                $"Template generation failed (exit {result.ExitCode})."
+                    + $"{Environment.NewLine}STDOUT:{Environment.NewLine}{result.StdOut}"
+                    + $"{Environment.NewLine}STDERR:{Environment.NewLine}{result.StdErr}"
+            );
+
+            var slnFiles = Directory.GetFiles(
+                outputDirectory,
+                "*.slnx",
+                SearchOption.TopDirectoryOnly
+            );
+            Assert.Single(slnFiles);
+            var slnContent = await File.ReadAllTextAsync(slnFiles[0]);
+
+            Assert.Equal(includeAspire, slnContent.Contains("AppHost", StringComparison.Ordinal));
+            Assert.Equal(
+                includeTests,
+                slnContent.Contains(".Tests.csproj", StringComparison.Ordinal)
+            );
+
+            var document = XDocument.Parse(slnContent);
+            var projectPaths = document
+                .Descendants("Project")
+                .Select(project => project.Attribute("Path")!.Value)
+                .ToList();
+            Assert.NotEmpty(projectPaths);
+            foreach (var projectPath in projectPaths)
+            {
+                var fullPath = Path.Combine(
+                    outputDirectory,
+                    projectPath.Replace('/', Path.DirectorySeparatorChar)
+                );
+                Assert.True(
+                    File.Exists(fullPath),
+                    $"Referenced project '{projectPath}' does not exist on disk."
+                );
+            }
+        }
+        finally
+        {
+            if (
+                Environment.GetEnvironmentVariable("DORN_TEST_KEEP_TEMP") != "true"
+                && Directory.Exists(outputDirectory)
+            )
+            {
+                await BuildSupport.DeleteDirectoryWithRetryAsync(outputDirectory);
             }
         }
     }

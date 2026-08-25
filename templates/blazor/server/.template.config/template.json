@@ -35,21 +35,27 @@
             "src/CleanArchBlazorServer.AppHost/**",
             "src/CleanArchBlazorServer.ServiceDefaults/**"
           ]
-        },
-        {
-          "condition": "(IncludeAspire)",
-          "exclude": ["CleanArchBlazorServer.NoAspire.slnx"]
-        },
-        {
-          "condition": "(!IncludeAspire)",
-          "rename": {
-            "CleanArchBlazorServer.NoAspire.slnx": "CleanArchBlazorServer.slnx"
-          },
-          "exclude": ["CleanArchBlazorServer.slnx"]
         }
       ]
     }
   ],
+  "specialCustomOperations": {
+    "**/*.slnx": {
+      "operations": [
+        {
+          "type": "conditional",
+          "configuration": {
+            "if": ["<!--#if"],
+            "else": ["<!--#else"],
+            "elseif": ["<!--#elseif"],
+            "endif": ["<!--#endif"],
+            "trim": "true",
+            "wholeLine": "true"
+          }
+        }
+      ]
+    }
+  },
   "primaryOutputs": [
     {
       "path": "CleanArchBlazorServer.slnx"
