@@ -1,91 +1,73 @@
 <div align="center">
-  <img src="docs/assets/dorn-icon.jpg" alt="Dorn" width="148" />
+  <img src="docs/assets/dorn-icon.jpg" alt="Hand-drawn Dorn architectural mark" width="112" />
 
 # Dorn Blazor Templates
 
-**Polished .NET 10 Blazor applications, ready in one command.**
+**Developer-ready .NET 10 Blazor applications, generated in one command.**
 
-[![.NET 10](https://img.shields.io/badge/.NET-10-512BD4?style=flat-square&logo=dotnet)](https://dotnet.microsoft.com/)
-[![Blazor](https://img.shields.io/badge/Blazor-WASM%20%2B%20Server-7C3AED?style=flat-square&logo=blazor)](https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor)
-[![NuGet](https://img.shields.io/nuget/v/Dorn.Templates.BlazorWasm?style=flat-square&color=9333EA&label=NuGet&logo=nuget)](https://www.nuget.org/packages/Dorn.Templates.BlazorWasm)
-[![CI](https://img.shields.io/github/actions/workflow/status/mbarretot/dorn-templates-blazor/ci.yml?branch=main&style=flat-square&label=build)](https://github.com/mbarretot/dorn-templates-blazor/actions/workflows/ci.yml)
+[![.NET 10](https://img.shields.io/badge/.NET-10-b0533a?style=flat-square&logo=dotnet&logoColor=white)](https://dotnet.microsoft.com/)
+[![Blazor](https://img.shields.io/badge/Blazor-WASM%20%2B%20Server-b0533a?style=flat-square&logo=blazor&logoColor=white)](https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor)
+[![NuGet](https://img.shields.io/nuget/v/Dorn.Templates.BlazorWasm?style=flat-square&color=b0533a&label=NuGet&logo=nuget&logoColor=white)](https://www.nuget.org/packages/Dorn.Templates.BlazorWasm)
+[![Build](https://img.shields.io/github/actions/workflow/status/mbarretot/dorn-templates-blazor/ci.yml?branch=main&style=flat-square&label=build&color=b0533a)](https://github.com/mbarretot/dorn-templates-blazor/actions/workflows/ci.yml)
 
 </div>
 
-Build with **Blazor WebAssembly** or **Interactive Server** without rebuilding the UI foundation. Both templates ship MudBlazor, a branded theme with light/dark mode, and optional Aspire orchestration.
-
----
+Choose **WebAssembly** for browser-side execution or **Server** for Interactive Server rendering. Both templates share the same MudBlazor foundation, warm editorial design system, theme behavior, and testing conventions.
 
 ## 🚀 Quick start
 
-Choose a hosting model:
-
 ```bash
-# Blazor WebAssembly
+# WebAssembly
 dotnet new install Dorn.Templates.BlazorWasm
 dotnet new dorn-blazor-wasm -n Acme.Portal
 
-# Blazor Server
+# Interactive Server
 dotnet new install Dorn.Templates.BlazorServer
 dotnet new dorn-blazor-server -n Acme.Portal
 ```
 
-Run the generated application:
+Run the generated web project:
 
 ```bash
 cd Acme.Portal
-dotnet run --project src/Acme.Portal.AppHost
+dotnet run --project src/Acme.Portal.Web
 ```
 
 > [!TIP]
-> Open the web resource from the Aspire dashboard.
+> Add `--IncludeAspire true` when you want local orchestration, service discovery, and the Aspire dashboard.
 
-> [!NOTE]
-> Visual Studio automatically discovers installed `dotnet new` templates and shows the Dorn icon in **Create a new project**.
+## 🧭 Choose a template
 
----
+| Template | Choose it when | Package |
+| --- | --- | --- |
+| **WebAssembly** | The application should execute in the browser or support static hosting | [`Dorn.Templates.BlazorWasm`](https://www.nuget.org/packages/Dorn.Templates.BlazorWasm) |
+| **Server** | The UI should execute on the server with Interactive Server rendering | [`Dorn.Templates.BlazorServer`](https://www.nuget.org/packages/Dorn.Templates.BlazorServer) |
 
 ## ✨ Included
 
-| | Capability |
-| --- | --- |
-| 🧩 | MudBlazor (Material components) and a responsive shell |
-| 🎨 | A branded `AppTheme` palette, self-hosted (no CDN or Node/npm required) |
-| 🌗 | Light, dark, and system modes without first-paint theme flash |
-| 🧪 | xUnit, bUnit, and integration test coverage |
+- 🧩 Responsive MudBlazor application shell
+- 🎨 Warm paper, ink, and terracotta design tokens
+- 🌗 Light, dark, and system modes applied before first paint
+- 🔤 Self-hosted Newsreader and system UI fonts—no CDN or Node/npm
+- 🧪 xUnit, bUnit, architecture, integration, and browser test foundations
+- ☁️ Optional .NET Aspire orchestration
 
----
+## ⚙️ Template options
 
-## 🎛️ Template options
-
-| Option | Default | Effect |
-| --- | --- | --- |
-| `--IncludeAspire <bool>` | `false` | Add an AppHost and ServiceDefaults project for Aspire orchestration. |
-| `--IncludeTests <bool>` | `true` | Exclude generated test projects. |
-| `--IncludeCleanArchitecture <bool>` (Server only) | `false` | Add `{App}.Domain`, `{App}.Application`, and `{App}.Infrastructure` class libraries wired to `{App}.Web`. `Features/{Name}/` stays the top-level shape either way; this only adds an internal layering option, enforced by ArchUnitNET rules once opted in. |
+| Option | Default | Available in | Effect |
+| --- | --- | --- | --- |
+| `--IncludeAspire <bool>` | `false` | Both | Adds AppHost and ServiceDefaults projects |
+| `--IncludeTests <bool>` | `true` | Both | Includes the generated test projects |
+| `--IncludeCleanArchitecture <bool>` | `false` | Server | Adds Domain, Application, and Infrastructure layers with architecture rules |
 
 ```bash
 dotnet new dorn-blazor-server -n Acme.Backoffice \
   --IncludeAspire true \
-  --IncludeTests false
-
-# Opt into Clean Architecture class libraries (Server only)
-dotnet new dorn-blazor-server -n Acme.Backoffice \
   --IncludeCleanArchitecture true
 ```
 
----
+## 🛠️ Work on the templates
 
-## 🧭 Choose your template
-
-| Template | Best for | Package |
-| --- | --- | --- |
-| **WebAssembly** | Client-side execution and static hosting | [`Dorn.Templates.BlazorWasm`](https://www.nuget.org/packages/Dorn.Templates.BlazorWasm) |
-| **Server** | Server-side execution and Interactive Server rendering | [`Dorn.Templates.BlazorServer`](https://www.nuget.org/packages/Dorn.Templates.BlazorServer) |
-
-> [!NOTE]
-> WASM and Server share the same UI contracts and visual language. The hosting model changes; the design system does not.
-
-## 🤝 Contributing
-
-Working on the templates themselves? Start with the short [contributor guide](CONTRIBUTING.md).
+1. Read the [contributor guide](CONTRIBUTING.md).
+2. Make the same UI-foundation change in Server and WASM.
+3. Run the focused tests for the files you changed.

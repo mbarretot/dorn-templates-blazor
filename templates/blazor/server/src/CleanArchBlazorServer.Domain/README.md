@@ -1,16 +1,30 @@
-# CleanArchBlazorServer.Domain
+# Domain layer
 
-The innermost layer: entities, value objects, and domain logic that describes the business, not the framework.
+Model business concepts and rules here, independent of frameworks and delivery mechanisms.
 
-**Rule**: zero dependencies on any other project or third-party package, not even the BCL beyond `System.*`. Enforced by `Domain_Should_DependOnNothingButBcl` and `Domain_ShouldNot_DependOnOuterLayers` in `CleanArchBlazorServer.Application.Tests/Architecture/CleanArchitectureLayeringTests.cs`.
+## ✅ Dependency rule
 
-## What's here
+`Domain` depends on no other project or third-party package. Only `System.*` BCL dependencies are allowed.
 
-- `Entities/ToDoItem.cs`: a minimal worked example (`Id`, `Title`, `IsCompleted`), wired end-to-end through `Application` and `Infrastructure`. Replace it with your first real entity; there is nothing to remove first, just this one file.
+> [!NOTE]
+> `Domain_Should_DependOnNothingButBcl` and `Domain_ShouldNot_DependOnOuterLayers` enforce this boundary.
 
-## Suggested shape as you grow this layer
+## 🧭 Start here
 
-- `Entities/`: objects with identity (like `ToDoItem`)
-- `ValueObjects/`: immutable objects defined by their values, not an id
-- `Enums/`
-- `Exceptions/`: domain-specific exceptions (e.g. invariant violations)
+1. Replace the sample entity with the first real business concept.
+2. Put invariants beside the data they protect.
+3. Keep persistence, HTTP, UI, and configuration concerns outside this project.
+4. Test business behavior directly.
+
+## 📦 Current example
+
+| Path | Purpose |
+| --- | --- |
+| `Entities/ToDoItem.cs` | Minimal entity wired through the sample application flow |
+
+## 📁 Suggested shape
+
+- `Entities/` — objects with identity
+- `ValueObjects/` — immutable concepts defined by their values
+- `Enums/` — domain vocabulary with a closed set of values
+- `Exceptions/` — domain-specific invariant failures

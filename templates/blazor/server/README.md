@@ -1,19 +1,16 @@
 <div align="center">
-
-<img src="docs/assets/dorn-icon.jpg" alt="Dorn" width="112" />
+  <img src="docs/assets/dorn-icon.jpg" alt="Hand-drawn Dorn architectural mark" width="112" />
 
 # CleanArchBlazorServer
 
-[![Scaffolded with Dorn](https://img.shields.io/badge/scaffolded_with-Dorn-7C3AED?style=flat-square)](https://github.com/mbarretot/dorn)
-[![.NET 10](https://img.shields.io/badge/.NET-10-512BD4?style=flat-square&logo=dotnet)](https://dotnet.microsoft.com/)
+[![Scaffolded with Dorn](https://img.shields.io/badge/scaffolded_with-Dorn-b0533a?style=flat-square)](https://github.com/mbarretot/dorn)
+[![.NET 10](https://img.shields.io/badge/.NET-10-b0533a?style=flat-square&logo=dotnet&logoColor=white)](https://dotnet.microsoft.com/)
 
-**Interactive Server rendering with Aspire, MudBlazor, and a branded UI foundation.**
+**Interactive Server rendering with MudBlazor and a developer-ready foundation.**
 
 </div>
 
----
-
-## ⚡ Start
+## ⚡ Run locally
 
 ```bash
 dotnet dev-certs https --trust
@@ -21,35 +18,36 @@ dotnet tool restore
 dotnet dorn run
 ```
 
-The Aspire dashboard opens the application and its development resources.
-
 > [!TIP]
 > Run `dotnet dorn test` before your first feature to confirm the generated solution is healthy.
 
----
-
 ## 🧭 Project map
 
-| Project | Purpose |
+| Project | Responsibility |
 | --- | --- |
-| `Web` | Interactive Server application, UI components, and static assets |
-| `ServiceDefaults` | OpenTelemetry, health checks, and service discovery |
-| `AppHost` | Local Aspire orchestration |
+| `Web` | Interactive Server UI, features, theme, and static assets |
+| `Domain` | Business entities and rules when Clean Architecture is enabled |
+| `Application` | Use cases and ports when Clean Architecture is enabled |
+| `Infrastructure` | External adapters when Clean Architecture is enabled |
+| `ServiceDefaults` | OpenTelemetry, health checks, and service discovery when Aspire is enabled |
+| `AppHost` | Local orchestration when Aspire is enabled |
 
 ## 🎨 UI foundation
 
-- MudBlazor (Material components) under `Components/Layout` and `Components/Theme`
-- A branded `AppTheme` palette with light, dark, and system modes
-- Self-hosted static assets (no CDN or Node/npm)
+- MudBlazor components with matching light and dark palettes
+- Warm paper backgrounds, ink text, and one terracotta accent
+- Newsreader for editorial content; system fonts for controls
+- Theme preference applied before first paint and synchronized at runtime
+- Self-hosted assets with no CDN or Node/npm dependency
 
-## ⌨️ Commands
+## ⌨️ Daily commands
 
 | Command | Action |
 | --- | --- |
-| `dotnet dorn run` | Run the Aspire AppHost |
+| `dotnet dorn run` | Run the application or Aspire AppHost |
 | `dotnet dorn test` | Run all test tiers |
-| `dotnet dorn coverage` | Test with the coverage gate |
+| `dotnet dorn coverage` | Run tests with the coverage gate |
 
-## 📚 Reference
+## 📚 Next step
 
-- [Blazor Server template guide](https://github.com/mbarretot/dorn/blob/main/docs/templates/blazor-server.md)
+Build features inside `Web/Features/{FeatureName}`. If Clean Architecture is enabled, keep dependencies pointed inward and use each layer README as a boundary guide.

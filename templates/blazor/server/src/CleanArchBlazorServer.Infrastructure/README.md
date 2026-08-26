@@ -1,14 +1,30 @@
-# CleanArchBlazorServer.Infrastructure
+# Infrastructure layer
 
-Concrete implementations of `Application`'s interfaces: persistence, external services, and anything else that talks to the outside world. Blazor Server runs in-process, so this layer may use EF Core or any other server-side persistence freely, unlike the WASM template's browser-sandboxed `Infrastructure/` sub-folders.
+Implement Application ports for persistence, external services, files, queues, and other outside-world concerns.
 
-**Rule**: may depend on `Application` and `Domain`, but never on `Web`. Enforced by `Infrastructure_ShouldNot_DependOnWeb` in `CleanArchBlazorServer.Application.Tests/Architecture/CleanArchitectureLayeringTests.cs`.
+## ✅ Dependency rule
 
-## What's here
+`Infrastructure` may depend on `Application` and `Domain`, but never on `Web`.
 
-- `ToDos/JsonPlaceholderToDoRepository.cs`: implements `IToDoRepository` against [jsonplaceholder.typicode.com](https://jsonplaceholder.typicode.com/todos), a public fake REST API. It's registered in `Program.cs` via `AddHttpClient<IToDoRepository, JsonPlaceholderToDoRepository>`. Swap it for a real repository (EF Core, another API, a file); `Application` and `Domain` never need to change.
+> [!NOTE]
+> `Infrastructure_ShouldNot_DependOnWeb` enforces this boundary in the architecture tests.
 
-## Suggested shape as you grow this layer
+## 🧭 Replace the sample adapter
 
-- `Persistence/`: `DbContext`, EF configurations, migrations
-- `Services/`: concrete implementations of `Application` interfaces (like `ToDos/` here)
+1. Implement the existing Application interface with your real technology.
+2. Register the adapter in `Web/Program.cs`.
+3. Add focused integration tests for external behavior.
+4. Delete the sample adapter after the real path is covered.
+
+## 📦 Current example
+
+| Path | Purpose |
+| --- | --- |
+| `ToDos/JsonPlaceholderToDoRepository.cs` | Implements `IToDoRepository` against the JSONPlaceholder API |
+
+Because Blazor Server executes on the server, this layer can use EF Core, file access, or other server-side integrations.
+
+## 📁 Suggested shape
+
+- `Persistence/` — DbContext, mappings, migrations, and repositories
+- `Services/` — external API, storage, messaging, and platform adapters

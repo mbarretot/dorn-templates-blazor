@@ -1,17 +1,31 @@
-# CleanArchBlazorServer.Application
+# Application layer
 
-Use cases and application services that orchestrate `Domain` types. This is where the "what the app does" logic lives, expressed independently of any UI or persistence technology.
+Orchestrate use cases here without depending on UI or infrastructure details.
 
-**Rule**: may depend on `Domain` only, never on `Infrastructure` or `Web`. Enforced by `Application_ShouldNot_DependOnInfrastructureOrWeb` in `CleanArchBlazorServer.Application.Tests/Architecture/CleanArchitectureLayeringTests.cs`.
+## ✅ Dependency rule
 
-## What's here
+`Application` may depend on `Domain` only. It must never reference `Infrastructure` or `Web`.
 
-- `Interfaces/IToDoRepository.cs`: the abstraction `Infrastructure` implements for the worked `ToDoItem` example. `Application` only knows the interface; it never sees `HttpClient` or JSON.
+> [!NOTE]
+> `Application_ShouldNot_DependOnInfrastructureOrWeb` enforces this boundary in the architecture tests.
 
-## Suggested shape as you grow this layer
+## 🧭 Start here
 
-- `Interfaces/`: abstractions that `Infrastructure` implements (like `IToDoRepository`)
-- `Services/`: application services orchestrating one or more `Domain` types
-- `DTOs/`: shapes for crossing the boundary into `Web`, when you don't want to expose `Domain` entities directly
+1. Define the use case in a focused feature folder.
+2. Add the port the use case needs under `Interfaces/`.
+3. Keep persistence and HTTP details outside this project.
+4. Cover orchestration with unit tests.
 
-No CQRS/MediatR convention is imposed: organize `Application` however fits your team.
+## 📦 Current example
+
+| Path | Purpose |
+| --- | --- |
+| `Interfaces/IToDoRepository.cs` | Port implemented by Infrastructure for the sample to-do flow |
+
+## 📁 Suggested shape
+
+- `Interfaces/` — ports implemented by outer layers
+- `Services/` — use-case orchestration
+- `DTOs/` — boundary shapes when Domain entities should stay internal
+
+No MediatR convention is imposed. Prefer the simplest organization that keeps the dependency rule obvious.
