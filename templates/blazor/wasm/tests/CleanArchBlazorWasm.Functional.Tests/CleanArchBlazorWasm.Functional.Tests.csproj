@@ -6,6 +6,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\CleanArchBlazorWasm.Web\CleanArchBlazorWasm.Web.csproj" />
+<!--#if (IncludeCleanArchitecture) -->
+    <ProjectReference Include="..\..\src\CleanArchBlazorWasm.Domain\CleanArchBlazorWasm.Domain.csproj" />
+    <ProjectReference Include="..\..\src\CleanArchBlazorWasm.Application\CleanArchBlazorWasm.Application.csproj" />
+<!--#endif -->
   </ItemGroup>
 
   <ItemGroup>
@@ -19,7 +23,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <!-- bUnit renders the real component tree in-process (AngleSharp, no browser) — the
+    <!-- bUnit renders the real component tree in-process (AngleSharp, no browser): the
          Functional tier's definition (design's Testing Strategy table). -->
     <PackageReference Include="bunit" />
   </ItemGroup>

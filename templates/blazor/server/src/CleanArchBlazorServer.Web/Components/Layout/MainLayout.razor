@@ -1,47 +1,62 @@
 @inherits LayoutComponentBase
+@implements IDisposable
 @using CleanArchBlazorServer.Web.Components.Theme
+@inject ThemeState ThemeState
 
-<div class="flex min-h-screen bg-background text-foreground">
-    <a href="#main-content" class="sr-only focus:not-sr-only">Skip to content</a>
-    @if (_navVisible)
-    {
-        <aside
-            class="flex w-64 shrink-0 flex-col gap-6 border-r border-border p-4"
-            aria-label="Main navigation"
-        >
-            <a href="/" class="text-lg font-semibold text-foreground">Component Observatory</a>
-            <NavMenu />
-        </aside>
-    }
-    <div class="flex flex-1 flex-col">
-        <header class="flex items-center justify-between gap-3 border-b border-border px-6 py-4">
-            <button
-                type="button"
-                class="inline-flex size-9 items-center justify-center rounded-md border border-input bg-background text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
-                aria-label="@(_navVisible ? "Hide navigation" : "Show navigation")"
-                aria-pressed="@(_navVisible ? "true" : "false")"
-                data-testid="nav-toggle"
-                @onclick="ToggleNav"
-            >
-                <Icon Name="IconName.Menu" />
-            </button>
-            <div class="flex items-center gap-3">
-                <ThemeToggle />
-                <Avatar Size="AvatarSize.Sm">
-                    <AvatarImage Src="images/avatar-placeholder.png" Alt="Current user" />
-                    <AvatarFallback>US</AvatarFallback>
-                </Avatar>
-            </div>
-        </header>
-        <main id="main-content" tabindex="-1" class="flex-1">
+<MudThemeProvider Theme="AppTheme.Default" @bind-IsDarkMode="_isDarkMode" />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout>
+    <MudAppBar Elevation="1">
+        <MudIconButton
+            Icon="@Icons.Material.Filled.Menu"
+            Color="Color.Inherit"
+            Edge="Edge.Start"
+            aria-label="@(_drawerOpen ? "Hide navigation" : "Show navigation")"
+            aria-pressed="@(_drawerOpen ? "true" : "false")"
+            data-testid="nav-toggle"
+            OnClick="ToggleDrawer"
+        />
+        <MudSpacer />
+        <ThemeToggle />
+    </MudAppBar>
+    <MudDrawer @bind-Open="_drawerOpen" Elevation="1" Variant="DrawerVariant.Temporary">
+        <MudDrawerHeader>
+            <MudText Typo="Typo.h6">CleanArchBlazorServer</MudText>
+        </MudDrawerHeader>
+        <NavMenu />
+    </MudDrawer>
+    <MudMainContent>
+        <main id="main-content" tabindex="-1">
             @Body
         </main>
-    </div>
-    <ToastHost />
-</div>
+    </MudMainContent>
+</MudLayout>
 
 @code {
-    private bool _navVisible = true;
+    private bool _drawerOpen;
+    private bool _isDarkMode;
 
-    private void ToggleNav() => _navVisible = !_navVisible;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            ThemeState.Changed += OnThemeChanged;
+            await ThemeState.InitializeAsync();
+            _isDarkMode = ThemeState.ResolvedMode == ThemeMode.Dark;
+            StateHasChanged();
+        }
+    }
+
+    private void ToggleDrawer() => _drawerOpen = !_drawerOpen;
+
+    private void OnThemeChanged()
+    {
+        _isDarkMode = ThemeState.ResolvedMode == ThemeMode.Dark;
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose() => ThemeState.Changed -= OnThemeChanged;
 }

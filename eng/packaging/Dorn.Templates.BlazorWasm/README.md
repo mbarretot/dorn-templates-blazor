@@ -1,28 +1,32 @@
 # Dorn Blazor WebAssembly Template
 
-Create a polished .NET 10 Blazor WebAssembly application with Aspire, Tailwind CSS, accessible UI primitives, six themes, and an optional component observatory.
+Create a .NET 10 application that runs in the browser with MudBlazor, a warm editorial design system, and optional Aspire orchestration.
 
-## 🚀 Start
+## 🚀 Create and run
 
 ```bash
 dotnet new install Dorn.Templates.BlazorWasm
-dotnet new dorn-blazor-wasm -n Acme.Portal --Theme primer
+dotnet new dorn-blazor-wasm -n Acme.Portal
 cd Acme.Portal
-dotnet run --project src/Acme.Portal.AppHost
+dotnet run --project src/Acme.Portal.Web
 ```
 
-## ✨ Options
+## ✨ What you get
+
+- Browser-side execution and a responsive MudBlazor shell
+- Light, dark, and system modes without a first-paint flash
+- Self-hosted Newsreader and system UI fonts
+- Optional Aspire AppHost for local orchestration
+- xUnit, bUnit, architecture, and integration test foundations
+
+## ⚙️ Options
 
 | Option | Default | Effect |
 | --- | --- | --- |
-| `--Theme <name>` | `slate` | Select the initial theme. |
-| `--IncludePlayground <bool>` | `true` | Remove the component observatory. |
-| `--IncludeTests <bool>` | `true` | Exclude generated tests. |
+| `--IncludeAspire <bool>` | `false` | Adds Aspire orchestration projects |
+| `--IncludeTests <bool>` | `true` | Includes generated test projects |
 
 > [!TIP]
-> Open the web resource from the Aspire dashboard after launch.
+> Visual Studio discovers the installed template automatically in **Create a new project**.
 
-> [!NOTE]
-> Visual Studio automatically lists the installed template with the Dorn icon in **Create a new project**.
-
-[Source and documentation](https://github.com/mbarretot/dorn-templates-blazor)
+[View source and full documentation](https://github.com/mbarretot/dorn-templates-blazor)

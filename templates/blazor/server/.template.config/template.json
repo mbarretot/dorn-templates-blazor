@@ -4,7 +4,7 @@
   "classifications": ["Blazor", "Server", "Design System"],
   "identity": "Dorn.Templates.BlazorServer",
   "name": "Dorn Blazor Server App",
-  "description": "Front-end-only Blazor Server app with Interactive Server rendering, a Tailwind CSS pipeline, and Aspire orchestration.",
+  "description": "Front-end-only Blazor Server app with Interactive Server rendering, MudBlazor, and Aspire orchestration.",
   "shortName": "dorn-blazor-server",
   "preferNameDirectory": true,
   "sourceName": "CleanArchBlazorServer",
@@ -15,38 +15,17 @@
       "defaultValue": "true",
       "description": "Include the xUnit test projects (added in a later template slice)."
     },
-    "IncludePlayground": {
-      "type": "parameter",
-      "datatype": "bool",
-      "defaultValue": "true",
-      "description": "Include the /playground showcase pages demonstrating all seven Ui components. When false, the generated project excludes Features/Playground and its nav link, producing a lean project."
-    },
-    "Theme": {
-      "type": "parameter",
-      "datatype": "choice",
-      "choices": [
-        {
-          "choice": "slate",
-          "description": "Cool neutral gray with a blue-leaning primary accent."
-        },
-        {
-          "choice": "rose",
-          "description": "Warm neutral with a rose/pink primary accent."
-        },
-        { "choice": "neutral", "description": "Neutral grayscale with balanced contrast." },
-        { "choice": "linear", "description": "Cool modern palette with restrained accents." },
-        { "choice": "primer", "description": "Productive blue-gray palette with compact radii." },
-        { "choice": "lightning", "description": "Crisp electric palette with compact radii." }
-      ],
-      "defaultValue": "slate",
-      "replaces": "__DORN_DEFAULT_THEME__",
-      "description": "Boot-default theme (matches Styles/themes/*.css and wwwroot/theme-boot.js). Both theme stylesheets always ship regardless of this choice."
-    },
     "IncludeAspire": {
       "type": "parameter",
       "datatype": "bool",
       "defaultValue": "false",
-      "description": "Include .NET Aspire orchestration: an AppHost project and a ServiceDefaults project (OpenTelemetry, health checks, service discovery). Off by default — the generated app runs as a plain ASP.NET Core web app."
+      "description": "Include .NET Aspire orchestration: an AppHost project and a ServiceDefaults project (OpenTelemetry, health checks, service discovery). Off by default: the generated app runs as a plain ASP.NET Core web app."
+    },
+    "IncludeCleanArchitecture": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "false",
+      "description": "Include Clean Architecture class libraries: {App}.Domain, {App}.Application, and {App}.Infrastructure, wired to {App}.Web by project reference. Off by default: features stay vertical slices under Features/{Name}/, which remains the top-level shape either way."
     }
   },
   "sources": [
@@ -57,27 +36,6 @@
           "exclude": ["tests/**"]
         },
         {
-          "condition": "(!IncludePlayground)",
-          "exclude": [
-            "src/CleanArchBlazorServer.Web/Features/Playground/**",
-            "tests/CleanArchBlazorServer.Functional.Tests/Features/Playground/**"
-          ]
-        },
-        {
-          "condition": "(IncludePlayground)",
-          "rename": {
-            "src/CleanArchBlazorServer.Web/Components/Layout/NavMenu.Playground.razor": "src/CleanArchBlazorServer.Web/Components/Layout/NavMenu.razor"
-          },
-          "exclude": ["src/CleanArchBlazorServer.Web/Components/Layout/NavMenu.Lean.razor"]
-        },
-        {
-          "condition": "(!IncludePlayground)",
-          "rename": {
-            "src/CleanArchBlazorServer.Web/Components/Layout/NavMenu.Lean.razor": "src/CleanArchBlazorServer.Web/Components/Layout/NavMenu.razor"
-          },
-          "exclude": ["src/CleanArchBlazorServer.Web/Components/Layout/NavMenu.Playground.razor"]
-        },
-        {
           "condition": "(!IncludeAspire)",
           "exclude": [
             "src/CleanArchBlazorServer.AppHost/**",
@@ -85,19 +43,37 @@
           ]
         },
         {
-          "condition": "(IncludeAspire)",
-          "exclude": ["CleanArchBlazorServer.NoAspire.slnx"]
-        },
-        {
-          "condition": "(!IncludeAspire)",
-          "rename": {
-            "CleanArchBlazorServer.NoAspire.slnx": "CleanArchBlazorServer.slnx"
-          },
-          "exclude": ["CleanArchBlazorServer.slnx"]
+          "condition": "(!IncludeCleanArchitecture)",
+          "exclude": [
+            "src/CleanArchBlazorServer.Domain/**",
+            "src/CleanArchBlazorServer.Application/**",
+            "src/CleanArchBlazorServer.Infrastructure/**",
+            "src/CleanArchBlazorServer.Web/Features/ToDo/**",
+            "tests/CleanArchBlazorServer.Application.Tests/Architecture/**",
+            "tests/CleanArchBlazorServer.Application.Tests/ToDos/**",
+            "tests/CleanArchBlazorServer.Functional.Tests/Features/ToDo/**"
+          ]
         }
       ]
     }
   ],
+  "specialCustomOperations": {
+    "**/*.slnx": {
+      "operations": [
+        {
+          "type": "conditional",
+          "configuration": {
+            "if": ["<!--#if"],
+            "else": ["<!--#else"],
+            "elseif": ["<!--#elseif"],
+            "endif": ["<!--#endif"],
+            "trim": "true",
+            "wholeLine": "true"
+          }
+        }
+      ]
+    }
+  },
   "primaryOutputs": [
     {
       "path": "CleanArchBlazorServer.slnx"

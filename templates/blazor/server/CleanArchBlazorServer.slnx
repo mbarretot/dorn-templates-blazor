@@ -1,13 +1,22 @@
 <Solution>
     <Folder Name="/src/">
+<!--#if (IncludeAspire) -->
         <Project Path="src/CleanArchBlazorServer.AppHost/CleanArchBlazorServer.AppHost.csproj" />
         <Project Path="src/CleanArchBlazorServer.ServiceDefaults/CleanArchBlazorServer.ServiceDefaults.csproj" />
+<!--#endif -->
+<!--#if (IncludeCleanArchitecture) -->
+        <Project Path="src/CleanArchBlazorServer.Domain/CleanArchBlazorServer.Domain.csproj" />
+        <Project Path="src/CleanArchBlazorServer.Application/CleanArchBlazorServer.Application.csproj" />
+        <Project Path="src/CleanArchBlazorServer.Infrastructure/CleanArchBlazorServer.Infrastructure.csproj" />
+<!--#endif -->
         <Project Path="src/CleanArchBlazorServer.Web/CleanArchBlazorServer.Web.csproj" />
     </Folder>
+<!--#if (IncludeTests) -->
     <Folder Name="/tests/">
         <Project Path="tests/CleanArchBlazorServer.Application.Tests/CleanArchBlazorServer.Application.Tests.csproj" />
         <Project Path="tests/CleanArchBlazorServer.Architecture.Tests/CleanArchBlazorServer.Architecture.Tests.csproj" />
         <Project Path="tests/CleanArchBlazorServer.Functional.Tests/CleanArchBlazorServer.Functional.Tests.csproj" />
         <Project Path="tests/CleanArchBlazorServer.Integration.Tests/CleanArchBlazorServer.Integration.Tests.csproj" />
     </Folder>
+<!--#endif -->
 </Solution>

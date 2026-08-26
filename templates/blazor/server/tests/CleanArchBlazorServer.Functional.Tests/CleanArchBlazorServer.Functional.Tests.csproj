@@ -6,6 +6,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\CleanArchBlazorServer.Web\CleanArchBlazorServer.Web.csproj" />
+<!--#if (IncludeCleanArchitecture) -->
+    <ProjectReference Include="..\..\src\CleanArchBlazorServer.Domain\CleanArchBlazorServer.Domain.csproj" />
+    <ProjectReference Include="..\..\src\CleanArchBlazorServer.Application\CleanArchBlazorServer.Application.csproj" />
+<!--#endif -->
   </ItemGroup>
 
   <ItemGroup>

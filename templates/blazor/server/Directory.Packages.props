@@ -7,14 +7,17 @@
 
   <ItemGroup>
     <!-- Dorn's own packages - resolved from a local feed during development, from NuGet.org
-         for end-user installs. See nuget.config, packages/Directory.Build.props (GitVersion), and
-         docs/adr/0010-*.md and 0026-*.md. -->
+         for end-user installs. See nuget.config and packages/Directory.Build.props (GitVersion). -->
     <PackageVersion Include="Dorn.WebUI.Primitives" Version="1.0.5" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageVersion Include="MudBlazor" Version="9.9.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <!-- Aspire orchestration (design S-A): 3-project shape with ServiceDefaults, following
-         grpc/worker rather than WASM's 2-project shape — this template is a real server
+         grpc/worker rather than WASM's 2-project shape: this template is a real server
          process with OpenTelemetry/health checks/service discovery, not a browser sandbox. -->
     <PackageVersion Include="Aspire.Hosting.AppHost" Version="13.4.6" />
     <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="10.7.0" />

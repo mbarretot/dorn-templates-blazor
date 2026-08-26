@@ -11,4 +11,4 @@ jobs:
     permissions:
       contents: read
 
-# Releases publish via .github/workflows/publish.yml on `v*` tags — see the dorn repo's ADR 0020.
+# Releases publish via .github/workflows/publish.yml on `v*` tags.

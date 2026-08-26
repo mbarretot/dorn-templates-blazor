@@ -6,10 +6,18 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\CleanArchBlazorWasm.Web\CleanArchBlazorWasm.Web.csproj" />
+<!--#if (IncludeCleanArchitecture) -->
+    <ProjectReference Include="..\..\src\CleanArchBlazorWasm.Domain\CleanArchBlazorWasm.Domain.csproj" />
+    <ProjectReference Include="..\..\src\CleanArchBlazorWasm.Application\CleanArchBlazorWasm.Application.csproj" />
+    <ProjectReference Include="..\..\src\CleanArchBlazorWasm.Infrastructure\CleanArchBlazorWasm.Infrastructure.csproj" />
+<!--#endif -->
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
+<!--#if (IncludeCleanArchitecture) -->
+    <PackageReference Include="TngTech.ArchUnitNET.xUnit" />
+<!--#endif -->
     <PackageReference Include="xunit" />
     <PackageReference Include="xunit.runner.visualstudio">
       <PrivateAssets>all</PrivateAssets>

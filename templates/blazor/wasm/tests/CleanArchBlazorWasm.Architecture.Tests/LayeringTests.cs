@@ -2,7 +2,6 @@ namespace CleanArchBlazorWasm.Architecture.Tests;
 
 public sealed class LayeringTests
 {
-    private const string UiRoot = "CleanArchBlazorWasm.Web.Components.Ui";
     private const string FeaturesRoot = "CleanArchBlazorWasm.Web.Features";
 
     private static readonly System.Reflection.Assembly WebAssembly = typeof(App).Assembly;
@@ -14,19 +13,17 @@ public sealed class LayeringTests
     private static IObjectProvider<IType> InNamespace(string root) =>
         Types().That().ResideInNamespaceMatching($@"^{Regex.Escape(root)}(\.|$)");
 
-    private static readonly IObjectProvider<IType> ComponentsUi = InNamespace(UiRoot);
-    private static readonly IObjectProvider<IType> Features = InNamespace(FeaturesRoot);
-
-    [Fact]
-    public void ComponentsUi_ShouldNot_DependOnFeatures()
-    {
+    private static IObjectProvider<IType> FeatureLayer(string layer) =>
         Types()
             .That()
-            .Are(ComponentsUi)
-            .Should()
-            .NotDependOnAny(Types().That().Are(Features))
-            .Check(Architecture);
-    }
+            .ResideInNamespaceMatching($@"^{Regex.Escape(FeaturesRoot)}\.[^.]+\.{layer}(\.|$)");
+
+    private static readonly IObjectProvider<IType> Features = InNamespace(FeaturesRoot);
+    private static readonly IObjectProvider<IType> FeatureDomain = FeatureLayer("Domain");
+    private static readonly IObjectProvider<IType> FeatureApplication = FeatureLayer("Application");
+    private static readonly IObjectProvider<IType> FeatureInfrastructure = FeatureLayer(
+        "Infrastructure"
+    );
 
     [Fact]
     public void Features_ShouldNot_DependOnJsInterop()
@@ -40,9 +37,80 @@ public sealed class LayeringTests
     }
 
     [Fact]
+    public void FeatureDomain_ShouldNot_DependOnFrameworkOrUi()
+    {
+        Types()
+            .That()
+            .Are(FeatureDomain)
+            .Should()
+            .NotDependOnAny(
+                Types()
+                    .That()
+                    .ResideInNamespaceMatching(
+                        @"^(Microsoft\.AspNetCore|Microsoft\.JSInterop|Microsoft\.Extensions\.DependencyInjection|MudBlazor|Dorn\.WebUI)(\.|$)"
+                    )
+            )
+            .WithoutRequiringPositiveResults()
+            .Check(Architecture);
+    }
+
+    [Fact]
+    public void FeatureApplication_ShouldNot_DependOnFeatureInfrastructure()
+    {
+        Types()
+            .That()
+            .Are(FeatureApplication)
+            .Should()
+            .NotDependOnAny(FeatureInfrastructure)
+            .WithoutRequiringPositiveResults()
+            .Check(Architecture);
+    }
+
+    [Fact]
+    public void FeatureApplication_ShouldNot_DependOnUiComponents()
+    {
+        Types()
+            .That()
+            .Are(FeatureApplication)
+            .Should()
+            .NotDependOnAny(
+                Types()
+                    .That()
+                    .ResideInNamespaceMatching(@"^CleanArchBlazorWasm\.Web\.Components(\.|$)")
+            )
+            .WithoutRequiringPositiveResults()
+            .Check(Architecture);
+    }
+
+    [Fact]
+    public void FeatureInfrastructure_ShouldNot_DependOnServerOnlyPersistence()
+    {
+        Types()
+            .That()
+            .Are(FeatureInfrastructure)
+            .Should()
+            .NotDependOnAny(
+                Types()
+                    .That()
+                    .ResideInNamespaceMatching(
+                        @"^(Microsoft\.EntityFrameworkCore|Microsoft\.Data|System\.Data|Npgsql|MySql|Oracle|MongoDB|StackExchange\.Redis)(\.|$)"
+                    )
+            )
+            .AndShould()
+            .NotDependOnAny(
+                Types()
+                    .That()
+                    .HaveFullNameMatching(
+                        @"^System\.IO\.(File|Directory|FileInfo|DirectoryInfo|FileStream)$"
+                    )
+            )
+            .WithoutRequiringPositiveResults()
+            .Check(Architecture);
+    }
+
+    [Fact]
     public void NoWebAssemblyType_Should_TouchJsRuntimeDirectly()
     {
-        // ArchUnitNET has no member-level type predicate, so this uses reflection directly.
         var violators = WebAssembly.GetTypes().Where(InjectsJsRuntime).ToList();
 
         Assert.Empty(violators);
@@ -51,42 +119,12 @@ public sealed class LayeringTests
     [Fact]
     public void WebAssembly_Should_NeverDefineATemplateLocalClipboardInterop()
     {
-        // ClipboardInterop lives in the Dorn.WebUI.Primitives package (Interop namespace),
-        // matching AnchorInterop/DismissInterop/ModalInterop — never a template-local copy.
         var violators = WebAssembly
             .GetTypes()
             .Where(type => type.Name == "ClipboardInterop")
             .ToList();
 
         Assert.Empty(violators);
-    }
-
-    [Fact]
-    public void NoTypeOutsideComponentsUi_Should_ShareANameWithAUiComponent()
-    {
-        // "_Imports" is Razor scoped-usings infrastructure, never a real component.
-        var uiTypeNames = WebAssembly
-            .GetTypes()
-            .Where(type =>
-                type.Namespace is not null
-                && type.Namespace.StartsWith(UiRoot, StringComparison.Ordinal)
-            )
-            .Where(type => !type.Name.Contains('<', StringComparison.Ordinal))
-            .Where(type => !type.Name.StartsWith('_'))
-            .Select(type => type.Name)
-            .ToHashSet(StringComparer.Ordinal);
-
-        var collisions = WebAssembly
-            .GetTypes()
-            .Where(type =>
-                type.Namespace is not null
-                && !type.Namespace.StartsWith(UiRoot, StringComparison.Ordinal)
-            )
-            .Where(type => !type.Name.StartsWith('_'))
-            .Where(type => uiTypeNames.Contains(type.Name))
-            .ToList();
-
-        Assert.Empty(collisions);
     }
 
     private static bool InjectsJsRuntime(System.Type type)
