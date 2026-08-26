@@ -1,0 +1,45 @@
+@page "/todos"
+@using CleanArchBlazorWasm.Application.Interfaces
+@using CleanArchBlazorWasm.Domain.Entities
+@inject IToDoRepository ToDoRepository
+
+<PageTitle>To-Dos - CleanArchBlazorWasm</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="py-8">
+    <MudText Typo="Typo.h4" Class="mb-2">To-Do List</MudText>
+    <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-6">
+        Domain (ToDoItem) &rarr; Application (IToDoRepository) &rarr; Infrastructure (JsonPlaceholderToDoRepository) &rarr; this page.
+    </MudText>
+
+    @if (toDoItems is null)
+    {
+        <MudProgressCircular Indeterminate="true" aria-label="Loading to-dos" />
+    }
+    else if (toDoItems.Count == 0)
+    {
+        <MudAlert Severity="Severity.Info">No to-dos found.</MudAlert>
+    }
+    else
+    {
+        <MudStack Spacing="2">
+            @foreach (var item in toDoItems)
+            {
+                <MudPaper Class="pa-3 d-flex align-center gap-3" Elevation="1">
+                    <MudIcon
+                        Icon="@(item.IsCompleted ? Icons.Material.Filled.CheckCircle : Icons.Material.Filled.RadioButtonUnchecked)"
+                        Color="@(item.IsCompleted ? Color.Success : Color.Default)" />
+                    <MudText>@item.Title</MudText>
+                </MudPaper>
+            }
+        </MudStack>
+    }
+</MudContainer>
+
+@code {
+    private IReadOnlyList<ToDoItem>? toDoItems;
+
+    protected override async Task OnInitializedAsync()
+    {
+        toDoItems = await ToDoRepository.GetAllAsync();
+    }
+}

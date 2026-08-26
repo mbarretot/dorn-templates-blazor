@@ -14,6 +14,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Sdk.BlazorWebAssembly has no ASP.NET Core shared framework, so unlike Sdk.Web,
+         AddHttpClient needs this package explicitly. -->
+    <PackageVersion Include="Microsoft.Extensions.Http" Version="10.0.9" />
+  </ItemGroup>
+
+  <ItemGroup>
     <!-- Dorn's own packages - resolved from a local feed during development, from NuGet.org
          for end-user installs. See nuget.config and packages/Directory.Build.props (GitVersion). -->
     <PackageVersion Include="Dorn.WebUI.Primitives" Version="1.0.5" />

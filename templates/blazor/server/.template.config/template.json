@@ -48,7 +48,10 @@
             "src/CleanArchBlazorServer.Domain/**",
             "src/CleanArchBlazorServer.Application/**",
             "src/CleanArchBlazorServer.Infrastructure/**",
-            "tests/CleanArchBlazorServer.Application.Tests/Architecture/**"
+            "src/CleanArchBlazorServer.Web/Features/ToDo/**",
+            "tests/CleanArchBlazorServer.Application.Tests/Architecture/**",
+            "tests/CleanArchBlazorServer.Application.Tests/ToDos/**",
+            "tests/CleanArchBlazorServer.Functional.Tests/Features/ToDo/**"
           ]
         }
       ]

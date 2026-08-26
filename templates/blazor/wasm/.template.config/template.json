@@ -20,6 +20,12 @@
       "datatype": "bool",
       "defaultValue": "false",
       "description": "Include .NET Aspire orchestration: an AppHost project that registers the WebAssembly front-end as a resource. Off by default: the generated app runs as a plain Blazor WebAssembly app."
+    },
+    "IncludeCleanArchitecture": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "false",
+      "description": "Include Clean Architecture class libraries: {App}.Domain, {App}.Application, and {App}.Infrastructure, wired to {App}.Web by project reference. Off by default: features stay vertical slices under Features/{Name}/, which remains the top-level shape either way."
     }
   },
   "sources": [
@@ -32,6 +38,18 @@
         {
           "condition": "(!IncludeAspire)",
           "exclude": ["src/CleanArchBlazorWasm.AppHost/**"]
+        },
+        {
+          "condition": "(!IncludeCleanArchitecture)",
+          "exclude": [
+            "src/CleanArchBlazorWasm.Domain/**",
+            "src/CleanArchBlazorWasm.Application/**",
+            "src/CleanArchBlazorWasm.Infrastructure/**",
+            "src/CleanArchBlazorWasm.Web/Features/ToDo/**",
+            "tests/CleanArchBlazorWasm.Application.Tests/Architecture/**",
+            "tests/CleanArchBlazorWasm.Application.Tests/ToDos/**",
+            "tests/CleanArchBlazorWasm.Functional.Tests/Features/ToDo/**"
+          ]
         }
       ]
     }
