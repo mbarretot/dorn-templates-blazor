@@ -61,11 +61,39 @@ public sealed class ToDoListTests : UiTestContext
         Assert.Contains("Could not load to-dos.", cut.Markup);
     }
 
+    [Fact]
+    public void ToDoList_PassesCancellableToken_ToGetAllAsync()
+    {
+        var repository = new CapturingToDoRepository();
+        Services.AddSingleton<IToDoRepository>(repository);
+
+        Render(builder =>
+        {
+            builder.OpenComponent<CleanArchBlazorWasm.Web.Features.ToDo.ToDoList>(0);
+            builder.CloseComponent();
+        });
+
+        Assert.True(repository.CapturedToken.CanBeCanceled);
+    }
+
     private sealed class FakeToDoRepository(params ToDoItem[] items) : IToDoRepository
     {
         public Task<IReadOnlyList<ToDoItem>> GetAllAsync(
             CancellationToken cancellationToken = default
         ) => Task.FromResult<IReadOnlyList<ToDoItem>>(items);
+    }
+
+    private sealed class CapturingToDoRepository : IToDoRepository
+    {
+        public CancellationToken CapturedToken { get; private set; }
+
+        public Task<IReadOnlyList<ToDoItem>> GetAllAsync(
+            CancellationToken cancellationToken = default
+        )
+        {
+            CapturedToken = cancellationToken;
+            return Task.FromResult<IReadOnlyList<ToDoItem>>([]);
+        }
     }
 
     private sealed class ThrowingToDoRepository : IToDoRepository

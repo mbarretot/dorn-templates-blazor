@@ -6,6 +6,7 @@
 @using CleanArchBlazorWasm.Web.Features.ToDo
 #endif
 @inject IToDoRepository ToDoRepository
+@implements IDisposable
 
 <PageTitle>To-Dos - CleanArchBlazorWasm</PageTitle>
 
@@ -48,6 +49,7 @@
 </MudContainer>
 
 @code {
+    private readonly CancellationTokenSource cts = new();
     private IReadOnlyList<ToDoItem>? toDoItems;
     private bool hasError;
 
@@ -55,11 +57,21 @@
     {
         try
         {
-            toDoItems = await ToDoRepository.GetAllAsync();
+            toDoItems = await ToDoRepository.GetAllAsync(cts.Token);
+        }
+        catch (OperationCanceledException)
+        {
+            // The component was disposed before the load finished; nothing to show.
         }
         catch (Exception)
         {
             hasError = true;
         }
+    }
+
+    public void Dispose()
+    {
+        cts.Cancel();
+        cts.Dispose();
     }
 }
