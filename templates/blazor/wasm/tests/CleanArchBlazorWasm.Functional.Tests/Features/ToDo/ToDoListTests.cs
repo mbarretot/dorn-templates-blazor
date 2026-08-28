@@ -1,12 +1,18 @@
-@inherits UiTestContext
-@using Bunit
-@using CleanArchBlazorWasm.Application.Interfaces
-@using CleanArchBlazorWasm.Domain.Entities
-@using CleanArchBlazorWasm.Web.Features.ToDo
-@using Microsoft.Extensions.DependencyInjection
-@using Xunit
+using Bunit;
+using Microsoft.AspNetCore.Components.Rendering;
+using Microsoft.Extensions.DependencyInjection;
+using Xunit;
+#if (IncludeCleanArchitecture)
+using CleanArchBlazorWasm.Application.Interfaces;
+using CleanArchBlazorWasm.Domain.Entities;
+#else
+using CleanArchBlazorWasm.Web.Features.ToDo;
+#endif
 
-@code {
+namespace CleanArchBlazorWasm.Functional.Tests.Features.ToDo;
+
+public sealed class ToDoListTests : UiTestContext
+{
     [Fact]
     public void ToDoList_RendersEachItemTitle()
     {
@@ -17,7 +23,11 @@
             )
         );
 
-        var cut = Render(@<ToDoList />);
+        var cut = Render(builder =>
+        {
+            builder.OpenComponent<CleanArchBlazorWasm.Web.Features.ToDo.ToDoList>(0);
+            builder.CloseComponent();
+        });
 
         Assert.Contains("Buy milk", cut.Markup);
         Assert.Contains("Walk the dog", cut.Markup);
@@ -28,7 +38,11 @@
     {
         Services.AddSingleton<IToDoRepository>(new FakeToDoRepository());
 
-        var cut = Render(@<ToDoList />);
+        var cut = Render(builder =>
+        {
+            builder.OpenComponent<CleanArchBlazorWasm.Web.Features.ToDo.ToDoList>(0);
+            builder.CloseComponent();
+        });
 
         Assert.Contains("No to-dos found.", cut.Markup);
     }

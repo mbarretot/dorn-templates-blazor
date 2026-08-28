@@ -45,10 +45,18 @@
             "src/CleanArchBlazorWasm.Domain/**",
             "src/CleanArchBlazorWasm.Application/**",
             "src/CleanArchBlazorWasm.Infrastructure/**",
-            "src/CleanArchBlazorWasm.Web/Features/ToDo/**",
             "tests/CleanArchBlazorWasm.Application.Tests/Architecture/**",
-            "tests/CleanArchBlazorWasm.Application.Tests/ToDos/**",
-            "tests/CleanArchBlazorWasm.Functional.Tests/Features/ToDo/**"
+            "tests/CleanArchBlazorWasm.Application.Tests/ToDos/**"
+          ]
+        },
+        {
+          "condition": "(IncludeCleanArchitecture)",
+          "exclude": [
+            "src/CleanArchBlazorWasm.Web/Features/ToDo/ToDoItem.cs",
+            "src/CleanArchBlazorWasm.Web/Features/ToDo/IToDoRepository.cs",
+            "src/CleanArchBlazorWasm.Web/Features/ToDo/ToDoRepository.cs",
+            "tests/CleanArchBlazorWasm.Functional.Tests/Features/ToDo/ToDoItemTests.cs",
+            "tests/CleanArchBlazorWasm.Functional.Tests/Features/ToDo/ToDoRepositoryTests.cs"
           ]
         }
       ]
@@ -64,6 +72,21 @@
             "else": ["<!--#else"],
             "elseif": ["<!--#elseif"],
             "endif": ["<!--#endif"],
+            "trim": "true",
+            "wholeLine": "true"
+          }
+        }
+      ]
+    },
+    "**/*.razor": {
+      "operations": [
+        {
+          "type": "conditional",
+          "configuration": {
+            "if": ["#if"],
+            "else": ["#else"],
+            "elseif": ["#elseif"],
+            "endif": ["#endif"],
             "trim": "true",
             "wholeLine": "true"
           }

@@ -1,6 +1,10 @@
 @page "/todos"
+#if (IncludeCleanArchitecture)
 @using CleanArchBlazorWasm.Application.Interfaces
 @using CleanArchBlazorWasm.Domain.Entities
+#else
+@using CleanArchBlazorWasm.Web.Features.ToDo
+#endif
 @inject IToDoRepository ToDoRepository
 
 <PageTitle>To-Dos - CleanArchBlazorWasm</PageTitle>
@@ -8,7 +12,11 @@
 <MudContainer MaxWidth="MaxWidth.Medium" Class="py-8">
     <MudText Typo="Typo.h4" Class="mb-2">To-Do List</MudText>
     <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-6">
-        Domain (ToDoItem) &rarr; Application (IToDoRepository) &rarr; Infrastructure (JsonPlaceholderToDoRepository) &rarr; this page.
+#if (IncludeCleanArchitecture)
+        Domain (ToDoItem) &rarr; Application (IToDoRepository) &rarr; Infrastructure (ToDoRepository) &rarr; this page.
+#else
+        ToDoItem, IToDoRepository, and ToDoRepository all live together in Features/ToDo &rarr; this page.
+#endif
     </MudText>
 
     @if (toDoItems is null)

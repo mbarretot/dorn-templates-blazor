@@ -1,6 +1,6 @@
 namespace CleanArchBlazorWasm.Application.Tests.ToDos;
 
-public sealed class JsonPlaceholderToDoRepositoryTests
+public sealed class ToDoRepositoryTests
 {
     private const string BaseAddress = "https://jsonplaceholder.typicode.com/";
 
@@ -33,14 +33,14 @@ public sealed class JsonPlaceholderToDoRepositoryTests
         Assert.Equal(BaseAddress + "todos", handler.LastRequestUri?.ToString());
     }
 
-    private static JsonPlaceholderToDoRepository CreateRepository(
+    private static ToDoRepository CreateRepository(
         string responseJson,
         out StubHttpMessageHandler handler
     )
     {
         handler = new StubHttpMessageHandler(responseJson);
         var httpClient = new HttpClient(handler) { BaseAddress = new Uri(BaseAddress) };
-        return new JsonPlaceholderToDoRepository(httpClient);
+        return new ToDoRepository(httpClient);
     }
 
     private sealed class StubHttpMessageHandler(string responseJson) : HttpMessageHandler
