@@ -20,7 +20,7 @@ Implement Application ports for persistence, external services, files, queues, a
 
 | Path | Purpose |
 | --- | --- |
-| `ToDos/JsonPlaceholderToDoRepository.cs` | Implements `IToDoRepository` against the JSONPlaceholder API |
+| `ToDos/ToDoRepository.cs` | Implements `IToDoRepository` against the JSONPlaceholder API |
 
 Because Blazor Server executes on the server, this layer can use EF Core, file access, or other server-side integrations.
 

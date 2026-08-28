@@ -1,11 +1,11 @@
 using System.Net.Http.Json;
 using System.Text.Json.Serialization;
-using CleanArchBlazorWasm.Application.Interfaces;
-using CleanArchBlazorWasm.Domain.Entities;
+using CleanArchBlazorServer.Application.Interfaces;
+using CleanArchBlazorServer.Domain.Entities;
 
-namespace CleanArchBlazorWasm.Infrastructure.ToDos;
+namespace CleanArchBlazorServer.Infrastructure.ToDos;
 
-public sealed class JsonPlaceholderToDoRepository(HttpClient httpClient) : IToDoRepository
+public sealed class ToDoRepository(HttpClient httpClient) : IToDoRepository
 {
     public async Task<IReadOnlyList<ToDoItem>> GetAllAsync(
         CancellationToken cancellationToken = default
