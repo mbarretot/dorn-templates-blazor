@@ -47,10 +47,31 @@ public sealed class ToDoListTests : UiTestContext
         Assert.Contains("No to-dos found.", cut.Markup);
     }
 
+    [Fact]
+    public void ToDoList_RendersErrorAlert_WhenRepositoryThrows()
+    {
+        Services.AddSingleton<IToDoRepository>(new ThrowingToDoRepository());
+
+        var cut = Render(builder =>
+        {
+            builder.OpenComponent<CleanArchBlazorServer.Web.Features.ToDo.ToDoList>(0);
+            builder.CloseComponent();
+        });
+
+        Assert.Contains("Could not load to-dos.", cut.Markup);
+    }
+
     private sealed class FakeToDoRepository(params ToDoItem[] items) : IToDoRepository
     {
         public Task<IReadOnlyList<ToDoItem>> GetAllAsync(
             CancellationToken cancellationToken = default
         ) => Task.FromResult<IReadOnlyList<ToDoItem>>(items);
+    }
+
+    private sealed class ThrowingToDoRepository : IToDoRepository
+    {
+        public Task<IReadOnlyList<ToDoItem>> GetAllAsync(
+            CancellationToken cancellationToken = default
+        ) => throw new HttpRequestException("Simulated network failure.");
     }
 }
