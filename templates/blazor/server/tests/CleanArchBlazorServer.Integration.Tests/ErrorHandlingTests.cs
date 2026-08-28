@@ -16,9 +16,7 @@ public class ErrorHandlingTests : IClassFixture<WebApplicationFactory<Program>>
     [Fact]
     public async Task Get_Root_InProduction_SetsHstsHeader()
     {
-        // UseHsts() skips loopback hosts (localhost) by design, so the request must target a
-        // non-loopback host for the header to appear; TestServer doesn't resolve DNS, it only
-        // routes on the Host header, so a fake host is enough.
+        // UseHsts() skips loopback hosts by design, so a non-loopback host is required.
         var client = _factory
             .WithWebHostBuilder(builder => builder.UseEnvironment("Production"))
             .CreateClient(new WebApplicationFactoryClientOptions { BaseAddress = new Uri("https://app.example.com/") });
