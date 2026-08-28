@@ -26,6 +26,66 @@
       "datatype": "bool",
       "defaultValue": "false",
       "description": "Include Clean Architecture class libraries: {App}.Domain, {App}.Application, and {App}.Infrastructure, wired to {App}.Web by project reference. Off by default: features stay vertical slices under Features/{Name}/, which remains the top-level shape either way."
+    },
+    "Palette": {
+      "type": "parameter",
+      "datatype": "choice",
+      "choices": [
+        {
+          "choice": "Terracotta",
+          "description": "Warm rust, olive and gold on a cream surface. Default palette."
+        },
+        {
+          "choice": "Ocean",
+          "description": "Teal and marine blue, calm and nautical."
+        },
+        {
+          "choice": "Forest",
+          "description": "Deep green, walnut brown and moss gold."
+        },
+        {
+          "choice": "Sunset",
+          "description": "Coral, plum magenta and amber."
+        },
+        {
+          "choice": "Lavender",
+          "description": "Violet, dusty rose and slate blue."
+        },
+        {
+          "choice": "Slate",
+          "description": "Steel blue-gray with a cyan accent."
+        },
+        {
+          "choice": "Citrus",
+          "description": "Tangerine, lime green and sunflower yellow."
+        }
+      ],
+      "defaultValue": "Terracotta",
+      "description": "Choose the MudBlazor color palette applied to the generated app's light and dark themes."
+    },
+    "Palette_Ocean": {
+      "type": "computed",
+      "value": "(Palette == \"Ocean\")"
+    },
+    "Palette_Forest": {
+      "type": "computed",
+      "value": "(Palette == \"Forest\")"
+    },
+    "Palette_Sunset": {
+      "type": "computed",
+      "value": "(Palette == \"Sunset\")"
+    },
+    "Palette_Lavender": {
+      "type": "computed",
+      "value": "(Palette == \"Lavender\")"
+    },
+    "Palette_Slate": {
+      "type": "computed",
+      "value": "(Palette == \"Slate\")"
+    },
+    "Palette_Citrus": {
+      "type": "computed",
+      "value": "(Palette == \"Citrus\")"
     }
   },
   "sources": [
