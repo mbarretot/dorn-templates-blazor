@@ -26,6 +26,32 @@ builder.Services.AddHttpClient<IToDoRepository, ToDoRepository>(client =>
 var app = builder.Build();
 
 app.UseHttpsRedirection();
+
+// Blazor Server's Interactive circuit endpoint appends its own frame-ancestors CSP fragment, so
+// this assigns (not Appends) via OnStarting to be the final word on these headers. See README.
+app.Use(
+    (context, next) =>
+    {
+        context.Response.OnStarting(() =>
+        {
+            var headers = context.Response.Headers;
+            headers["X-Content-Type-Options"] = "nosniff";
+            headers["X-Frame-Options"] = "DENY";
+            headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
+            headers["Content-Security-Policy"] =
+                "default-src 'self'; "
+                + "script-src 'self'; "
+                + "style-src 'self' 'unsafe-inline'; "
+                + "img-src 'self' data:; "
+                + "font-src 'self' data:; "
+                + "connect-src 'self' https://jsonplaceholder.typicode.com; "
+                + "frame-ancestors 'self'";
+            return Task.CompletedTask;
+        });
+        return next();
+    }
+);
+
 app.UseAntiforgery();
 app.MapStaticAssets();
 app.MapRazorComponents<App>().AddInteractiveServerRenderMode();

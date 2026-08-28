@@ -44,6 +44,16 @@ dotnet dorn run
 | `dotnet dorn test` | Run all test tiers |
 | `dotnet dorn coverage` | Run tests with the coverage gate |
 
+## 🔒 Security headers
+
+`wwwroot/index.html` declares a baseline CSP via `<meta http-equiv="Content-Security-Policy">`.
+It allows `'unsafe-inline'` in `style-src` because MudBlazor positions popovers/overlays by
+writing inline `style` via JS interop — tightening that further will break those components. A
+`<meta>` tag can't carry `frame-ancestors`, `X-Frame-Options`, or `Referrer-Policy`: since this is
+a standalone WASM app with no server of its own, set those on whatever static host you deploy to
+(e.g. Azure Static Web Apps' `staticwebapp.config.json`, or your CDN/reverse proxy's config). If
+you point `IToDoRepository` at a different backend, add its origin to `connect-src`.
+
 ## 📚 Next step
 
 Build vertical slices inside `Web/Features/{FeatureName}` and keep browser-only infrastructure behind focused interfaces.

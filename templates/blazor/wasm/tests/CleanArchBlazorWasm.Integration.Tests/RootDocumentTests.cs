@@ -30,6 +30,20 @@ public class RootDocumentTests
         Assert.Contains("<script src=\"theme-boot.js\"></script>", markup, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public void RootDocument_DeclaresBaselineContentSecurityPolicy()
+    {
+        var indexHtmlPath = ResolveWebRootPath("index.html");
+        var markup = File.ReadAllText(indexHtmlPath);
+
+        Assert.Contains(
+            "<meta http-equiv=\"Content-Security-Policy\"",
+            markup,
+            StringComparison.Ordinal
+        );
+        Assert.Contains("default-src 'self'", markup, StringComparison.Ordinal);
+    }
+
     private static string ResolveWebRootPath(params string[] relativeSegments)
     {
         var current = new DirectoryInfo(AppContext.BaseDirectory);
