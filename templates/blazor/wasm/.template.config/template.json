@@ -62,6 +62,30 @@
       ],
       "defaultValue": "Terracotta",
       "description": "Choose the MudBlazor color palette applied to the generated app's light and dark themes."
+    },
+    "Palette_Ocean": {
+      "type": "computed",
+      "value": "(Palette == \"Ocean\")"
+    },
+    "Palette_Forest": {
+      "type": "computed",
+      "value": "(Palette == \"Forest\")"
+    },
+    "Palette_Sunset": {
+      "type": "computed",
+      "value": "(Palette == \"Sunset\")"
+    },
+    "Palette_Lavender": {
+      "type": "computed",
+      "value": "(Palette == \"Lavender\")"
+    },
+    "Palette_Slate": {
+      "type": "computed",
+      "value": "(Palette == \"Slate\")"
+    },
+    "Palette_Citrus": {
+      "type": "computed",
+      "value": "(Palette == \"Citrus\")"
     }
   },
   "sources": [
@@ -100,21 +124,6 @@
             "else": ["<!--#else"],
             "elseif": ["<!--#elseif"],
             "endif": ["<!--#endif"],
-            "trim": "true",
-            "wholeLine": "true"
-          }
-        }
-      ]
-    },
-    "**/AppTheme.cs": {
-      "operations": [
-        {
-          "type": "conditional",
-          "configuration": {
-            "if": ["//#if"],
-            "else": ["//#else"],
-            "elseif": ["//#elseif"],
-            "endif": ["//#endif"],
             "trim": "true",
             "wholeLine": "true"
           }

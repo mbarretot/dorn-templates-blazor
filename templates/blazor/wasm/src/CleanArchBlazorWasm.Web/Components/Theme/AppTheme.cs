@@ -4,7 +4,7 @@ namespace CleanArchBlazorWasm.Web.Components.Theme;
 
 public static class AppTheme
 {
-//#if (Palette == "Ocean")
+#if (Palette_Ocean)
     // Ocean - teal and marine blue, calm and nautical.
     public static readonly MudTheme Default = new()
     {
@@ -59,7 +59,7 @@ public static class AppTheme
             DefaultBorderRadius = "6px",
         },
     };
-//#elseif (Palette == "Forest")
+#elif (Palette_Forest)
     // Forest - deep green, walnut brown and moss gold.
     public static readonly MudTheme Default = new()
     {
@@ -114,7 +114,7 @@ public static class AppTheme
             DefaultBorderRadius = "6px",
         },
     };
-//#elseif (Palette == "Sunset")
+#elif (Palette_Sunset)
     // Sunset - coral, plum magenta and amber.
     public static readonly MudTheme Default = new()
     {
@@ -169,7 +169,7 @@ public static class AppTheme
             DefaultBorderRadius = "6px",
         },
     };
-//#elseif (Palette == "Lavender")
+#elif (Palette_Lavender)
     // Lavender - violet, dusty rose and slate blue.
     public static readonly MudTheme Default = new()
     {
@@ -224,7 +224,7 @@ public static class AppTheme
             DefaultBorderRadius = "6px",
         },
     };
-//#elseif (Palette == "Slate")
+#elif (Palette_Slate)
     // Slate - steel blue-gray with a cyan accent.
     public static readonly MudTheme Default = new()
     {
@@ -279,7 +279,7 @@ public static class AppTheme
             DefaultBorderRadius = "6px",
         },
     };
-//#elseif (Palette == "Citrus")
+#elif (Palette_Citrus)
     // Citrus - tangerine, lime green and sunflower yellow.
     public static readonly MudTheme Default = new()
     {
@@ -334,7 +334,7 @@ public static class AppTheme
             DefaultBorderRadius = "6px",
         },
     };
-//#else
+#else
     // Terracotta (default) - warm rust, olive and gold.
     public static readonly MudTheme Default = new()
     {
@@ -389,5 +389,5 @@ public static class AppTheme
             DefaultBorderRadius = "6px",
         },
     };
-//#endif
+#endif
 }
