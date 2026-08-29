@@ -1,0 +1,20 @@
+#if (IncludeAuth)
+@page "/Account/Login"
+@attribute [ExcludeFromInteractiveRouting]
+
+<PageTitle>Log in - CleanArchBlazorServer</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.ExtraSmall" Class="py-8">
+    <MudText Typo="Typo.h4" Class="mb-4">Log in</MudText>
+    <MudAlert Severity="Severity.Warning" Class="mb-4">
+        Demo only: any non-empty username signs you in, no password check. Replace with
+        ASP.NET Core Identity, Entra ID, or another real provider before shipping.
+    </MudAlert>
+    <form method="post" action="Account/Login">
+        <AntiforgeryToken />
+        <label for="username" class="mud-typography-body2 d-block mb-1">Username</label>
+        <input id="username" name="username" type="text" required class="mud-width-full pa-2 mb-4" />
+        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary">Log in</MudButton>
+    </form>
+</MudContainer>
+#endif

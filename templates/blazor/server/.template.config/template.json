@@ -27,6 +27,12 @@
       "defaultValue": "false",
       "description": "Include Clean Architecture class libraries: {App}.Domain, {App}.Application, and {App}.Infrastructure, wired to {App}.Web by project reference. Off by default: features stay vertical slices under Features/{Name}/, which remains the top-level shape either way."
     },
+    "IncludeAuth": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "false",
+      "description": "Include a minimal cookie-authentication starting point: sign-in/sign-out endpoints, a demo login page, and an [Authorize]-gated example page. Off by default. Not a real identity provider — replace before shipping."
+    },
     "Palette": {
       "type": "parameter",
       "datatype": "choice",
@@ -120,6 +126,13 @@
             "src/CleanArchBlazorServer.Web/Features/ToDo/ToDoRepository.cs",
             "tests/CleanArchBlazorServer.Functional.Tests/Features/ToDo/ToDoItemTests.cs",
             "tests/CleanArchBlazorServer.Functional.Tests/Features/ToDo/ToDoRepositoryTests.cs"
+          ]
+        },
+        {
+          "condition": "(!IncludeAuth)",
+          "exclude": [
+            "src/CleanArchBlazorServer.Web/Components/Pages/Login.razor",
+            "src/CleanArchBlazorServer.Web/Components/Pages/Secure.razor"
           ]
         }
       ]

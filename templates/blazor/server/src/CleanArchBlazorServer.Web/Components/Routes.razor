@@ -1,6 +1,18 @@
+@using Microsoft.AspNetCore.Components.Authorization
 <Router AppAssembly="@typeof(Program).Assembly">
     <Found Context="routeData">
-        <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+        @if (IsAuthEnabled)
+        {
+            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+                <NotAuthorized>
+                    <MudText Typo="Typo.body1" Class="pa-4">You are not authorized to view this page.</MudText>
+                </NotAuthorized>
+            </AuthorizeRouteView>
+        }
+        else
+        {
+            <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+        }
         <FocusOnNavigate RouteData="@routeData" Selector="h1" />
     </Found>
     <NotFound>
@@ -10,3 +22,11 @@
         </LayoutView>
     </NotFound>
 </Router>
+
+@code {
+#if (IncludeAuth)
+    private static readonly bool IsAuthEnabled = true;
+#else
+    private static readonly bool IsAuthEnabled = false;
+#endif
+}
