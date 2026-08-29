@@ -52,6 +52,7 @@ The Server fixture runs published output from its own directory. This avoids the
 - Packages: `Dorn.Templates.BlazorWasm` and `Dorn.Templates.BlazorServer`
 - Tags: push `v<version>` to trigger NuGet Trusted Publishing
 - Local builds: use non-release fallback versions and are never published
+- Versioning: use a major release for generated-project breaking changes, a minor release for new optional template parameters or capabilities, and a patch release for compatible fixes, documentation, and test-only changes
 
 ## ✅ Conventions
 
