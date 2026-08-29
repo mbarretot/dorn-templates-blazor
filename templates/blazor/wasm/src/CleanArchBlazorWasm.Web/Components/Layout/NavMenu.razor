@@ -1,4 +1,28 @@
+#if (IncludeAuth)
+@using CleanArchBlazorWasm.Web.Components.Auth
+@using Microsoft.AspNetCore.Components.Authorization
+@inject LocalStorageAuthStateProvider AuthStateProvider
+#endif
+
 <MudNavMenu>
     <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home" IconColor="Color.Inherit">Home</MudNavLink>
     <MudNavLink Href="/todos" Icon="@Icons.Material.Filled.Checklist" IconColor="Color.Inherit">To-Dos</MudNavLink>
+#if (IncludeAuth)
+    <MudNavLink Href="/secure" Icon="@Icons.Material.Filled.Lock" IconColor="Color.Inherit">Secure Page</MudNavLink>
+    <AuthorizeView>
+        <Authorized>
+            <MudText Class="px-4 py-2" Typo="Typo.body2">Signed in as @context.User.Identity?.Name</MudText>
+            <MudButton Variant="Variant.Text" Class="ml-4" OnClick="SignOutAsync">Log out</MudButton>
+        </Authorized>
+        <NotAuthorized>
+            <MudNavLink Href="/Account/Login" Icon="@Icons.Material.Filled.Login" IconColor="Color.Inherit">Log in</MudNavLink>
+        </NotAuthorized>
+    </AuthorizeView>
+#endif
 </MudNavMenu>
+
+#if (IncludeAuth)
+@code {
+    private async Task SignOutAsync() => await AuthStateProvider.SignOutAsync();
+}
+#endif

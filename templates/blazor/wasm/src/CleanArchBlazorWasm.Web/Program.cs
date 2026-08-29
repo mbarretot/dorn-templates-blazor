@@ -7,6 +7,10 @@ using CleanArchBlazorWasm.Infrastructure.ToDos;
 #else
 using CleanArchBlazorWasm.Web.Features.ToDo;
 #endif
+#if (IncludeAuth)
+using CleanArchBlazorWasm.Web.Components.Auth;
+using Microsoft.AspNetCore.Components.Authorization;
+#endif
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
@@ -17,6 +21,15 @@ builder.Services.AddMudServices();
 
 builder.Services.AddScoped<ThemeInterop>();
 builder.Services.AddScoped<ThemeState>();
+
+#if (IncludeAuth)
+builder.Services.AddAuthorizationCore();
+builder.Services.AddCascadingAuthenticationState();
+builder.Services.AddScoped<LocalStorageAuthStateProvider>();
+builder.Services.AddScoped<AuthenticationStateProvider>(sp =>
+    sp.GetRequiredService<LocalStorageAuthStateProvider>()
+);
+#endif
 
 builder.Services.Configure<ToDoApiOptions>(
     builder.Configuration.GetSection(ToDoApiOptions.SectionName)

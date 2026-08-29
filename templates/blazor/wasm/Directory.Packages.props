@@ -11,6 +11,8 @@
       Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer"
       Version="10.0.9"
     />
+    <!-- Opt-in IncludeAuth demo: AuthorizeView / AuthenticationStateProvider / [Authorize]. -->
+    <PackageVersion Include="Microsoft.AspNetCore.Components.Authorization" Version="10.0.9" />
   </ItemGroup>
 
   <ItemGroup>
