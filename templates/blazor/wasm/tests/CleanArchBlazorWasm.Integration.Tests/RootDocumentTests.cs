@@ -42,6 +42,9 @@ public class RootDocumentTests
             StringComparison.Ordinal
         );
         Assert.Contains("default-src 'self'", markup, StringComparison.Ordinal);
+        // Without this, Blazor WebAssembly can't instantiate its compiled WASM modules and the
+        // app never renders past the loading shell — a regression that only shows up at runtime.
+        Assert.Contains("'wasm-unsafe-eval'", markup, StringComparison.Ordinal);
     }
 
     private static string ResolveWebRootPath(params string[] relativeSegments)
