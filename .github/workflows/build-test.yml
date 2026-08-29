@@ -9,6 +9,38 @@ env:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "true"
 
 jobs:
+  validate-template-json:
+    name: validate-template-json
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+
+      - name: Pack templates
+        run: |
+          dotnet pack eng/packaging/Dorn.Templates.BlazorServer/Dorn.Templates.BlazorServer.csproj -c Release -p:PackageVersion=0.0.1-ci-validate -o /tmp/template-validate
+          dotnet pack eng/packaging/Dorn.Templates.BlazorWasm/Dorn.Templates.BlazorWasm.csproj -c Release -p:PackageVersion=0.0.1-ci-validate -o /tmp/template-validate
+
+      - name: Install templates
+        run: |
+          dotnet new install /tmp/template-validate/Dorn.Templates.BlazorServer.0.0.1-ci-validate.nupkg
+          dotnet new install /tmp/template-validate/Dorn.Templates.BlazorWasm.0.0.1-ci-validate.nupkg
+
+      # --dry-run resolves symbols/sources and lists what would be created without writing
+      # anything or running restore/build, so a malformed template.json fails here in seconds
+      # instead of waiting on a full generate-and-build cycle.
+      - name: Dry-run generate (server)
+        run: dotnet new dorn-blazor-server -n CiValidateServerApp -o /tmp/template-validate/server --dry-run
+
+      - name: Dry-run generate (wasm)
+        run: dotnet new dorn-blazor-wasm -n CiValidateWasmApp -o /tmp/template-validate/wasm --dry-run
+
   dev-loop-tests:
     name: dev-loop-tests (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
