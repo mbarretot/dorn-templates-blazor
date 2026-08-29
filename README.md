@@ -46,7 +46,7 @@ dotnet run --project src/Acme.Portal.Web
 ## ✨ Included
 
 - 🧩 Responsive MudBlazor application shell
-- 🎨 Warm paper, ink, and terracotta design tokens
+- 🎨 Warm paper and ink design tokens with 7 selectable color palettes (Terracotta by default)
 - 🌗 Light, dark, and system modes applied before first paint
 - 🔤 Self-hosted Newsreader and system UI fonts—no CDN or Node/npm
 - 🧪 xUnit, bUnit, architecture, integration, and browser test foundations

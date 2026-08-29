@@ -35,7 +35,7 @@ dotnet dorn run
 ## 🎨 UI foundation
 
 - MudBlazor components with matching light and dark palettes
-- Warm paper backgrounds, ink text, and one terracotta accent
+- Warm paper backgrounds, ink text, and 7 selectable color palettes (Terracotta by default)
 - Newsreader for editorial content; system fonts for controls
 - Theme preference applied before first paint and synchronized at runtime
 - Self-hosted assets with no CDN or Node/npm dependency
