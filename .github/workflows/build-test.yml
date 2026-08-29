@@ -41,6 +41,39 @@ jobs:
       - name: Dry-run generate (wasm)
         run: dotnet new dorn-blazor-wasm -n CiValidateWasmApp -o /tmp/template-validate/wasm --dry-run
 
+  verify-code-style:
+    name: verify-code-style
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v6
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/Directory.Packages.props') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      # Each context has its own .editorconfig (templates/blazor/{wasm,server} are
+      # self-contained; the root one applies to eng/packaging/** and tests/** only), so each
+      # gets its own dotnet format pass rather than one run over the whole repo.
+      - name: "Verify code style (repo: eng/packaging, tests)"
+        run: dotnet format DornTemplatesBlazor.slnx --verify-no-changes
+
+      - name: Verify code style (blazor-server template)
+        run: dotnet format templates/blazor/server/CleanArchBlazorServer.slnx --verify-no-changes
+
+      - name: Verify code style (blazor-wasm template)
+        run: dotnet format templates/blazor/wasm/CleanArchBlazorWasm.slnx --verify-no-changes
+
   dev-loop-tests:
     name: dev-loop-tests (${{ matrix.os }})
     runs-on: ${{ matrix.os }}

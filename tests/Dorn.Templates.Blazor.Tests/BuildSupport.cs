@@ -40,21 +40,18 @@ internal static class BuildSupport
         };
 
         var restoreResult = await RestoreWithRetryAsync(solutionPath, environment);
-        if (restoreResult.ExitCode != 0)
-        {
-            return restoreResult;
-        }
-
-        return await TemplatePackHarness.RunProcessAsync(
-            Path.GetDirectoryName(solutionPath)!,
-            environment,
-            "build",
-            solutionPath,
-            "-c",
-            "Release",
-            "--no-restore",
-            "-nodeReuse:false"
-        );
+        return restoreResult.ExitCode != 0
+            ? restoreResult
+            : await TemplatePackHarness.RunProcessAsync(
+                Path.GetDirectoryName(solutionPath)!,
+                environment,
+                "build",
+                solutionPath,
+                "-c",
+                "Release",
+                "--no-restore",
+                "-nodeReuse:false"
+            );
     }
 
     /// <summary>
