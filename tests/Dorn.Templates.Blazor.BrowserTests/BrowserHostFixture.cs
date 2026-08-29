@@ -1,6 +1,5 @@
 using System.Diagnostics;
-using System.Net;
-using System.Net.Sockets;
+using Dorn.Templates.Blazor.TestSupport;
 using Microsoft.Playwright;
 using Xunit;
 
@@ -71,9 +70,7 @@ public sealed class BrowserHostFixture : IAsyncLifetime
                 template.HostName.StartsWith("server", StringComparison.Ordinal)
                     ? await PublishArgumentsAsync(template.HostName, project)
                     : (output, (string[])["run", "--project", project, "--no-launch-profile"]);
-            var host = new Host(template.HostName, workingDirectory, arguments, ReservePort());
-            host.Start();
-            await host.WaitUntilReadyAsync();
+            var host = await Host.StartAsync(template.HostName, workingDirectory, arguments);
             _hosts.Add(host);
         }
         _playwright = await Playwright.CreateAsync();
@@ -183,13 +180,6 @@ public sealed class BrowserHostFixture : IAsyncLifetime
         catch (InvalidOperationException) { }
     }
 
-    private static int ReservePort()
-    {
-        using var listener = new TcpListener(IPAddress.Loopback, 0);
-        listener.Start();
-        return ((IPEndPoint)listener.LocalEndpoint).Port;
-    }
-
     private static string RealTempRoot =>
         OperatingSystem.IsMacOS() ? "/private/tmp" : Path.GetTempPath();
 
@@ -211,68 +201,47 @@ public sealed class BrowserHostFixture : IAsyncLifetime
         }
     }
 
-    private sealed class Host(string name, string workingDirectory, string[] arguments, int port)
-        : IAsyncDisposable
+    private sealed class Host : IAsyncDisposable
     {
-        private Process? _process;
-        public string Name { get; } = name;
-        public string Url { get; } = $"http://127.0.0.1:{port}";
+        private readonly Process _process;
+        public string Name { get; }
+        public string Url { get; }
 
-        public void Start()
+        private Host(string name, Process process, int port)
         {
-            var start = new ProcessStartInfo("dotnet")
-            {
-                WorkingDirectory = workingDirectory,
-                RedirectStandardError = true,
-                RedirectStandardOutput = true,
-                UseShellExecute = false,
-            };
-            foreach (var argument in arguments)
-            {
-                start.ArgumentList.Add(argument);
-            }
-
-            start.ArgumentList.Add("--urls");
-            start.ArgumentList.Add(Url);
-            _process =
-                Process.Start(start)
-                ?? throw new InvalidOperationException("Could not start generated host.");
+            Name = name;
+            _process = process;
+            Url = $"http://127.0.0.1:{port}";
         }
 
-        public async Task WaitUntilReadyAsync()
+        public static async Task<Host> StartAsync(
+            string name,
+            string workingDirectory,
+            string[] arguments
+        )
         {
-            using var client = new HttpClient();
-            using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(45));
-            while (!timeout.IsCancellationRequested)
+            var (port, process) = await GeneratedHostReadiness.StartWithPortRetryAsync(port =>
             {
-                if (_process!.HasExited)
+                var start = new ProcessStartInfo("dotnet")
                 {
-                    throw new InvalidOperationException(
-                        $"{Name} exited: {await _process.StandardError.ReadToEndAsync()}"
-                    );
-                }
-
-                try
+                    WorkingDirectory = workingDirectory,
+                    RedirectStandardError = true,
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false,
+                };
+                foreach (var argument in arguments)
                 {
-                    if ((await client.GetAsync(Url, timeout.Token)).IsSuccessStatusCode)
-                    {
-                        return;
-                    }
+                    start.ArgumentList.Add(argument);
                 }
-                catch (HttpRequestException) { }
-                catch (OperationCanceledException) when (timeout.IsCancellationRequested) { }
-                await Task.Delay(200);
-            }
-            throw new TimeoutException($"{Name} did not become ready at {Url}.");
+                start.ArgumentList.Add("--urls");
+                start.ArgumentList.Add($"http://127.0.0.1:{port}");
+                return start;
+            });
+            return new Host(name, process, port);
         }
 
         public async ValueTask DisposeAsync()
         {
-            if (_process is null)
-            {
-                return;
-            }
-
             if (!_process.HasExited)
             {
                 _process.Kill(true);
