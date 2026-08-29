@@ -19,7 +19,11 @@
 #endif
     </MudText>
 
-    @if (toDoItems is null)
+    @if (hasError)
+    {
+        <MudAlert Severity="Severity.Error">Could not load to-dos. Please try again later.</MudAlert>
+    }
+    else if (toDoItems is null)
     {
         <MudProgressCircular Indeterminate="true" aria-label="Loading to-dos" />
     }
@@ -45,9 +49,17 @@
 
 @code {
     private IReadOnlyList<ToDoItem>? toDoItems;
+    private bool hasError;
 
     protected override async Task OnInitializedAsync()
     {
-        toDoItems = await ToDoRepository.GetAllAsync();
+        try
+        {
+            toDoItems = await ToDoRepository.GetAllAsync();
+        }
+        catch (Exception)
+        {
+            hasError = true;
+        }
     }
 }
