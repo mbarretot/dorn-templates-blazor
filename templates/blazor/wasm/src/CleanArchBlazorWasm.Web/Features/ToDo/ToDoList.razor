@@ -6,6 +6,7 @@
 @using CleanArchBlazorWasm.Web.Features.ToDo
 #endif
 @inject IToDoRepository ToDoRepository
+@inject ISnackbar Snackbar
 @implements IDisposable
 
 <PageTitle>To-Dos - CleanArchBlazorWasm</PageTitle>
@@ -19,6 +20,16 @@
         ToDoItem, IToDoRepository, and ToDoRepository all live together in Features/ToDo &rarr; this page.
 #endif
     </MudText>
+
+    <MudForm @ref="form" Class="d-flex align-center gap-3 mb-6">
+        <MudTextField
+            @bind-Value="newTitle"
+            Label="New to-do"
+            Required="true"
+            RequiredError="Title is required."
+            Class="flex-grow-1" />
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="CreateAsync">Add</MudButton>
+    </MudForm>
 
     @if (hasError)
     {
@@ -38,10 +49,15 @@
             @foreach (var item in toDoItems)
             {
                 <MudPaper Class="pa-3 d-flex align-center gap-3" Elevation="1">
-                    <MudIcon
+                    <MudIconButton
                         Icon="@(item.IsCompleted ? Icons.Material.Filled.CheckCircle : Icons.Material.Filled.RadioButtonUnchecked)"
-                        Color="@(item.IsCompleted ? Color.Success : Color.Default)" />
-                    <MudText>@item.Title</MudText>
+                        Color="@(item.IsCompleted ? Color.Success : Color.Default)"
+                        OnClick="() => ToggleCompletedAsync(item)" />
+                    <MudText Class="flex-grow-1">@item.Title</MudText>
+                    <MudIconButton
+                        Icon="@Icons.Material.Filled.Delete"
+                        Color="Color.Error"
+                        OnClick="() => DeleteAsync(item)" />
                 </MudPaper>
             }
         </MudStack>
@@ -52,6 +68,13 @@
     private readonly CancellationTokenSource cts = new();
     private IReadOnlyList<ToDoItem>? toDoItems;
     private bool hasError;
+    private MudForm form = null!;
+    private string newTitle = string.Empty;
+
+    // JSONPlaceholder always returns id 201 for any create and never persists it, so a locally
+    // generated negative id keeps session-created items distinguishable; only positive (real)
+    // ids round-trip through the fake backend.
+    private int nextLocalId = -1;
 
     protected override async Task OnInitializedAsync()
     {
@@ -66,6 +89,63 @@
         catch (Exception)
         {
             hasError = true;
+        }
+    }
+
+    private async Task CreateAsync()
+    {
+        await form.ValidateAsync();
+        if (!form.IsValid)
+        {
+            return;
+        }
+
+        try
+        {
+            await ToDoRepository.CreateAsync(newTitle, cts.Token);
+            var createdItem = new ToDoItem(nextLocalId--, newTitle, false);
+            toDoItems = [.. toDoItems ?? [], createdItem];
+            newTitle = string.Empty;
+        }
+        catch (Exception)
+        {
+            Snackbar.Add("Could not add the to-do. Please try again.", Severity.Error);
+        }
+    }
+
+    private async Task ToggleCompletedAsync(ToDoItem item)
+    {
+        try
+        {
+            if (item.Id > 0)
+            {
+                await ToDoRepository.SetCompletedAsync(item.Id, !item.IsCompleted, cts.Token);
+            }
+
+            toDoItems = toDoItems
+                ?.Select(i => i.Id == item.Id ? item with { IsCompleted = !item.IsCompleted } : i)
+                .ToList();
+        }
+        catch (Exception)
+        {
+            Snackbar.Add("Could not update the to-do. Please try again.", Severity.Error);
+        }
+    }
+
+    private async Task DeleteAsync(ToDoItem item)
+    {
+        try
+        {
+            if (item.Id > 0)
+            {
+                await ToDoRepository.DeleteAsync(item.Id, cts.Token);
+            }
+
+            toDoItems = toDoItems?.Where(i => i.Id != item.Id).ToList();
+        }
+        catch (Exception)
+        {
+            Snackbar.Add("Could not delete the to-do. Please try again.", Severity.Error);
         }
     }
 
