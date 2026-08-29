@@ -28,19 +28,50 @@ public sealed class BrowserHostFixture : IAsyncLifetime
         Directory.CreateDirectory(_root);
         await InstallTemplatesAsync();
         foreach (
-            var template in new[] { ("wasm", "dorn-blazor-wasm"), ("server", "dorn-blazor-server") }
+            var template in new (
+                string HostName,
+                string ShortName,
+                string ProjectName,
+                string[] ExtraArgs
+            )[]
+            {
+                ("wasm", "dorn-blazor-wasm", "Browserwasm", []),
+                ("server", "dorn-blazor-server", "Browserserver", []),
+                (
+                    "wasm-nondefault",
+                    "dorn-blazor-wasm",
+                    "BrowserWasmNonDefault",
+                    ["--IncludeCleanArchitecture", "true", "--Palette", "Ocean"]
+                ),
+                (
+                    "server-nondefault",
+                    "dorn-blazor-server",
+                    "BrowserServerNonDefault",
+                    ["--IncludeCleanArchitecture", "true", "--Palette", "Ocean"]
+                ),
+            }
         )
         {
-            var output = Path.Combine(_root, template.Item1);
-            await Run(_root, "new", template.Item2, "-n", $"Browser{template.Item1}", "-o", output);
+            var output = Path.Combine(_root, template.HostName);
+            var newArgs = new List<string>
+            {
+                "new",
+                template.ShortName,
+                "-n",
+                template.ProjectName,
+                "-o",
+                output,
+            };
+            newArgs.AddRange(template.ExtraArgs);
+            await Run(_root, [.. newArgs]);
             var project = Directory
                 .GetFiles(output, "*.Web.csproj", SearchOption.AllDirectories)
                 .Single();
             var (workingDirectory, arguments) =
-                template.Item1 == "server"
-                    ? await PublishArgumentsAsync(template.Item1, project)
+                template.HostName.StartsWith("server", StringComparison.Ordinal)
+                    ? await PublishArgumentsAsync(template.HostName, project)
                     : (output, (string[])["run", "--project", project, "--no-launch-profile"]);
-            var host = new Host(template.Item1, workingDirectory, arguments, ReservePort());
+            var host = new Host(template.HostName, workingDirectory, arguments, ReservePort());
             host.Start();
             await host.WaitUntilReadyAsync();
             _hosts.Add(host);
