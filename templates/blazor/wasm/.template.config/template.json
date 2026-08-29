@@ -27,6 +27,12 @@
       "defaultValue": "false",
       "description": "Include Clean Architecture class libraries: {App}.Domain, {App}.Application, and {App}.Infrastructure, wired to {App}.Web by project reference. Off by default: features stay vertical slices under Features/{Name}/, which remains the top-level shape either way."
     },
+    "IncludeAuth": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "false",
+      "description": "Include a minimal client-side auth starting point: a localStorage-backed AuthenticationStateProvider, a demo login page, and an [Authorize]-gated example page. Off by default. Not a real identity provider - replace before shipping."
+    },
     "Palette": {
       "type": "parameter",
       "datatype": "choice",
@@ -117,6 +123,14 @@
             "src/CleanArchBlazorWasm.Web/Features/ToDo/ToDoRepository.cs",
             "tests/CleanArchBlazorWasm.Functional.Tests/Features/ToDo/ToDoItemTests.cs",
             "tests/CleanArchBlazorWasm.Functional.Tests/Features/ToDo/ToDoRepositoryTests.cs"
+          ]
+        },
+        {
+          "condition": "(!IncludeAuth)",
+          "exclude": [
+            "src/CleanArchBlazorWasm.Web/Components/Auth/LocalStorageAuthStateProvider.cs",
+            "src/CleanArchBlazorWasm.Web/Features/Auth/Login.razor",
+            "src/CleanArchBlazorWasm.Web/Features/Auth/Secure.razor"
           ]
         }
       ]
