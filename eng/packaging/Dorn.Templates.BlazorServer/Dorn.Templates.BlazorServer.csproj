@@ -18,6 +18,7 @@
         <NoDefaultExcludes>true</NoDefaultExcludes>
         <NoWarn>$(NoWarn);NU5128</NoWarn>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageReleaseNotes>See https://github.com/mbarretot/dorn-templates-blazor/blob/main/CHANGELOG.md for release notes.</PackageReleaseNotes>
         <PackageOutputPath>$(MSBuildThisFileDirectory)../../../artifacts</PackageOutputPath>
         <PackageVersion Condition="'$(PackageVersion)'==''">0.0.1-local</PackageVersion>
     </PropertyGroup>
