@@ -25,6 +25,12 @@ builder.Services.AddHttpClient<IToDoRepository, ToDoRepository>(client =>
 
 var app = builder.Build();
 
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Error");
+    app.UseHsts();
+}
+
 app.UseHttpsRedirection();
 app.UseAntiforgery();
 app.MapStaticAssets();
