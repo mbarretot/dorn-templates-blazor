@@ -34,7 +34,7 @@ dotnet run --project src/Acme.Portal.Web
 ```
 
 > [!TIP]
-> Add `--IncludeAspire true` when you want local orchestration, service discovery, and the Aspire dashboard.
+> Add `--IncludeAspire true` when you want local orchestration, service discovery, and the Aspire dashboard. Choose a palette with `dotnet new dorn-blazor-server -n Acme.Portal --Palette Ocean`.
 
 ## 🧭 Choose a template
 

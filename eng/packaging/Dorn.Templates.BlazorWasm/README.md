@@ -11,6 +11,9 @@ cd Acme.Portal
 dotnet run --project src/Acme.Portal.Web
 ```
 
+> [!TIP]
+> Choose a palette while generating the application: `dotnet new dorn-blazor-wasm -n Acme.Portal --Palette Ocean`.
+
 ## ✨ What you get
 
 - Browser-side execution and a responsive MudBlazor shell
