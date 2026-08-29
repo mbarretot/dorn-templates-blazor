@@ -85,14 +85,22 @@ public sealed class BrowserHostFixture : IAsyncLifetime
     public async Task DisposeAsync()
     {
         if (_browser is not null)
+        {
             await _browser.DisposeAsync();
+        }
+
         _playwright?.Dispose();
         foreach (var host in _hosts)
+        {
             await host.DisposeAsync();
+        }
+
         await TryRun(_root, "new", "uninstall", "Dorn.Templates.BlazorWasm");
         await TryRun(_root, "new", "uninstall", "Dorn.Templates.BlazorServer");
         if (Directory.Exists(_root))
+        {
             Directory.Delete(_root, true);
+        }
     }
 
     private async Task<(string WorkingDirectory, string[] Arguments)> PublishArgumentsAsync(
@@ -149,16 +157,21 @@ public sealed class BrowserHostFixture : IAsyncLifetime
             UseShellExecute = false,
         };
         foreach (var argument in arguments)
+        {
             start.ArgumentList.Add(argument);
+        }
+
         using var process =
             Process.Start(start) ?? throw new InvalidOperationException("Could not start dotnet.");
         var output = process.StandardOutput.ReadToEndAsync();
         var error = process.StandardError.ReadToEndAsync();
         await process.WaitForExitAsync();
         if (process.ExitCode != 0)
+        {
             throw new InvalidOperationException(
                 $"dotnet {string.Join(' ', arguments)} failed.{Environment.NewLine}{await output}{Environment.NewLine}{await error}"
             );
+        }
     }
 
     private static async Task TryRun(string workingDirectory, params string[] arguments)
@@ -188,7 +201,10 @@ public sealed class BrowserHostFixture : IAsyncLifetime
             while (directory is not null)
             {
                 if (File.Exists(Path.Combine(directory.FullName, "DornTemplatesBlazor.slnx")))
+                {
                     return directory.FullName;
+                }
+
                 directory = directory.Parent;
             }
             throw new DirectoryNotFoundException("Could not locate the repository root.");
@@ -212,7 +228,10 @@ public sealed class BrowserHostFixture : IAsyncLifetime
                 UseShellExecute = false,
             };
             foreach (var argument in arguments)
+            {
                 start.ArgumentList.Add(argument);
+            }
+
             start.ArgumentList.Add("--urls");
             start.ArgumentList.Add(Url);
             _process =
@@ -227,13 +246,18 @@ public sealed class BrowserHostFixture : IAsyncLifetime
             while (!timeout.IsCancellationRequested)
             {
                 if (_process!.HasExited)
+                {
                     throw new InvalidOperationException(
                         $"{Name} exited: {await _process.StandardError.ReadToEndAsync()}"
                     );
+                }
+
                 try
                 {
                     if ((await client.GetAsync(Url, timeout.Token)).IsSuccessStatusCode)
+                    {
                         return;
+                    }
                 }
                 catch (HttpRequestException) { }
                 catch (OperationCanceledException) when (timeout.IsCancellationRequested) { }
@@ -245,9 +269,15 @@ public sealed class BrowserHostFixture : IAsyncLifetime
         public async ValueTask DisposeAsync()
         {
             if (_process is null)
+            {
                 return;
+            }
+
             if (!_process.HasExited)
+            {
                 _process.Kill(true);
+            }
+
             await _process.WaitForExitAsync();
             _process.Dispose();
         }

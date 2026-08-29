@@ -1,8 +1,10 @@
-# Code style for projects generated from this template. This .editorconfig is the
-# single source of truth for formatting and is actively enforced by `dotnet format`
-# (bundled with the .NET SDK), not merely IDE suggestions. Run `dotnet format` from
-# the project root to apply these rules; `dotnet format --verify-no-changes` checks
-# without writing.
+# Code style for projects generated from this template. Enforced, not merely IDE suggestions:
+# rules below are :warning severity, and the generated project's Directory.Build.props sets
+# EnforceCodeStyleInBuild=true, so violations surface as build warnings on every `dotnet build`.
+# The dorn-templates-blazor repo's own CI additionally runs `dotnet format --verify-no-changes`
+# against this template's source, so drift here fails CI before it ever reaches a generated
+# project. Run `dotnet format` from the project root to apply these rules;
+# `dotnet format --verify-no-changes` checks without writing.
 root = true
 
 [*]
@@ -41,32 +43,32 @@ csharp_indent_switch_labels = true
 csharp_indent_labels = one_less_than_current
 
 # var preferences
-csharp_style_var_for_built_in_types = true:suggestion
-csharp_style_var_when_type_is_apparent = true:suggestion
-csharp_style_var_elsewhere = true:suggestion
+csharp_style_var_for_built_in_types = true:warning
+csharp_style_var_when_type_is_apparent = true:warning
+csharp_style_var_elsewhere = true:warning
 
 # Namespace preferences
-csharp_style_namespace_declarations = file_scoped:suggestion
+csharp_style_namespace_declarations = file_scoped:warning
 
 # Expression-bodied members
-csharp_style_expression_bodied_methods = when_on_single_line:suggestion
-csharp_style_expression_bodied_constructors = false:suggestion
-csharp_style_expression_bodied_properties = true:suggestion
+csharp_style_expression_bodied_methods = when_on_single_line:warning
+csharp_style_expression_bodied_constructors = false:warning
+csharp_style_expression_bodied_properties = true:warning
 
 # Pattern matching
-csharp_style_pattern_matching_over_is_with_cast_check = true:suggestion
-csharp_style_pattern_matching_over_as_with_null_check = true:suggestion
+csharp_style_pattern_matching_over_is_with_cast_check = true:warning
+csharp_style_pattern_matching_over_as_with_null_check = true:warning
 
 # Null-checking preferences
-csharp_style_conditional_delegate_call = true:suggestion
-csharp_style_throw_expression = true:suggestion
+csharp_style_conditional_delegate_call = true:warning
+csharp_style_throw_expression = true:warning
 
 # Modifier preferences
-csharp_preferred_modifier_order = public,private,protected,internal,static,extern,new,virtual,abstract,sealed,override,readonly,unsafe,volatile,async:suggestion
-dotnet_style_require_accessibility_modifiers = for_non_interface_members:suggestion
+csharp_preferred_modifier_order = public,private,protected,internal,static,extern,new,virtual,abstract,sealed,override,readonly,unsafe,volatile,async:warning
+dotnet_style_require_accessibility_modifiers = for_non_interface_members:warning
 
 # Nullable
-dotnet_style_prefer_conditional_expression_over_return = true:suggestion
+dotnet_style_prefer_conditional_expression_over_return = true:warning
 
 # using directives
 # NOTE: Import ordering is intentionally left as-is (project namespaces first, then
@@ -76,19 +78,19 @@ dotnet_style_prefer_conditional_expression_over_return = true:suggestion
 # would break the generated output because the sorting depends on the actual project
 # name after template substitution (e.g. MyBlazorApp sorts differently than
 # CleanArchBlazorWasm).
-csharp_using_directive_placement = outside_namespace:suggestion
+csharp_using_directive_placement = outside_namespace:warning
 
 # this. preferences
-dotnet_style_qualification_for_field = false:suggestion
-dotnet_style_qualification_for_property = false:suggestion
-dotnet_style_qualification_for_method = false:suggestion
-dotnet_style_qualification_for_event = false:suggestion
+dotnet_style_qualification_for_field = false:warning
+dotnet_style_qualification_for_property = false:warning
+dotnet_style_qualification_for_method = false:warning
+dotnet_style_qualification_for_event = false:warning
 
 # Braces
-csharp_prefer_braces = true:suggestion
+csharp_prefer_braces = true:warning
 
 # Naming conventions
-dotnet_naming_rule.interfaces_should_be_prefixed_with_i.severity = suggestion
+dotnet_naming_rule.interfaces_should_be_prefixed_with_i.severity = warning
 dotnet_naming_rule.interfaces_should_be_prefixed_with_i.symbols = interface_symbol
 dotnet_naming_rule.interfaces_should_be_prefixed_with_i.style = prefix_interface_with_i_style
 
@@ -96,7 +98,30 @@ dotnet_naming_symbols.interface_symbol.applicable_kinds = interface
 dotnet_naming_style.prefix_interface_with_i_style.required_prefix = I
 dotnet_naming_style.prefix_interface_with_i_style.capitalization = pascal_case
 
-dotnet_naming_rule.private_fields_should_be_camel_case.severity = suggestion
+# Private const/static readonly fields follow the same PascalCase convention as
+# types/methods/properties (Microsoft's own style guide), not the _camelCase used for mutable
+# instance fields below. These two rules must stay ordered before
+# private_fields_should_be_camel_case: naming rules are evaluated in file order and the first
+# match wins. Kept as two separate rules (not one rule with a comma-separated symbol list) —
+# the latter silently breaks the naming-rule resolver, misapplying PascalCase to local variables
+# throughout the codebase.
+dotnet_naming_rule.private_constants_should_be_pascal_case.severity = warning
+dotnet_naming_rule.private_constants_should_be_pascal_case.symbols = private_const_field_symbol
+dotnet_naming_rule.private_constants_should_be_pascal_case.style = pascal_case_style
+
+dotnet_naming_symbols.private_const_field_symbol.applicable_kinds = field
+dotnet_naming_symbols.private_const_field_symbol.applicable_accessibilities = private
+dotnet_naming_symbols.private_const_field_symbol.required_modifiers = const
+
+dotnet_naming_rule.private_static_readonly_fields_should_be_pascal_case.severity = warning
+dotnet_naming_rule.private_static_readonly_fields_should_be_pascal_case.symbols = private_static_readonly_field_symbol
+dotnet_naming_rule.private_static_readonly_fields_should_be_pascal_case.style = pascal_case_style
+
+dotnet_naming_symbols.private_static_readonly_field_symbol.applicable_kinds = field
+dotnet_naming_symbols.private_static_readonly_field_symbol.applicable_accessibilities = private
+dotnet_naming_symbols.private_static_readonly_field_symbol.required_modifiers = static,readonly
+
+dotnet_naming_rule.private_fields_should_be_camel_case.severity = warning
 dotnet_naming_rule.private_fields_should_be_camel_case.symbols = private_field_symbol
 dotnet_naming_rule.private_fields_should_be_camel_case.style = camel_case_underscore_style
 
@@ -105,7 +130,7 @@ dotnet_naming_symbols.private_field_symbol.applicable_accessibilities = private
 dotnet_naming_style.camel_case_underscore_style.required_prefix = _
 dotnet_naming_style.camel_case_underscore_style.capitalization = camel_case
 
-dotnet_naming_rule.types_and_members_should_be_pascal_case.severity = suggestion
+dotnet_naming_rule.types_and_members_should_be_pascal_case.severity = warning
 dotnet_naming_rule.types_and_members_should_be_pascal_case.symbols = types_and_members_symbol
 dotnet_naming_rule.types_and_members_should_be_pascal_case.style = pascal_case_style
 

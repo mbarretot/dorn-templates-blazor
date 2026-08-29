@@ -58,20 +58,17 @@ public class RootDocumentTests
             current = current.Parent;
         }
 
-        if (current is null)
-        {
-            throw new DirectoryNotFoundException(
+        return current is null
+            ? throw new DirectoryNotFoundException(
                 "Could not locate the generated solution root (CleanArchBlazorWasm.slnx) by "
                     + $"walking up from '{AppContext.BaseDirectory}'."
-            );
-        }
-
-        return Path.Combine(
-            current.FullName,
-            "src",
-            "CleanArchBlazorWasm.Web",
-            "wwwroot",
-            Path.Combine(relativeSegments)
+            )
+            : Path.Combine(
+                current.FullName,
+                "src",
+                "CleanArchBlazorWasm.Web",
+                "wwwroot",
+                Path.Combine(relativeSegments)
         );
     }
 }
