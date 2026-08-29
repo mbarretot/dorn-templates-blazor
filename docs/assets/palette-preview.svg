@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 500" role="img" aria-labelledby="title desc">
+  <title id="title">Dorn color palette preview</title>
+  <desc id="desc">Seven selectable palettes, each showing primary, secondary, tertiary, light surface, and dark surface colors.</desc>
+  <style>text{font-family:system-ui,sans-serif;fill:#24221f}.label{font-size:20px;font-weight:700}.code{font-size:13px;fill:#5b5750}.dark{fill:#f8f4ed}</style>
+  <rect width="1120" height="500" fill="#f8f4ed"/>
+  <text x="40" y="46" class="label" font-size="28">Dorn palettes</text>
+  <text x="40" y="74" class="code" font-size="16">Primary · secondary · tertiary · light surface · dark surface</text>
+  <text x="40" y="120" class="label">Terracotta</text>
+  <rect x="40" y="138" width="48" height="48" rx="6" fill="#B2603A"/><rect x="96" y="138" width="48" height="48" rx="6" fill="#7C8B6F"/><rect x="152" y="138" width="48" height="48" rx="6" fill="#C9A227"/><rect x="208" y="138" width="48" height="48" rx="6" fill="#F8F4ED" stroke="#CFC7BA"/><rect x="264" y="138" width="48" height="48" rx="6" fill="#24221F"/>
+  <text x="40" y="208" class="code">#B2603A · #7C8B6F · #C9A227</text>
+  <text x="310" y="120" class="label">Ocean</text>
+  <rect x="310" y="138" width="48" height="48" rx="6" fill="#1C6E8C"/><rect x="366" y="138" width="48" height="48" rx="6" fill="#3E9C87"/><rect x="422" y="138" width="48" height="48" rx="6" fill="#E3A857"/><rect x="478" y="138" width="48" height="48" rx="6" fill="#F8F4ED" stroke="#CFC7BA"/><rect x="534" y="138" width="48" height="48" rx="6" fill="#24221F"/>
+  <text x="310" y="208" class="code">#1C6E8C · #3E9C87 · #E3A857</text>
+  <text x="580" y="120" class="label">Forest</text>
+  <rect x="580" y="138" width="48" height="48" rx="6" fill="#2E6B4F"/><rect x="636" y="138" width="48" height="48" rx="6" fill="#8A6A46"/><rect x="692" y="138" width="48" height="48" rx="6" fill="#B79A2E"/><rect x="748" y="138" width="48" height="48" rx="6" fill="#F8F4ED" stroke="#CFC7BA"/><rect x="804" y="138" width="48" height="48" rx="6" fill="#24221F"/>
+  <text x="580" y="208" class="code">#2E6B4F · #8A6A46 · #B79A2E</text>
+  <text x="850" y="120" class="label">Sunset</text>
+  <rect x="850" y="138" width="48" height="48" rx="6" fill="#D9552C"/><rect x="906" y="138" width="48" height="48" rx="6" fill="#A3436B"/><rect x="962" y="138" width="48" height="48" rx="6" fill="#E3A73E"/><rect x="1018" y="138" width="48" height="48" rx="6" fill="#F8F4ED" stroke="#CFC7BA"/><rect x="1074" y="138" width="48" height="48" rx="6" fill="#24221F"/>
+  <text x="850" y="208" class="code">#D9552C · #A3436B · #E3A73E</text>
+  <text x="40" y="310" class="label">Lavender</text>
+  <rect x="40" y="328" width="48" height="48" rx="6" fill="#6B5B95"/><rect x="96" y="328" width="48" height="48" rx="6" fill="#B5788C"/><rect x="152" y="328" width="48" height="48" rx="6" fill="#6E88B5"/><rect x="208" y="328" width="48" height="48" rx="6" fill="#F8F4ED" stroke="#CFC7BA"/><rect x="264" y="328" width="48" height="48" rx="6" fill="#24221F"/>
+  <text x="40" y="398" class="code">#6B5B95 · #B5788C · #6E88B5</text>
+  <text x="310" y="310" class="label">Slate</text>
+  <rect x="310" y="328" width="48" height="48" rx="6" fill="#3B5A6B"/><rect x="366" y="328" width="48" height="48" rx="6" fill="#5C7A72"/><rect x="422" y="328" width="48" height="48" rx="6" fill="#4E9AA6"/><rect x="478" y="328" width="48" height="48" rx="6" fill="#F8F4ED" stroke="#CFC7BA"/><rect x="534" y="328" width="48" height="48" rx="6" fill="#24221F"/>
+  <text x="310" y="398" class="code">#3B5A6B · #5C7A72 · #4E9AA6</text>
+  <text x="580" y="310" class="label">Citrus</text>
+  <rect x="580" y="328" width="48" height="48" rx="6" fill="#E08A1E"/><rect x="636" y="328" width="48" height="48" rx="6" fill="#7FA639"/><rect x="692" y="328" width="48" height="48" rx="6" fill="#E3C23E"/><rect x="748" y="328" width="48" height="48" rx="6" fill="#F8F4ED" stroke="#CFC7BA"/><rect x="804" y="328" width="48" height="48" rx="6" fill="#24221F"/>
+  <text x="580" y="398" class="code">#E08A1E · #7FA639 · #E3C23E</text>
+</svg>
