@@ -1,3 +1,5 @@
+using CleanArchBlazorWasm.Web.Configuration;
+using Microsoft.Extensions.Options;
 using MudBlazor.Services;
 #if (IncludeCleanArchitecture)
 using CleanArchBlazorWasm.Application.Interfaces;
@@ -16,9 +18,15 @@ builder.Services.AddMudServices();
 builder.Services.AddScoped<ThemeInterop>();
 builder.Services.AddScoped<ThemeState>();
 
-builder.Services.AddHttpClient<IToDoRepository, ToDoRepository>(client =>
-{
-    client.BaseAddress = new Uri("https://jsonplaceholder.typicode.com/");
-});
+builder.Services.Configure<ToDoApiOptions>(
+    builder.Configuration.GetSection(ToDoApiOptions.SectionName)
+);
+builder.Services.AddHttpClient<IToDoRepository, ToDoRepository>(
+    (sp, client) =>
+    {
+        var options = sp.GetRequiredService<IOptions<ToDoApiOptions>>().Value;
+        client.BaseAddress = new Uri(options.BaseAddress);
+    }
+);
 
 await builder.Build().RunAsync();
