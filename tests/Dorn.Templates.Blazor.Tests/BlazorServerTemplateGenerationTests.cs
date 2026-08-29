@@ -920,4 +920,74 @@ public class BlazorServerTemplateGenerationTests
             }
         }
     }
+
+    [Theory]
+    [InlineData("Terracotta")]
+    [InlineData("Ocean")]
+    [InlineData("Forest")]
+    [InlineData("Sunset")]
+    [InlineData("Lavender")]
+    [InlineData("Slate")]
+    [InlineData("Citrus")]
+    public async Task GenerateWithPalette_Builds(string palette)
+    {
+        var outputDirectory = Path.Combine(
+            BuildSupport.RealTempRoot,
+            $"dorn-tests-blazor-server-palette-{Guid.NewGuid():N}"
+        );
+        var toolsHome = Path.Combine(
+            BuildSupport.RealTempRoot,
+            $"dorn-tests-blazor-server-palette-tools-{Guid.NewGuid():N}"
+        );
+        try
+        {
+            var result = await TemplatePackHarness.GenerateAsync(
+                "dorn-blazor-server",
+                $"DornPalette{palette}BlazorServerApp",
+                outputDirectory,
+                "--Palette",
+                palette
+            );
+
+            Assert.True(
+                result.ExitCode == 0,
+                $"Template generation failed (exit {result.ExitCode})."
+                    + $"{Environment.NewLine}STDOUT:{Environment.NewLine}{result.StdOut}"
+                    + $"{Environment.NewLine}STDERR:{Environment.NewLine}{result.StdErr}"
+            );
+
+            var slnFiles = Directory.GetFiles(
+                outputDirectory,
+                "*.slnx",
+                SearchOption.TopDirectoryOnly
+            );
+            Assert.Single(slnFiles);
+            var buildResult = await BuildSupport.RunDotnetBuildAsync(slnFiles[0], toolsHome);
+
+            Assert.True(
+                buildResult.ExitCode == 0,
+                $"dotnet build exited with {buildResult.ExitCode}."
+                    + $"{Environment.NewLine}STDOUT:{Environment.NewLine}{buildResult.StdOut}"
+                    + $"{Environment.NewLine}STDERR:{Environment.NewLine}{buildResult.StdErr}"
+            );
+        }
+        finally
+        {
+            if (Environment.GetEnvironmentVariable("DORN_TEST_KEEP_TEMP") != "true")
+            {
+                if (Directory.Exists(outputDirectory))
+                {
+                    await BuildSupport.DeleteDirectoryWithRetryAsync(outputDirectory);
+                }
+                if (Directory.Exists(toolsHome))
+                {
+                    await BuildSupport.DeleteDirectoryWithRetryAsync(toolsHome);
+                }
+            }
+            else
+            {
+                Console.WriteLine("KEPT: " + outputDirectory);
+            }
+        }
+    }
 }
