@@ -36,6 +36,14 @@ dotnet dorn run
 - Theme preference applied before first paint and synchronized at runtime
 - Self-hosted assets with no CDN or Node/npm dependency
 
+## ⚙️ Template option
+
+The application palette is selected when the template is generated.
+
+| Option | Default | Choices |
+| --- | --- | --- |
+| `--Palette` | `Terracotta` | `Terracotta`, `Ocean`, `Forest`, `Sunset`, `Lavender`, `Slate`, `Citrus` |
+
 ## ⌨️ Daily commands
 
 | Command | Action |
