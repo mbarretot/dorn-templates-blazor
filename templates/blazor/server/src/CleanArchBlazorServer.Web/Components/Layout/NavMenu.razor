@@ -1,4 +1,29 @@
+@using Microsoft.AspNetCore.Components.Authorization
 <MudNavMenu>
     <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home" IconColor="Color.Inherit">Home</MudNavLink>
     <MudNavLink Href="/todos" Icon="@Icons.Material.Filled.Checklist" IconColor="Color.Inherit">To-Dos</MudNavLink>
+    @if (IsAuthEnabled)
+    {
+        <MudNavLink Href="/secure" Icon="@Icons.Material.Filled.Lock" IconColor="Color.Inherit">Secure Page</MudNavLink>
+        <AuthorizeView>
+            <Authorized>
+                <MudText Class="px-4 py-2" Typo="Typo.body2">Signed in as @context.User.Identity?.Name</MudText>
+                <form method="post" action="Account/Logout">
+                    <AntiforgeryToken />
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Text" Class="ml-4">Log out</MudButton>
+                </form>
+            </Authorized>
+            <NotAuthorized>
+                <MudNavLink Href="/Account/Login" Icon="@Icons.Material.Filled.Login" IconColor="Color.Inherit">Log in</MudNavLink>
+            </NotAuthorized>
+        </AuthorizeView>
+    }
 </MudNavMenu>
+
+@code {
+#if (IncludeAuth)
+    private static readonly bool IsAuthEnabled = true;
+#else
+    private static readonly bool IsAuthEnabled = false;
+#endif
+}

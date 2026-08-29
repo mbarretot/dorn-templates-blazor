@@ -990,4 +990,139 @@ public class BlazorServerTemplateGenerationTests
             }
         }
     }
+
+    [Fact]
+    public async Task GenerateWithDefaultParameters_ExcludesAuthPages()
+    {
+        var outputDirectory = Path.Combine(
+            BuildSupport.RealTempRoot,
+            $"dorn-tests-blazor-server-noauth-{Guid.NewGuid():N}"
+        );
+        try
+        {
+            var result = await TemplatePackHarness.GenerateAsync(
+                "dorn-blazor-server",
+                "DornNoAuthBlazorServerApp",
+                outputDirectory
+            );
+
+            Assert.True(
+                result.ExitCode == 0,
+                $"Template generation failed (exit {result.ExitCode})."
+                    + $"{Environment.NewLine}STDOUT:{Environment.NewLine}{result.StdOut}"
+                    + $"{Environment.NewLine}STDERR:{Environment.NewLine}{result.StdErr}"
+            );
+
+            var webProjectDir = Path.Combine(
+                outputDirectory,
+                "src",
+                "DornNoAuthBlazorServerApp.Web"
+            );
+
+            Assert.False(
+                File.Exists(
+                    Path.Combine(webProjectDir, "Components", "Pages", "Login.razor")
+                ),
+                "Login.razor must be excluded when IncludeAuth is false (default)."
+            );
+            Assert.False(
+                File.Exists(
+                    Path.Combine(webProjectDir, "Components", "Pages", "Secure.razor")
+                ),
+                "Secure.razor must be excluded when IncludeAuth is false (default)."
+            );
+        }
+        finally
+        {
+            if (
+                Environment.GetEnvironmentVariable("DORN_TEST_KEEP_TEMP") != "true"
+                && Directory.Exists(outputDirectory)
+            )
+            {
+                await BuildSupport.DeleteDirectoryWithRetryAsync(outputDirectory);
+            }
+        }
+    }
+
+    [Fact]
+    public async Task GenerateWithIncludeAuthTrue_IncludesLoginAndSecurePages_AndBuilds()
+    {
+        var outputDirectory = Path.Combine(
+            BuildSupport.RealTempRoot,
+            $"dorn-tests-blazor-server-auth-{Guid.NewGuid():N}"
+        );
+        var toolsHome = Path.Combine(
+            BuildSupport.RealTempRoot,
+            $"dorn-tests-blazor-server-auth-tools-{Guid.NewGuid():N}"
+        );
+        try
+        {
+            var result = await TemplatePackHarness.GenerateAsync(
+                "dorn-blazor-server",
+                "DornAuthBlazorServerApp",
+                outputDirectory,
+                "--IncludeAuth",
+                "true"
+            );
+
+            Assert.True(
+                result.ExitCode == 0,
+                $"Template generation failed (exit {result.ExitCode})."
+                    + $"{Environment.NewLine}STDOUT:{Environment.NewLine}{result.StdOut}"
+                    + $"{Environment.NewLine}STDERR:{Environment.NewLine}{result.StdErr}"
+            );
+
+            var webProjectDir = Path.Combine(
+                outputDirectory,
+                "src",
+                "DornAuthBlazorServerApp.Web"
+            );
+
+            Assert.True(
+                File.Exists(
+                    Path.Combine(webProjectDir, "Components", "Pages", "Login.razor")
+                ),
+                "Login.razor must be included when IncludeAuth is true."
+            );
+            Assert.True(
+                File.Exists(
+                    Path.Combine(webProjectDir, "Components", "Pages", "Secure.razor")
+                ),
+                "Secure.razor must be included when IncludeAuth is true."
+            );
+
+            var slnFiles = Directory.GetFiles(
+                outputDirectory,
+                "*.slnx",
+                SearchOption.TopDirectoryOnly
+            );
+            Assert.Single(slnFiles);
+            var buildResult = await BuildSupport.RunDotnetBuildAsync(slnFiles[0], toolsHome);
+
+            Assert.True(
+                buildResult.ExitCode == 0,
+                $"dotnet build exited with {buildResult.ExitCode}."
+                    + $"{Environment.NewLine}STDOUT:{Environment.NewLine}{buildResult.StdOut}"
+                    + $"{Environment.NewLine}STDERR:{Environment.NewLine}{buildResult.StdErr}"
+            );
+        }
+        finally
+        {
+            if (Environment.GetEnvironmentVariable("DORN_TEST_KEEP_TEMP") != "true")
+            {
+                if (Directory.Exists(outputDirectory))
+                {
+                    await BuildSupport.DeleteDirectoryWithRetryAsync(outputDirectory);
+                }
+                if (Directory.Exists(toolsHome))
+                {
+                    await BuildSupport.DeleteDirectoryWithRetryAsync(toolsHome);
+                }
+            }
+            else
+            {
+                Console.WriteLine("KEPT: " + outputDirectory);
+            }
+        }
+    }
 }
