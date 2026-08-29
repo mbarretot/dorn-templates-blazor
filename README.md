@@ -61,6 +61,10 @@ dotnet run --project src/Acme.Portal.Web
 | `--IncludeCleanArchitecture <bool>` | `false` | Server | Adds Domain, Application, and Infrastructure layers with architecture rules |
 | `--Palette <Terracotta\|Ocean\|Forest\|Sunset\|Lavender\|Slate\|Citrus>` | `Terracotta` | Both | Selects the application color palette |
 
+### Palette preview
+
+![Seven Dorn color palettes](docs/assets/palette-preview.svg)
+
 ```bash
 dotnet new dorn-blazor-server -n Acme.Backoffice \
   --IncludeAspire true \
