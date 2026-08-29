@@ -4,6 +4,10 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- A <meta> CSP can't carry frame-ancestors/X-Frame-Options; set those on the static host.
+         script-src needs 'wasm-unsafe-eval': Blazor WebAssembly can't instantiate its compiled
+         WASM modules without it, and without that the app never renders past this shell. See README. -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' https://jsonplaceholder.typicode.com" />
     <title>CleanArchBlazorWasm</title>
     <base href="/" />
     <script src="theme-boot.js"></script>

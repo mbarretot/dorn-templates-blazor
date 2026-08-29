@@ -48,6 +48,15 @@ dotnet dorn run
 | `dotnet dorn test` | Run all test tiers |
 | `dotnet dorn coverage` | Run tests with the coverage gate |
 
+## 🔒 Security headers
+
+`Program.cs` sets a baseline CSP plus `X-Content-Type-Options`, `X-Frame-Options`, and
+`Referrer-Policy` on every response. The CSP allows `'unsafe-inline'` in `style-src` because
+MudBlazor positions popovers/overlays by writing inline `style` via JS interop — tightening that
+further will break those components. If you point `IToDoRepository` at a different backend, add
+its origin to `connect-src`; if you embed the app in an iframe, relax `frame-ancestors` and
+`X-Frame-Options` accordingly.
+
 ## 📚 Next step
 
 Build features inside `Web/Features/{FeatureName}`. If Clean Architecture is enabled, keep dependencies pointed inward and use each layer README as a boundary guide.
