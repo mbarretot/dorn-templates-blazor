@@ -58,7 +58,7 @@ dotnet run --project src/Acme.Portal.Web
 | --- | --- | --- | --- |
 | `--IncludeAspire <bool>` | `false` | Both | Adds AppHost and ServiceDefaults projects |
 | `--IncludeTests <bool>` | `true` | Both | Includes the generated test projects |
-| `--IncludeCleanArchitecture <bool>` | `false` | Server | Adds Domain, Application, and Infrastructure layers with architecture rules |
+| `--IncludeCleanArchitecture <bool>` | `false` | Both | Adds Domain, Application, and Infrastructure layers with architecture rules |
 | `--Palette <Terracotta\|Ocean\|Forest\|Sunset\|Lavender\|Slate\|Citrus>` | `Terracotta` | Both | Selects the application color palette |
 
 ### Palette preview
