@@ -12,7 +12,11 @@ namespace CleanArchBlazorWasm.Functional.Tests;
 // Loose JS interop: MudBlazor's own components make internal JS calls (key interceptor,
 // popover, ripple, ...) that aren't part of this template's code and aren't worth stubbing
 // one by one, so unconfigured calls fall back to bUnit's default result instead of throwing.
-public abstract class UiTestContext : BunitContext
+// Implements xUnit's IAsyncLifetime so the framework awaits BunitContext.DisposeAsync()
+// instead of only calling the synchronous Dispose(). MudTable registers services (e.g.
+// PointerEventsNoneService) that only implement IAsyncDisposable; disposing the DI container
+// synchronously throws InvalidOperationException for those.
+public abstract class UiTestContext : BunitContext, IAsyncLifetime
 {
     protected UiTestContext()
     {
@@ -20,4 +24,8 @@ public abstract class UiTestContext : BunitContext
         Services.AddMudServices();
         Services.AddScoped<IKeyInterceptorService, NoOpKeyInterceptorService>();
     }
+
+    Task IAsyncLifetime.InitializeAsync() => Task.CompletedTask;
+
+    async Task IAsyncLifetime.DisposeAsync() => await DisposeAsync();
 }
