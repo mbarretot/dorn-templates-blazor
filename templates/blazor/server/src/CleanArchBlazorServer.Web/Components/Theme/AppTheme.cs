@@ -5,7 +5,6 @@ namespace CleanArchBlazorServer.Web.Components.Theme;
 public static class AppTheme
 {
 #if (Palette_Ocean)
-    // Ocean - teal and marine blue, calm and nautical.
     public static readonly MudTheme Default = new()
     {
         PaletteLight = new PaletteLight
@@ -60,7 +59,6 @@ public static class AppTheme
         },
     };
 #elif (Palette_Forest)
-    // Forest - deep green, walnut brown and moss gold.
     public static readonly MudTheme Default = new()
     {
         PaletteLight = new PaletteLight
@@ -115,7 +113,6 @@ public static class AppTheme
         },
     };
 #elif (Palette_Sunset)
-    // Sunset - coral, plum magenta and amber.
     public static readonly MudTheme Default = new()
     {
         PaletteLight = new PaletteLight
@@ -170,7 +167,6 @@ public static class AppTheme
         },
     };
 #elif (Palette_Lavender)
-    // Lavender - violet, dusty rose and slate blue.
     public static readonly MudTheme Default = new()
     {
         PaletteLight = new PaletteLight
@@ -225,7 +221,6 @@ public static class AppTheme
         },
     };
 #elif (Palette_Slate)
-    // Slate - steel blue-gray with a cyan accent.
     public static readonly MudTheme Default = new()
     {
         PaletteLight = new PaletteLight
@@ -280,7 +275,6 @@ public static class AppTheme
         },
     };
 #elif (Palette_Citrus)
-    // Citrus - tangerine, lime green and sunflower yellow.
     public static readonly MudTheme Default = new()
     {
         PaletteLight = new PaletteLight
@@ -335,7 +329,6 @@ public static class AppTheme
         },
     };
 #else
-    // Terracotta (default) - warm rust, olive and gold.
     public static readonly MudTheme Default = new()
     {
         PaletteLight = new PaletteLight
