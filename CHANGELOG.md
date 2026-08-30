@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- No unreleased changes yet.
+- Title editing and pagination for the ToDo sample page.
 
 ## [1.3.1] - 2026-08-26
 
