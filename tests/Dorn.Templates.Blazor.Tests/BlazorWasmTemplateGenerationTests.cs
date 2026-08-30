@@ -867,6 +867,11 @@ public class BlazorWasmTemplateGenerationTests
         }
     }
 
+    // Palette selection is a #if/#elif branch in AppTheme.cs resolved by the template engine at
+    // generation time; each branch is otherwise structurally identical C#, so building all seven
+    // adds seven full compiles to prove one thing a content check already proves for six of
+    // them: that the requested branch was the one kept. Ocean below is the one real compile
+    // check, guarding the #elif substitution path itself against a genuine break.
     [Theory]
     [InlineData("Terracotta")]
     [InlineData("Ocean")]
@@ -875,15 +880,11 @@ public class BlazorWasmTemplateGenerationTests
     [InlineData("Lavender")]
     [InlineData("Slate")]
     [InlineData("Citrus")]
-    public async Task GenerateWithPalette_Builds(string palette)
+    public async Task GenerateWithPalette_AppliesCorrectThemeContent(string palette)
     {
         var outputDirectory = Path.Combine(
             BuildSupport.RealTempRoot,
             $"dorn-tests-blazor-wasm-palette-{Guid.NewGuid():N}"
-        );
-        var toolsHome = Path.Combine(
-            BuildSupport.RealTempRoot,
-            $"dorn-tests-blazor-wasm-palette-tools-{Guid.NewGuid():N}"
         );
         try
         {
@@ -893,6 +894,52 @@ public class BlazorWasmTemplateGenerationTests
                 outputDirectory,
                 "--Palette",
                 palette
+            );
+
+            Assert.True(
+                result.ExitCode == 0,
+                $"Template generation failed (exit {result.ExitCode})."
+                    + $"{Environment.NewLine}STDOUT:{Environment.NewLine}{result.StdOut}"
+                    + $"{Environment.NewLine}STDERR:{Environment.NewLine}{result.StdErr}"
+            );
+
+            var themePath = Directory
+                .GetFiles(outputDirectory, "AppTheme.cs", SearchOption.AllDirectories)
+                .Single();
+            var themeContent = await File.ReadAllTextAsync(themePath);
+            Assert.Contains($"// {palette}", themeContent, StringComparison.Ordinal);
+        }
+        finally
+        {
+            if (
+                Environment.GetEnvironmentVariable("DORN_TEST_KEEP_TEMP") != "true"
+                && Directory.Exists(outputDirectory)
+            )
+            {
+                await BuildSupport.DeleteDirectoryWithRetryAsync(outputDirectory);
+            }
+        }
+    }
+
+    [Fact]
+    public async Task GenerateWithNonDefaultPalette_Builds()
+    {
+        var outputDirectory = Path.Combine(
+            BuildSupport.RealTempRoot,
+            $"dorn-tests-blazor-wasm-palette-build-{Guid.NewGuid():N}"
+        );
+        var toolsHome = Path.Combine(
+            BuildSupport.RealTempRoot,
+            $"dorn-tests-blazor-wasm-palette-build-tools-{Guid.NewGuid():N}"
+        );
+        try
+        {
+            var result = await TemplatePackHarness.GenerateAsync(
+                "dorn-blazor-wasm",
+                "DornPaletteOceanBlazorWasmApp",
+                outputDirectory,
+                "--Palette",
+                "Ocean"
             );
 
             Assert.True(
@@ -936,6 +983,7 @@ public class BlazorWasmTemplateGenerationTests
             }
         }
     }
+
     [Fact]
     public async Task GenerateWithDefaultParameters_ExcludesAuthPages()
     {
