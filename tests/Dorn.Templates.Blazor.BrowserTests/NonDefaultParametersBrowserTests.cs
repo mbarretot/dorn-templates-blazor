@@ -4,11 +4,9 @@ using Xunit;
 
 namespace Dorn.Templates.Blazor.BrowserTests;
 
-// Home_boots_andRendersBranding only ever exercises default template parameters. Aspire,
-// Clean Architecture, and Palette variants are never rendered through axe-core or a
-// screenshot assertion by any other test — only through `dotnet build`, which doesn't catch
-// runtime/rendering regressions. These hosts are generated with
-// --IncludeCleanArchitecture true --Palette Ocean.
+// Other tests only exercise default template parameters; Aspire, Clean Architecture, and Palette
+// variants are otherwise only checked via `dotnet build`, which doesn't catch runtime/rendering
+// regressions. These hosts are generated with --IncludeCleanArchitecture true --Palette Ocean.
 [Collection(BrowserHostFixture.CollectionName)]
 public sealed class NonDefaultParametersBrowserTests(BrowserHostFixture fixture)
 {

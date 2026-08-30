@@ -8,9 +8,7 @@ namespace Dorn.Templates.Blazor.TestSupport;
 // freshly launched generated host's first successful response on loopback.
 internal static class GeneratedHostReadiness
 {
-    // Same wait, one constant instead of two unexplained magic numbers (30s vs 45s). 45s: a cold
-    // `dotnet run`/Kestrel bind on a loaded CI runner, with margin for the slower of the two
-    // original values.
+    // 45s: enough margin for a cold `dotnet run`/Kestrel bind on a loaded CI runner.
     public static readonly TimeSpan ReadinessTimeout = TimeSpan.FromSeconds(45);
 
     private static readonly HttpClient Client = new();

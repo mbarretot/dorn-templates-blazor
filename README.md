@@ -51,6 +51,8 @@ dotnet run --project src/Acme.Portal.Web
 - 🔤 Self-hosted Newsreader and system UI fonts—no CDN or Node/npm
 - 🧪 xUnit, bUnit, architecture, integration, and browser test foundations
 - ☁️ Optional .NET Aspire orchestration
+- ✅ A worked ToDo example with full CRUD, pagination, and inline title editing
+- 🔐 Optional cookie/localStorage authentication starting point with an `[Authorize]`-gated example page
 
 ## ⚙️ Template options
 
@@ -59,6 +61,7 @@ dotnet run --project src/Acme.Portal.Web
 | `--IncludeAspire <bool>` | `false` | Both | Adds AppHost and ServiceDefaults projects |
 | `--IncludeTests <bool>` | `true` | Both | Includes the generated test projects |
 | `--IncludeCleanArchitecture <bool>` | `false` | Both | Adds Domain, Application, and Infrastructure layers with architecture rules |
+| `--IncludeAuth <bool>` | `false` | Both | Adds a minimal authentication starting point: sign-in/sign-out, a demo login page, and an `[Authorize]`-gated example page |
 | `--Palette <Terracotta\|Ocean\|Forest\|Sunset\|Lavender\|Slate\|Citrus>` | `Terracotta` | Both | Selects the application color palette |
 
 ### Palette preview
