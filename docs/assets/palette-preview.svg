@@ -1,8 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 500" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 500" role="img" aria-labelledby="title desc">
   <title id="title">Dorn color palette preview</title>
   <desc id="desc">Seven selectable palettes, each showing primary, secondary, tertiary, light surface, and dark surface colors.</desc>
   <style>text{font-family:system-ui,sans-serif;fill:#24221f}.label{font-size:20px;font-weight:700}.code{font-size:13px;fill:#5b5750}.dark{fill:#f8f4ed}</style>
-  <rect width="1120" height="500" fill="#f8f4ed"/>
+  <rect width="1160" height="500" fill="#f8f4ed"/>
   <text x="40" y="46" class="label" font-size="28">Dorn palettes</text>
   <text x="40" y="74" class="code" font-size="16">Primary · secondary · tertiary · light surface · dark surface</text>
   <text x="40" y="120" class="label">Terracotta</text>
