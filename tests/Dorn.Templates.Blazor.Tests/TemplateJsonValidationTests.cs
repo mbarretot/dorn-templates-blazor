@@ -2,10 +2,8 @@ using Xunit;
 
 namespace Dorn.Templates.Blazor.Tests;
 
-// A malformed template.json (bad symbols/sources entry) is otherwise only caught indirectly,
-// when a full generate-and-build cycle happens to fail. --dry-run asks the template engine to
-// resolve symbols/sources and list what it would create without writing anything or running
-// restore/build, so it fails fast and close to the actual mistake.
+// --dry-run resolves symbols/sources without writing or building, catching a malformed
+// template.json fast instead of only failing indirectly in a full generate-and-build cycle.
 [Trait("Category", "Integration")]
 [Collection(TemplatePackCollection.Name)]
 public class TemplateJsonValidationTests

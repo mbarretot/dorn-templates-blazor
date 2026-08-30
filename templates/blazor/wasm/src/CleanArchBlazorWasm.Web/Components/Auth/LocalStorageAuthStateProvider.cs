@@ -4,15 +4,12 @@ using Microsoft.AspNetCore.Components.Authorization;
 
 namespace CleanArchBlazorWasm.Web.Components.Auth;
 
-// Demo-only: stores a plain username in the browser's localStorage, with no real credential
-// check or token. Uses System.Runtime.InteropServices.JavaScript ([JSImport]) rather than
-// Microsoft.JSInterop.IJSRuntime: this repo's architecture tests
-// (NoWebAssemblyType_Should_TouchJsRuntimeDirectly) forbid Web-project types from touching
-// IJSRuntime directly, keeping that surface centralized in the Dorn.WebUI.Primitives package.
-// Not annotated [SupportedOSPlatform("browser")] on purpose: this whole app only ever runs in
-// the browser (Blazor WebAssembly), so a platform guard here would only add CA1416 noise at
-// every call site (DI registration, Login.razor, NavMenu.razor) without protecting anything.
-// Replace with a real identity provider (OIDC/JWT against a backend API) before shipping.
+// Demo-only: stores a plain username in localStorage with no real credential check or token;
+// replace with a real identity provider (OIDC/JWT) before shipping.
+// Uses [JSImport] rather than IJSRuntime because this repo's architecture tests forbid Web-project
+// types from touching IJSRuntime directly (kept centralized in Dorn.WebUI.Primitives).
+// Not annotated [SupportedOSPlatform("browser")]: this app only ever runs in the browser, so the
+// guard would only add CA1416 noise without protecting anything.
 public sealed partial class LocalStorageAuthStateProvider : AuthenticationStateProvider
 {
     private const string StorageKey = "dorn-demo-username";
