@@ -38,6 +38,20 @@ public sealed class ToDoRepository(HttpClient httpClient) : IToDoRepository
         response.EnsureSuccessStatusCode();
     }
 
+    public async Task UpdateTitleAsync(
+        int id,
+        string title,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var response = await httpClient.PatchAsJsonAsync(
+            $"todos/{id}",
+            new { title },
+            cancellationToken
+        );
+        response.EnsureSuccessStatusCode();
+    }
+
     public async Task DeleteAsync(int id, CancellationToken cancellationToken = default)
     {
         var response = await httpClient.DeleteAsync($"todos/{id}", cancellationToken);

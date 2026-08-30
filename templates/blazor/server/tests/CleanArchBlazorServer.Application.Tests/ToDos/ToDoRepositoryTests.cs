@@ -57,6 +57,18 @@ public sealed class ToDoRepositoryTests
     }
 
     [Fact]
+    public async Task UpdateTitleAsync_PatchesTodoByIdEndpoint()
+    {
+        var repository = CreateRepository("{}", out var handler);
+
+        await repository.UpdateTitleAsync(1, "Buy oat milk");
+
+        Assert.Equal(HttpMethod.Patch, handler.LastRequestMethod);
+        Assert.Equal(BaseAddress + "todos/1", handler.LastRequestUri?.ToString());
+        Assert.Contains("Buy oat milk", handler.LastRequestBody);
+    }
+
+    [Fact]
     public async Task DeleteAsync_DeletesTodoByIdEndpoint()
     {
         var repository = CreateRepository("{}", out var handler);

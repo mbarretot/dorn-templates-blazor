@@ -12,5 +12,7 @@ public interface IToDoRepository
         CancellationToken cancellationToken = default
     );
 
+    Task UpdateTitleAsync(int id, string title, CancellationToken cancellationToken = default);
+
     Task DeleteAsync(int id, CancellationToken cancellationToken = default);
 }

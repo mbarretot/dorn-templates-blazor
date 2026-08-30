@@ -12,7 +12,7 @@
 <PageTitle>To-Dos - CleanArchBlazorServer</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.Medium" Class="py-8">
-    <MudText Typo="Typo.h4" Class="mb-2">To-Do List</MudText>
+    <MudText Typo="Typo.h4" Class="mb-2">To-Do Page</MudText>
     <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-6">
 #if (IncludeCleanArchitecture)
         Domain (ToDoItem) &rarr; Application (IToDoRepository) &rarr; Infrastructure (ToDoRepository) &rarr; this page.
@@ -21,15 +21,23 @@
 #endif
     </MudText>
 
-    <MudForm @ref="form" Class="d-flex align-center gap-3 mb-6">
-        <MudTextField
-            @bind-Value="newTitle"
-            Label="New to-do"
-            Required="true"
-            RequiredError="Title is required."
-            Class="flex-grow-1" />
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="CreateAsync">Add</MudButton>
-    </MudForm>
+    <MudPaper Class="pa-4 mb-6" Elevation="2">
+        <MudForm @ref="form" Class="d-flex align-center gap-3">
+            <MudTextField
+                @bind-Value="newTitle"
+                Label="New to-do"
+                Required="true"
+                RequiredError="Title is required."
+                Class="flex-grow-1" />
+            <MudButton
+                Variant="Variant.Filled"
+                Color="Color.Primary"
+                StartIcon="@Icons.Material.Filled.Add"
+                OnClick="CreateAsync">
+                Add
+            </MudButton>
+        </MudForm>
+    </MudPaper>
 
     @if (hasError)
     {
@@ -37,30 +45,85 @@
     }
     else if (toDoItems is null)
     {
-        <MudProgressCircular Indeterminate="true" aria-label="Loading to-dos" />
-    }
-    else if (toDoItems.Count == 0)
-    {
-        <MudAlert Severity="Severity.Info">No to-dos found.</MudAlert>
+        <div class="d-flex justify-center pa-8">
+            <MudProgressCircular Indeterminate="true" aria-label="Loading to-dos" />
+        </div>
     }
     else
     {
-        <MudStack Spacing="2">
-            @foreach (var item in toDoItems)
-            {
-                <MudPaper Class="pa-3 d-flex align-center gap-3" Elevation="1">
+        <div class="d-flex align-center justify-space-between mb-2">
+            <MudText Typo="Typo.h6">Tasks</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary">
+                @pendingCount pending &middot; @completedCount done
+            </MudText>
+        </div>
+
+        <MudTable
+            Items="toDoItems"
+            Hover="true"
+            Bordered="false"
+            Elevation="2"
+            Class="rounded-lg"
+            Breakpoint="Breakpoint.Sm"
+            RowsPerPage="10">
+            <HeaderContent>
+                <MudTh Style="width:56px">Status</MudTh>
+                <MudTh>Title</MudTh>
+                <MudTh Style="width:112px" Class="text-right">Actions</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Status">
                     <MudIconButton
-                        Icon="@(item.IsCompleted ? Icons.Material.Filled.CheckCircle : Icons.Material.Filled.RadioButtonUnchecked)"
-                        Color="@(item.IsCompleted ? Color.Success : Color.Default)"
-                        OnClick="() => ToggleCompletedAsync(item)" />
-                    <MudText Class="flex-grow-1">@item.Title</MudText>
-                    <MudIconButton
-                        Icon="@Icons.Material.Filled.Delete"
-                        Color="Color.Error"
-                        OnClick="() => DeleteAsync(item)" />
-                </MudPaper>
-            }
-        </MudStack>
+                        Icon="@(context.IsCompleted ? Icons.Material.Filled.CheckCircle : Icons.Material.Filled.RadioButtonUnchecked)"
+                        Color="@(context.IsCompleted ? Color.Success : Color.Default)"
+                        Size="Size.Small"
+                        OnClick="() => ToggleCompletedAsync(context)" />
+                </MudTd>
+                <MudTd DataLabel="Title">
+                    @if (editingId == context.Id)
+                    {
+                        <MudTextField @bind-Value="editTitle" Margin="Margin.Dense" />
+                    }
+                    else
+                    {
+                        <MudText
+                            Color="@(context.IsCompleted ? Color.Secondary : Color.Default)"
+                            Style="@(context.IsCompleted ? "text-decoration: line-through;" : null)">
+                            @context.Title
+                        </MudText>
+                    }
+                </MudTd>
+                <MudTd DataLabel="Actions" Class="text-right">
+                    @if (editingId == context.Id)
+                    {
+                        <MudIconButton
+                            Icon="@Icons.Material.Filled.Check"
+                            Color="Color.Success"
+                            Size="Size.Small"
+                            OnClick="() => SaveEditAsync(context)" />
+                        <MudIconButton Icon="@Icons.Material.Filled.Close" Size="Size.Small" OnClick="CancelEdit" />
+                    }
+                    else
+                    {
+                        <MudIconButton
+                            Icon="@Icons.Material.Filled.Edit"
+                            Size="Size.Small"
+                            OnClick="() => StartEdit(context)" />
+                        <MudIconButton
+                            Icon="@Icons.Material.Filled.Delete"
+                            Color="Color.Error"
+                            Size="Size.Small"
+                            OnClick="() => DeleteAsync(context)" />
+                    }
+                </MudTd>
+            </RowTemplate>
+            <NoRecordsContent>
+                <MudText Color="Color.Secondary">No to-dos found.</MudText>
+            </NoRecordsContent>
+            <PagerContent>
+                <MudTablePager PageSizeOptions="new[] { 10, 25, 50 }" />
+            </PagerContent>
+        </MudTable>
     }
 </MudContainer>
 
@@ -70,11 +133,16 @@
     private bool hasError;
     private MudForm form = null!;
     private string newTitle = string.Empty;
+    private int? editingId;
+    private string editTitle = string.Empty;
 
     // JSONPlaceholder always returns id 201 for any create and never persists it, so a locally
     // generated negative id keeps session-created items distinguishable; only positive (real)
     // ids round-trip through the fake backend.
     private int nextLocalId = -1;
+
+    private int pendingCount => toDoItems?.Count(i => !i.IsCompleted) ?? 0;
+    private int completedCount => toDoItems?.Count(i => i.IsCompleted) ?? 0;
 
     protected override async Task OnInitializedAsync()
     {
@@ -129,6 +197,48 @@
         catch (Exception)
         {
             Snackbar.Add("Could not update the to-do. Please try again.", Severity.Error);
+        }
+    }
+
+    private void StartEdit(ToDoItem item)
+    {
+        editingId = item.Id;
+        editTitle = item.Title;
+    }
+
+    private void CancelEdit()
+    {
+        editingId = null;
+        editTitle = string.Empty;
+    }
+
+    private async Task SaveEditAsync(ToDoItem item)
+    {
+        var trimmedTitle = editTitle.Trim();
+        if (trimmedTitle.Length == 0)
+        {
+            return;
+        }
+
+        try
+        {
+            if (item.Id > 0)
+            {
+                await ToDoRepository.UpdateTitleAsync(item.Id, trimmedTitle, cts.Token);
+            }
+
+            toDoItems = toDoItems
+                ?.Select(i => i.Id == item.Id ? i with { Title = trimmedTitle } : i)
+                .ToList();
+        }
+        catch (Exception)
+        {
+            Snackbar.Add("Could not update the to-do. Please try again.", Severity.Error);
+        }
+        finally
+        {
+            editingId = null;
+            editTitle = string.Empty;
         }
     }
 

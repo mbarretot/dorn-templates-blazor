@@ -111,12 +111,36 @@ public sealed class ToDoListTests : UiTestContext
         });
 
         // Button order in the rendered markup: [0] hidden submit, [1] Add, [2] item toggle,
-        // [3] item delete.
+        // [3] item edit, [4] item delete.
         await cut.InvokeAsync(() => cut.FindAll("button")[2].Click());
 
         Assert.True(repository.SetCompletedInvoked);
         Assert.Equal(1, repository.SetCompletedId);
         Assert.True(repository.SetCompletedValue);
+    }
+
+    [Fact]
+    public async Task ToDoList_UpdatesItemTitle_WhenEditSubmitted()
+    {
+        var repository = new RecordingToDoRepository(new ToDoItem(1, "Buy milk", false));
+        Services.AddSingleton<IToDoRepository>(repository);
+
+        var cut = Render(builder =>
+        {
+            builder.OpenComponent<CleanArchBlazorServer.Web.Features.ToDo.ToDoList>(0);
+            builder.CloseComponent();
+        });
+
+        // Button order in the rendered markup: [0] hidden submit, [1] Add, [2] item toggle,
+        // [3] item edit (becomes Save once editing), [4] item delete (becomes Cancel).
+        await cut.InvokeAsync(() => cut.FindAll("button")[3].Click());
+        await cut.InvokeAsync(() => cut.FindAll("input")[1].Change("Buy oat milk"));
+        await cut.InvokeAsync(() => cut.FindAll("button")[3].Click());
+
+        Assert.Contains("Buy oat milk", cut.Markup);
+        Assert.True(repository.UpdateTitleInvoked);
+        Assert.Equal(1, repository.UpdatedId);
+        Assert.Equal("Buy oat milk", repository.UpdatedTitle);
     }
 
     [Fact]
@@ -132,8 +156,8 @@ public sealed class ToDoListTests : UiTestContext
         });
 
         // Button order in the rendered markup: [0] hidden submit, [1] Add, [2] item toggle,
-        // [3] item delete.
-        await cut.InvokeAsync(() => cut.FindAll("button")[3].Click());
+        // [3] item edit, [4] item delete.
+        await cut.InvokeAsync(() => cut.FindAll("button")[4].Click());
 
         Assert.DoesNotContain("Buy milk", cut.Markup);
         Assert.True(repository.DeleteInvoked);
@@ -152,6 +176,12 @@ public sealed class ToDoListTests : UiTestContext
         public Task SetCompletedAsync(
             int id,
             bool isCompleted,
+            CancellationToken cancellationToken = default
+        ) => Task.CompletedTask;
+
+        public Task UpdateTitleAsync(
+            int id,
+            string title,
             CancellationToken cancellationToken = default
         ) => Task.CompletedTask;
 
@@ -180,6 +210,12 @@ public sealed class ToDoListTests : UiTestContext
             CancellationToken cancellationToken = default
         ) => Task.CompletedTask;
 
+        public Task UpdateTitleAsync(
+            int id,
+            string title,
+            CancellationToken cancellationToken = default
+        ) => Task.CompletedTask;
+
         public Task DeleteAsync(int id, CancellationToken cancellationToken = default) =>
             Task.CompletedTask;
     }
@@ -199,6 +235,12 @@ public sealed class ToDoListTests : UiTestContext
             CancellationToken cancellationToken = default
         ) => throw new HttpRequestException("Simulated network failure.");
 
+        public Task UpdateTitleAsync(
+            int id,
+            string title,
+            CancellationToken cancellationToken = default
+        ) => throw new HttpRequestException("Simulated network failure.");
+
         public Task DeleteAsync(int id, CancellationToken cancellationToken = default) =>
             throw new HttpRequestException("Simulated network failure.");
     }
@@ -210,6 +252,9 @@ public sealed class ToDoListTests : UiTestContext
         public bool SetCompletedInvoked { get; private set; }
         public int? SetCompletedId { get; private set; }
         public bool? SetCompletedValue { get; private set; }
+        public bool UpdateTitleInvoked { get; private set; }
+        public int? UpdatedId { get; private set; }
+        public string? UpdatedTitle { get; private set; }
         public bool DeleteInvoked { get; private set; }
         public int? DeletedId { get; private set; }
 
@@ -233,6 +278,18 @@ public sealed class ToDoListTests : UiTestContext
             SetCompletedInvoked = true;
             SetCompletedId = id;
             SetCompletedValue = isCompleted;
+            return Task.CompletedTask;
+        }
+
+        public Task UpdateTitleAsync(
+            int id,
+            string title,
+            CancellationToken cancellationToken = default
+        )
+        {
+            UpdateTitleInvoked = true;
+            UpdatedId = id;
+            UpdatedTitle = title;
             return Task.CompletedTask;
         }
 
