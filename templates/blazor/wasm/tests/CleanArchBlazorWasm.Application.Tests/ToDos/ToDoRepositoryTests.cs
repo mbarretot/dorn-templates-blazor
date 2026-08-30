@@ -1,6 +1,6 @@
 namespace CleanArchBlazorWasm.Application.Tests.ToDos;
 
-public sealed class JsonPlaceholderToDoRepositoryTests
+public sealed class ToDoRepositoryTests
 {
     private const string BaseAddress = "https://jsonplaceholder.typicode.com/";
 
@@ -33,31 +33,75 @@ public sealed class JsonPlaceholderToDoRepositoryTests
         Assert.Equal(BaseAddress + "todos", handler.LastRequestUri?.ToString());
     }
 
-    private static JsonPlaceholderToDoRepository CreateRepository(
+    [Fact]
+    public async Task CreateAsync_PostsToTodosEndpoint()
+    {
+        var repository = CreateRepository("{}", out var handler);
+
+        await repository.CreateAsync("Buy milk");
+
+        Assert.Equal(HttpMethod.Post, handler.LastRequestMethod);
+        Assert.Equal(BaseAddress + "todos", handler.LastRequestUri?.ToString());
+        Assert.Contains("Buy milk", handler.LastRequestBody);
+    }
+
+    [Fact]
+    public async Task SetCompletedAsync_PatchesTodoByIdEndpoint()
+    {
+        var repository = CreateRepository("{}", out var handler);
+
+        await repository.SetCompletedAsync(1, true);
+
+        Assert.Equal(HttpMethod.Patch, handler.LastRequestMethod);
+        Assert.Equal(BaseAddress + "todos/1", handler.LastRequestUri?.ToString());
+    }
+
+    [Fact]
+    public async Task DeleteAsync_DeletesTodoByIdEndpoint()
+    {
+        var repository = CreateRepository("{}", out var handler);
+
+        await repository.DeleteAsync(1);
+
+        Assert.Equal(HttpMethod.Delete, handler.LastRequestMethod);
+        Assert.Equal(BaseAddress + "todos/1", handler.LastRequestUri?.ToString());
+    }
+
+    private static ToDoRepository CreateRepository(
         string responseJson,
         out StubHttpMessageHandler handler
     )
     {
         handler = new StubHttpMessageHandler(responseJson);
         var httpClient = new HttpClient(handler) { BaseAddress = new Uri(BaseAddress) };
-        return new JsonPlaceholderToDoRepository(httpClient);
+        return new ToDoRepository(httpClient);
     }
 
     private sealed class StubHttpMessageHandler(string responseJson) : HttpMessageHandler
     {
         public Uri? LastRequestUri { get; private set; }
 
-        protected override Task<HttpResponseMessage> SendAsync(
+        public HttpMethod? LastRequestMethod { get; private set; }
+
+        public string? LastRequestBody { get; private set; }
+
+        protected override async Task<HttpResponseMessage> SendAsync(
             HttpRequestMessage request,
             CancellationToken cancellationToken
         )
         {
             LastRequestUri = request.RequestUri;
+            LastRequestMethod = request.Method;
+            LastRequestBody =
+                request.Content is null
+                    ? null
+                    : await request.Content.ReadAsStringAsync(cancellationToken);
+
             var response = new HttpResponseMessage(HttpStatusCode.OK)
             {
                 Content = new StringContent(responseJson, Encoding.UTF8, "application/json"),
             };
-            return Task.FromResult(response);
+            return response;
         }
     }
 }

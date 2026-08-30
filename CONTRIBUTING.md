@@ -29,9 +29,10 @@ dotnet test tests/Dorn.Templates.Blazor.BrowserTests/Dorn.Templates.Blazor.Brows
 | Area | Source of truth | Keep aligned |
 | --- | --- | --- |
 | Layout & theme | `Components/Layout`, `Components/Theme/AppTheme.cs` | Shell and palette in both templates |
+| Palette parameter | `Components/Theme/AppTheme.cs`, both `.template.config/template.json` files | Keep palette names and values aligned in both templates; `TemplateUiParityTests` validates parity |
 | Home page | `Features/Home/Home.razor` | Branding copy in both templates |
 | Feature structure | `Features/{Name}/` | No `Domain`/`Application`/`Infrastructure` sub-folders by default; add them only when a feature earns internal layering |
-| Clean Architecture opt-in (Server only) | `--IncludeCleanArchitecture` | Adds `{App}.Domain`/`.Application`/`.Infrastructure` class libraries wired to `.Web`; `Features/{Name}/` stays the top-level shape either way; see `CleanArchBlazorServer.slnx` and the `.template.config/template.json` third axis |
+| Clean Architecture opt-in | `--IncludeCleanArchitecture` | Adds `{App}.Domain`/`.Application`/`.Infrastructure` class libraries wired to `.Web`; `Features/{Name}/` stays the top-level shape either way; see the template `.slnx` files and the `.template.config/template.json` third axis |
 | MudBlazor version | `Directory.Packages.props` | Pinned version in both templates |
 | Static assets | Razor asset references | Use `@Assets["..."]` for fingerprinting |
 
@@ -52,6 +53,7 @@ The Server fixture runs published output from its own directory. This avoids the
 - Packages: `Dorn.Templates.BlazorWasm` and `Dorn.Templates.BlazorServer`
 - Tags: push `v<version>` to trigger NuGet Trusted Publishing
 - Local builds: use non-release fallback versions and are never published
+- Versioning: use a major release for generated-project breaking changes, a minor release for new optional template parameters or capabilities, and a patch release for compatible fixes, documentation, and test-only changes
 
 ## ✅ Conventions
 

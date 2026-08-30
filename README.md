@@ -34,7 +34,7 @@ dotnet run --project src/Acme.Portal.Web
 ```
 
 > [!TIP]
-> Add `--IncludeAspire true` when you want local orchestration, service discovery, and the Aspire dashboard.
+> Add `--IncludeAspire true` when you want local orchestration, service discovery, and the Aspire dashboard. Choose a palette with `dotnet new dorn-blazor-server -n Acme.Portal --Palette Ocean`.
 
 ## 🧭 Choose a template
 
@@ -46,7 +46,7 @@ dotnet run --project src/Acme.Portal.Web
 ## ✨ Included
 
 - 🧩 Responsive MudBlazor application shell
-- 🎨 Warm paper, ink, and terracotta design tokens
+- 🎨 Warm paper and ink design tokens with 7 selectable color palettes (Terracotta by default)
 - 🌗 Light, dark, and system modes applied before first paint
 - 🔤 Self-hosted Newsreader and system UI fonts—no CDN or Node/npm
 - 🧪 xUnit, bUnit, architecture, integration, and browser test foundations
@@ -58,7 +58,12 @@ dotnet run --project src/Acme.Portal.Web
 | --- | --- | --- | --- |
 | `--IncludeAspire <bool>` | `false` | Both | Adds AppHost and ServiceDefaults projects |
 | `--IncludeTests <bool>` | `true` | Both | Includes the generated test projects |
-| `--IncludeCleanArchitecture <bool>` | `false` | Server | Adds Domain, Application, and Infrastructure layers with architecture rules |
+| `--IncludeCleanArchitecture <bool>` | `false` | Both | Adds Domain, Application, and Infrastructure layers with architecture rules |
+| `--Palette <Terracotta\|Ocean\|Forest\|Sunset\|Lavender\|Slate\|Citrus>` | `Terracotta` | Both | Selects the application color palette |
+
+### Palette preview
+
+![Seven Dorn color palettes](docs/assets/palette-preview.svg)
 
 ```bash
 dotnet new dorn-blazor-server -n Acme.Backoffice \

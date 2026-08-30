@@ -45,16 +45,13 @@ internal static class TemplatePackHarness
             "-o",
             outputDirectory
         );
-        if (result.ExitCode != 0)
-        {
-            throw new InvalidOperationException(
+        return result.ExitCode != 0
+            ? throw new InvalidOperationException(
                 $"dotnet pack failed for {packageId}.{Environment.NewLine}"
                     + $"STDOUT:{Environment.NewLine}{result.StdOut}"
                     + $"{Environment.NewLine}STDERR:{Environment.NewLine}{result.StdErr}"
-            );
-        }
-
-        return Directory
+            )
+            : Directory
                 .GetFiles(outputDirectory, $"{packageId}.*.nupkg", SearchOption.TopDirectoryOnly)
                 .SingleOrDefault()
             ?? throw new FileNotFoundException(
@@ -83,10 +80,8 @@ internal static class TemplatePackHarness
         }
     }
 
-    public static async Task UninstallAsync(string packageId)
-    {
+    public static async Task UninstallAsync(string packageId) =>
         await RunProcessAsync(RepoRoot, null, "new", "uninstall", packageId);
-    }
 
     public static async Task<(int ExitCode, string StdOut, string StdErr)> GenerateAsync(
         string shortName,

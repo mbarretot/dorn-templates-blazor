@@ -1,0 +1,21 @@
+#if (IncludeAuth)
+@page "/secure"
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@attribute [Authorize]
+
+<PageTitle>Secure Page - CleanArchBlazorWasm</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="py-8">
+    <MudText Typo="Typo.h4" Class="mb-2">Secure Page</MudText>
+    <AuthorizeView>
+        <Authorized>
+            <MudAlert Severity="Severity.Success">
+                You're signed in as <strong>@context.User.Identity?.Name</strong>. This page is
+                gated with <code>[Authorize]</code> - replace the demo localStorage login with a
+                real identity provider before shipping.
+            </MudAlert>
+        </Authorized>
+    </AuthorizeView>
+</MudContainer>
+#endif

@@ -1,0 +1,28 @@
+@page "/Error"
+@using System.Diagnostics
+
+<PageTitle>Error - CleanArchBlazorServer</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="py-8">
+    <MudText Typo="Typo.h4" Class="mb-2">Something went wrong</MudText>
+    <MudAlert Severity="Severity.Error" Class="mb-4">
+        An error occurred while processing your request.
+    </MudAlert>
+    @if (ShowRequestId)
+    {
+        <MudText Typo="Typo.body2" Color="Color.Secondary">
+            Request ID: <code>@RequestId</code>
+        </MudText>
+    }
+</MudContainer>
+
+@code {
+    [CascadingParameter]
+    private HttpContext? HttpContext { get; set; }
+
+    private string? RequestId { get; set; }
+    private bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
+
+    protected override void OnInitialized() =>
+        RequestId = Activity.Current?.Id ?? HttpContext?.TraceIdentifier;
+}

@@ -1,0 +1,37 @@
+#if (IncludeAuth)
+@page "/Account/Login"
+@using CleanArchBlazorWasm.Web.Components.Auth
+@inject LocalStorageAuthStateProvider AuthStateProvider
+@inject NavigationManager Navigation
+
+<PageTitle>Log in - CleanArchBlazorWasm</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.ExtraSmall" Class="py-8">
+    <MudText Typo="Typo.h4" Class="mb-4">Log in</MudText>
+    <MudAlert Severity="Severity.Warning" Class="mb-4">
+        Demo only: any non-empty username signs you in, no password check, and the "session" is
+        just a name in localStorage. Replace with a real identity provider before shipping.
+    </MudAlert>
+    <MudForm @ref="form">
+        <MudTextField @bind-Value="username" Label="Username" Required="true" Class="mb-4" />
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SignInAsync">Log in</MudButton>
+    </MudForm>
+</MudContainer>
+
+@code {
+    private MudForm form = null!;
+    private string username = string.Empty;
+
+    private async Task SignInAsync()
+    {
+        await form.ValidateAsync();
+        if (!form.IsValid)
+        {
+            return;
+        }
+
+        await AuthStateProvider.SignInAsync(username);
+        Navigation.NavigateTo("/");
+    }
+}
+#endif

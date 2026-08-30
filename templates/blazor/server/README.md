@@ -35,10 +35,18 @@ dotnet dorn run
 ## 🎨 UI foundation
 
 - MudBlazor components with matching light and dark palettes
-- Warm paper backgrounds, ink text, and one terracotta accent
+- Warm paper backgrounds, ink text, and 7 selectable color palettes (Terracotta by default)
 - Newsreader for editorial content; system fonts for controls
 - Theme preference applied before first paint and synchronized at runtime
 - Self-hosted assets with no CDN or Node/npm dependency
+
+## ⚙️ Template option
+
+The application palette is selected when the template is generated.
+
+| Option | Default | Choices |
+| --- | --- | --- |
+| `--Palette` | `Terracotta` | `Terracotta`, `Ocean`, `Forest`, `Sunset`, `Lavender`, `Slate`, `Citrus` |
 
 ## ⌨️ Daily commands
 
@@ -47,6 +55,15 @@ dotnet dorn run
 | `dotnet dorn run` | Run the application or Aspire AppHost |
 | `dotnet dorn test` | Run all test tiers |
 | `dotnet dorn coverage` | Run tests with the coverage gate |
+
+## 🔒 Security headers
+
+`Program.cs` sets a baseline CSP plus `X-Content-Type-Options`, `X-Frame-Options`, and
+`Referrer-Policy` on every response. The CSP allows `'unsafe-inline'` in `style-src` because
+MudBlazor positions popovers/overlays by writing inline `style` via JS interop — tightening that
+further will break those components. If you point `IToDoRepository` at a different backend, add
+its origin to `connect-src`; if you embed the app in an iframe, relax `frame-ancestors` and
+`X-Frame-Options` accordingly.
 
 ## 📚 Next step
 

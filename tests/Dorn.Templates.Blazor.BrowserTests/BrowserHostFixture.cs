@@ -1,6 +1,5 @@
 using System.Diagnostics;
-using System.Net;
-using System.Net.Sockets;
+using Dorn.Templates.Blazor.TestSupport;
 using Microsoft.Playwright;
 using Xunit;
 
@@ -28,21 +27,50 @@ public sealed class BrowserHostFixture : IAsyncLifetime
         Directory.CreateDirectory(_root);
         await InstallTemplatesAsync();
         foreach (
-            var template in new[] { ("wasm", "dorn-blazor-wasm"), ("server", "dorn-blazor-server") }
+            var template in new (
+                string HostName,
+                string ShortName,
+                string ProjectName,
+                string[] ExtraArgs
+            )[]
+            {
+                ("wasm", "dorn-blazor-wasm", "Browserwasm", []),
+                ("server", "dorn-blazor-server", "Browserserver", []),
+                (
+                    "wasm-nondefault",
+                    "dorn-blazor-wasm",
+                    "BrowserWasmNonDefault",
+                    ["--IncludeCleanArchitecture", "true", "--Palette", "Ocean"]
+                ),
+                (
+                    "server-nondefault",
+                    "dorn-blazor-server",
+                    "BrowserServerNonDefault",
+                    ["--IncludeCleanArchitecture", "true", "--Palette", "Ocean"]
+                ),
+            }
         )
         {
-            var output = Path.Combine(_root, template.Item1);
-            await Run(_root, "new", template.Item2, "-n", $"Browser{template.Item1}", "-o", output);
+            var output = Path.Combine(_root, template.HostName);
+            var newArgs = new List<string>
+            {
+                "new",
+                template.ShortName,
+                "-n",
+                template.ProjectName,
+                "-o",
+                output,
+            };
+            newArgs.AddRange(template.ExtraArgs);
+            await Run(_root, [.. newArgs]);
             var project = Directory
                 .GetFiles(output, "*.Web.csproj", SearchOption.AllDirectories)
                 .Single();
             var (workingDirectory, arguments) =
-                template.Item1 == "server"
-                    ? await PublishArgumentsAsync(template.Item1, project)
+                template.HostName.StartsWith("server", StringComparison.Ordinal)
+                    ? await PublishArgumentsAsync(template.HostName, project)
                     : (output, (string[])["run", "--project", project, "--no-launch-profile"]);
-            var host = new Host(template.Item1, workingDirectory, arguments, ReservePort());
-            host.Start();
-            await host.WaitUntilReadyAsync();
+            var host = await Host.StartAsync(template.HostName, workingDirectory, arguments);
             _hosts.Add(host);
         }
         _playwright = await Playwright.CreateAsync();
@@ -54,14 +82,22 @@ public sealed class BrowserHostFixture : IAsyncLifetime
     public async Task DisposeAsync()
     {
         if (_browser is not null)
+        {
             await _browser.DisposeAsync();
+        }
+
         _playwright?.Dispose();
         foreach (var host in _hosts)
+        {
             await host.DisposeAsync();
+        }
+
         await TryRun(_root, "new", "uninstall", "Dorn.Templates.BlazorWasm");
         await TryRun(_root, "new", "uninstall", "Dorn.Templates.BlazorServer");
         if (Directory.Exists(_root))
+        {
             Directory.Delete(_root, true);
+        }
     }
 
     private async Task<(string WorkingDirectory, string[] Arguments)> PublishArgumentsAsync(
@@ -118,16 +154,21 @@ public sealed class BrowserHostFixture : IAsyncLifetime
             UseShellExecute = false,
         };
         foreach (var argument in arguments)
+        {
             start.ArgumentList.Add(argument);
+        }
+
         using var process =
             Process.Start(start) ?? throw new InvalidOperationException("Could not start dotnet.");
         var output = process.StandardOutput.ReadToEndAsync();
         var error = process.StandardError.ReadToEndAsync();
         await process.WaitForExitAsync();
         if (process.ExitCode != 0)
+        {
             throw new InvalidOperationException(
                 $"dotnet {string.Join(' ', arguments)} failed.{Environment.NewLine}{await output}{Environment.NewLine}{await error}"
             );
+        }
     }
 
     private static async Task TryRun(string workingDirectory, params string[] arguments)
@@ -137,13 +178,6 @@ public sealed class BrowserHostFixture : IAsyncLifetime
             await Run(workingDirectory, arguments);
         }
         catch (InvalidOperationException) { }
-    }
-
-    private static int ReservePort()
-    {
-        using var listener = new TcpListener(IPAddress.Loopback, 0);
-        listener.Start();
-        return ((IPEndPoint)listener.LocalEndpoint).Port;
     }
 
     private static string RealTempRoot =>
@@ -157,66 +191,62 @@ public sealed class BrowserHostFixture : IAsyncLifetime
             while (directory is not null)
             {
                 if (File.Exists(Path.Combine(directory.FullName, "DornTemplatesBlazor.slnx")))
+                {
                     return directory.FullName;
+                }
+
                 directory = directory.Parent;
             }
             throw new DirectoryNotFoundException("Could not locate the repository root.");
         }
     }
 
-    private sealed class Host(string name, string workingDirectory, string[] arguments, int port)
-        : IAsyncDisposable
+    private sealed class Host : IAsyncDisposable
     {
-        private Process? _process;
-        public string Name { get; } = name;
-        public string Url { get; } = $"http://127.0.0.1:{port}";
+        private readonly Process _process;
+        public string Name { get; }
+        public string Url { get; }
 
-        public void Start()
+        private Host(string name, Process process, int port)
         {
-            var start = new ProcessStartInfo("dotnet")
-            {
-                WorkingDirectory = workingDirectory,
-                RedirectStandardError = true,
-                RedirectStandardOutput = true,
-                UseShellExecute = false,
-            };
-            foreach (var argument in arguments)
-                start.ArgumentList.Add(argument);
-            start.ArgumentList.Add("--urls");
-            start.ArgumentList.Add(Url);
-            _process =
-                Process.Start(start)
-                ?? throw new InvalidOperationException("Could not start generated host.");
+            Name = name;
+            _process = process;
+            Url = $"http://127.0.0.1:{port}";
         }
 
-        public async Task WaitUntilReadyAsync()
+        public static async Task<Host> StartAsync(
+            string name,
+            string workingDirectory,
+            string[] arguments
+        )
         {
-            using var client = new HttpClient();
-            using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(45));
-            while (!timeout.IsCancellationRequested)
+            var (port, process) = await GeneratedHostReadiness.StartWithPortRetryAsync(port =>
             {
-                if (_process!.HasExited)
-                    throw new InvalidOperationException(
-                        $"{Name} exited: {await _process.StandardError.ReadToEndAsync()}"
-                    );
-                try
+                var start = new ProcessStartInfo("dotnet")
                 {
-                    if ((await client.GetAsync(Url, timeout.Token)).IsSuccessStatusCode)
-                        return;
+                    WorkingDirectory = workingDirectory,
+                    RedirectStandardError = true,
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false,
+                };
+                foreach (var argument in arguments)
+                {
+                    start.ArgumentList.Add(argument);
                 }
-                catch (HttpRequestException) { }
-                catch (OperationCanceledException) when (timeout.IsCancellationRequested) { }
-                await Task.Delay(200);
-            }
-            throw new TimeoutException($"{Name} did not become ready at {Url}.");
+                start.ArgumentList.Add("--urls");
+                start.ArgumentList.Add($"http://127.0.0.1:{port}");
+                return start;
+            });
+            return new Host(name, process, port);
         }
 
         public async ValueTask DisposeAsync()
         {
-            if (_process is null)
-                return;
             if (!_process.HasExited)
+            {
                 _process.Kill(true);
+            }
+
             await _process.WaitForExitAsync();
             _process.Dispose();
         }

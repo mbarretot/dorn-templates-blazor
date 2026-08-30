@@ -31,10 +31,18 @@ dotnet dorn run
 ## 🎨 UI foundation
 
 - MudBlazor components with matching light and dark palettes
-- Warm paper backgrounds, ink text, and one terracotta accent
+- Warm paper backgrounds, ink text, and 7 selectable color palettes (Terracotta by default)
 - Newsreader for editorial content; system fonts for controls
 - Theme preference applied before first paint and synchronized at runtime
 - Self-hosted assets with no CDN or Node/npm dependency
+
+## ⚙️ Template option
+
+The application palette is selected when the template is generated.
+
+| Option | Default | Choices |
+| --- | --- | --- |
+| `--Palette` | `Terracotta` | `Terracotta`, `Ocean`, `Forest`, `Sunset`, `Lavender`, `Slate`, `Citrus` |
 
 ## ⌨️ Daily commands
 
@@ -43,6 +51,18 @@ dotnet dorn run
 | `dotnet dorn run` | Run the application or Aspire AppHost |
 | `dotnet dorn test` | Run all test tiers |
 | `dotnet dorn coverage` | Run tests with the coverage gate |
+
+## 🔒 Security headers
+
+`wwwroot/index.html` declares a baseline CSP via `<meta http-equiv="Content-Security-Policy">`.
+It allows `'unsafe-inline'` in `style-src` because MudBlazor positions popovers/overlays by
+writing inline `style` via JS interop, and `'wasm-unsafe-eval'` in `script-src` because Blazor
+WebAssembly can't instantiate its compiled WASM modules without it — tightening either further
+will break the app. A
+`<meta>` tag can't carry `frame-ancestors`, `X-Frame-Options`, or `Referrer-Policy`: since this is
+a standalone WASM app with no server of its own, set those on whatever static host you deploy to
+(e.g. Azure Static Web Apps' `staticwebapp.config.json`, or your CDN/reverse proxy's config). If
+you point `IToDoRepository` at a different backend, add its origin to `connect-src`.
 
 ## 📚 Next step
 

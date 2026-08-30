@@ -614,6 +614,229 @@ public class BlazorServerTemplateGenerationTests
     }
 
     [Fact]
+    public async Task GenerateWithDefaultParameters_ToDoFeatureIsFlatVerticalSlice_AndBuilds()
+    {
+        var outputDirectory = Path.Combine(
+            BuildSupport.RealTempRoot,
+            $"dorn-tests-blazor-server-todoflat-{Guid.NewGuid():N}"
+        );
+        var toolsHome = Path.Combine(
+            BuildSupport.RealTempRoot,
+            $"dorn-tests-blazor-server-todoflat-tools-{Guid.NewGuid():N}"
+        );
+        try
+        {
+            var result = await TemplatePackHarness.GenerateAsync(
+                "dorn-blazor-server",
+                "DornToDoFlatBlazorServerApp",
+                outputDirectory
+            );
+
+            Assert.True(
+                result.ExitCode == 0,
+                $"Template generation failed (exit {result.ExitCode})."
+                    + $"{Environment.NewLine}STDOUT:{Environment.NewLine}{result.StdOut}"
+                    + $"{Environment.NewLine}STDERR:{Environment.NewLine}{result.StdErr}"
+            );
+
+            var srcRoot = Path.Combine(outputDirectory, "src");
+            var todoFeatureDir = Path.Combine(
+                srcRoot,
+                "DornToDoFlatBlazorServerApp.Web",
+                "Features",
+                "ToDo"
+            );
+
+            Assert.True(
+                File.Exists(Path.Combine(todoFeatureDir, "ToDoList.razor")),
+                "Features/ToDo must contain ToDoList.razor by default (no arguments)."
+            );
+            Assert.True(
+                File.Exists(Path.Combine(todoFeatureDir, "ToDoItem.cs")),
+                "Features/ToDo must contain the flat ToDoItem.cs by default."
+            );
+            Assert.True(
+                File.Exists(Path.Combine(todoFeatureDir, "IToDoRepository.cs")),
+                "Features/ToDo must contain the flat IToDoRepository.cs by default."
+            );
+            Assert.True(
+                File.Exists(Path.Combine(todoFeatureDir, "ToDoRepository.cs")),
+                "Features/ToDo must contain the flat ToDoRepository.cs by default."
+            );
+
+            foreach (var layer in new[] { "Domain", "Application", "Infrastructure" })
+            {
+                Assert.False(
+                    Directory.Exists(Path.Combine(srcRoot, $"DornToDoFlatBlazorServerApp.{layer}")),
+                    $"{layer} project must not exist on a default generate (no --IncludeCleanArchitecture)."
+                );
+            }
+
+            var razorContent = await File.ReadAllTextAsync(
+                Path.Combine(todoFeatureDir, "ToDoList.razor")
+            );
+            Assert.DoesNotContain("#if", razorContent, StringComparison.Ordinal);
+            Assert.DoesNotContain("#else", razorContent, StringComparison.Ordinal);
+            Assert.DoesNotContain("#endif", razorContent, StringComparison.Ordinal);
+
+            var programContent = await File.ReadAllTextAsync(
+                Path.Combine(srcRoot, "DornToDoFlatBlazorServerApp.Web", "Program.cs")
+            );
+            Assert.DoesNotContain("#if", programContent, StringComparison.Ordinal);
+            Assert.DoesNotContain("#else", programContent, StringComparison.Ordinal);
+            Assert.DoesNotContain("#endif", programContent, StringComparison.Ordinal);
+
+            var slnFiles = Directory.GetFiles(
+                outputDirectory,
+                "*.slnx",
+                SearchOption.TopDirectoryOnly
+            );
+            Assert.Single(slnFiles);
+
+            var buildResult = await BuildSupport.RunDotnetBuildAsync(slnFiles[0], toolsHome);
+
+            Assert.True(
+                buildResult.ExitCode == 0,
+                $"dotnet build exited with {buildResult.ExitCode}."
+                    + $"{Environment.NewLine}STDOUT:{Environment.NewLine}{buildResult.StdOut}"
+                    + $"{Environment.NewLine}STDERR:{Environment.NewLine}{buildResult.StdErr}"
+            );
+        }
+        finally
+        {
+            if (Environment.GetEnvironmentVariable("DORN_TEST_KEEP_TEMP") != "true")
+            {
+                if (Directory.Exists(outputDirectory))
+                {
+                    await BuildSupport.DeleteDirectoryWithRetryAsync(outputDirectory);
+                }
+                if (Directory.Exists(toolsHome))
+                {
+                    await BuildSupport.DeleteDirectoryWithRetryAsync(toolsHome);
+                }
+            }
+            else
+            {
+                Console.WriteLine("KEPT: " + outputDirectory);
+            }
+        }
+    }
+
+    [Fact]
+    public async Task GenerateWithIncludeCleanArchitectureTrue_ToDoUsesClassLibraries_AndExcludesFlatFiles()
+    {
+        var outputDirectory = Path.Combine(
+            BuildSupport.RealTempRoot,
+            $"dorn-tests-blazor-server-todocleanarch-{Guid.NewGuid():N}"
+        );
+        var toolsHome = Path.Combine(
+            BuildSupport.RealTempRoot,
+            $"dorn-tests-blazor-server-todocleanarch-tools-{Guid.NewGuid():N}"
+        );
+        try
+        {
+            var result = await TemplatePackHarness.GenerateAsync(
+                "dorn-blazor-server",
+                "DornToDoCleanArchBlazorServerApp",
+                outputDirectory,
+                "--IncludeCleanArchitecture",
+                "true"
+            );
+
+            Assert.True(
+                result.ExitCode == 0,
+                $"Template generation failed (exit {result.ExitCode})."
+                    + $"{Environment.NewLine}STDOUT:{Environment.NewLine}{result.StdOut}"
+                    + $"{Environment.NewLine}STDERR:{Environment.NewLine}{result.StdErr}"
+            );
+
+            var srcRoot = Path.Combine(outputDirectory, "src");
+            var appName = "DornToDoCleanArchBlazorServerApp";
+
+            Assert.True(
+                File.Exists(Path.Combine(srcRoot, $"{appName}.Domain", "Entities", "ToDoItem.cs")),
+                "Domain/Entities/ToDoItem.cs must exist when IncludeCleanArchitecture is true."
+            );
+            Assert.True(
+                File.Exists(
+                    Path.Combine(
+                        srcRoot,
+                        $"{appName}.Application",
+                        "Interfaces",
+                        "IToDoRepository.cs"
+                    )
+                ),
+                "Application/Interfaces/IToDoRepository.cs must exist when IncludeCleanArchitecture is true."
+            );
+            Assert.True(
+                File.Exists(
+                    Path.Combine(srcRoot, $"{appName}.Infrastructure", "ToDos", "ToDoRepository.cs")
+                ),
+                "Infrastructure/ToDos/ToDoRepository.cs must exist when IncludeCleanArchitecture is true."
+            );
+
+            var todoFeatureDir = Path.Combine(srcRoot, $"{appName}.Web", "Features", "ToDo");
+            Assert.True(
+                File.Exists(Path.Combine(todoFeatureDir, "ToDoList.razor")),
+                "Features/ToDo/ToDoList.razor must still exist when IncludeCleanArchitecture is true."
+            );
+            Assert.False(
+                File.Exists(Path.Combine(todoFeatureDir, "ToDoItem.cs")),
+                "Flat ToDoItem.cs must not exist when IncludeCleanArchitecture is true."
+            );
+            Assert.False(
+                File.Exists(Path.Combine(todoFeatureDir, "IToDoRepository.cs")),
+                "Flat IToDoRepository.cs must not exist when IncludeCleanArchitecture is true."
+            );
+            Assert.False(
+                File.Exists(Path.Combine(todoFeatureDir, "ToDoRepository.cs")),
+                "Flat ToDoRepository.cs must not exist when IncludeCleanArchitecture is true."
+            );
+
+            var razorContent = await File.ReadAllTextAsync(
+                Path.Combine(todoFeatureDir, "ToDoList.razor")
+            );
+            Assert.DoesNotContain("#if", razorContent, StringComparison.Ordinal);
+            Assert.DoesNotContain("#else", razorContent, StringComparison.Ordinal);
+            Assert.DoesNotContain("#endif", razorContent, StringComparison.Ordinal);
+
+            var slnFiles = Directory.GetFiles(
+                outputDirectory,
+                "*.slnx",
+                SearchOption.TopDirectoryOnly
+            );
+            Assert.Single(slnFiles);
+
+            var buildResult = await BuildSupport.RunDotnetBuildAsync(slnFiles[0], toolsHome);
+
+            Assert.True(
+                buildResult.ExitCode == 0,
+                $"dotnet build exited with {buildResult.ExitCode}."
+                    + $"{Environment.NewLine}STDOUT:{Environment.NewLine}{buildResult.StdOut}"
+                    + $"{Environment.NewLine}STDERR:{Environment.NewLine}{buildResult.StdErr}"
+            );
+        }
+        finally
+        {
+            if (Environment.GetEnvironmentVariable("DORN_TEST_KEEP_TEMP") != "true")
+            {
+                if (Directory.Exists(outputDirectory))
+                {
+                    await BuildSupport.DeleteDirectoryWithRetryAsync(outputDirectory);
+                }
+                if (Directory.Exists(toolsHome))
+                {
+                    await BuildSupport.DeleteDirectoryWithRetryAsync(toolsHome);
+                }
+            }
+            else
+            {
+                Console.WriteLine("KEPT: " + outputDirectory);
+            }
+        }
+    }
+
+    [Fact]
     public async Task GenerateWithIncludeCleanArchitectureFalse_ExcludesLibraries_AndBuilds()
     {
         var outputDirectory = Path.Combine(
@@ -661,6 +884,258 @@ public class BlazorServerTemplateGenerationTests
             Assert.False(
                 Directory.Exists(archTestsDir),
                 "Architecture/ must be excluded from Application.Tests when IncludeCleanArchitecture is false."
+            );
+
+            var slnFiles = Directory.GetFiles(
+                outputDirectory,
+                "*.slnx",
+                SearchOption.TopDirectoryOnly
+            );
+            Assert.Single(slnFiles);
+            var buildResult = await BuildSupport.RunDotnetBuildAsync(slnFiles[0], toolsHome);
+
+            Assert.True(
+                buildResult.ExitCode == 0,
+                $"dotnet build exited with {buildResult.ExitCode}."
+                    + $"{Environment.NewLine}STDOUT:{Environment.NewLine}{buildResult.StdOut}"
+                    + $"{Environment.NewLine}STDERR:{Environment.NewLine}{buildResult.StdErr}"
+            );
+        }
+        finally
+        {
+            if (Environment.GetEnvironmentVariable("DORN_TEST_KEEP_TEMP") != "true")
+            {
+                if (Directory.Exists(outputDirectory))
+                {
+                    await BuildSupport.DeleteDirectoryWithRetryAsync(outputDirectory);
+                }
+                if (Directory.Exists(toolsHome))
+                {
+                    await BuildSupport.DeleteDirectoryWithRetryAsync(toolsHome);
+                }
+            }
+            else
+            {
+                Console.WriteLine("KEPT: " + outputDirectory);
+            }
+        }
+    }
+
+    // Palette selection is a #if/#elif branch in AppTheme.cs resolved by the template engine at
+    // generation time; each branch is otherwise structurally identical C#, so building all seven
+    // adds seven full compiles to prove one thing a content check already proves for six of
+    // them: that the requested branch was the one kept. Ocean below is the one real compile
+    // check, guarding the #elif substitution path itself against a genuine break.
+    [Theory]
+    [InlineData("Terracotta")]
+    [InlineData("Ocean")]
+    [InlineData("Forest")]
+    [InlineData("Sunset")]
+    [InlineData("Lavender")]
+    [InlineData("Slate")]
+    [InlineData("Citrus")]
+    public async Task GenerateWithPalette_AppliesCorrectThemeContent(string palette)
+    {
+        var outputDirectory = Path.Combine(
+            BuildSupport.RealTempRoot,
+            $"dorn-tests-blazor-server-palette-{Guid.NewGuid():N}"
+        );
+        try
+        {
+            var result = await TemplatePackHarness.GenerateAsync(
+                "dorn-blazor-server",
+                $"DornPalette{palette}BlazorServerApp",
+                outputDirectory,
+                "--Palette",
+                palette
+            );
+
+            Assert.True(
+                result.ExitCode == 0,
+                $"Template generation failed (exit {result.ExitCode})."
+                    + $"{Environment.NewLine}STDOUT:{Environment.NewLine}{result.StdOut}"
+                    + $"{Environment.NewLine}STDERR:{Environment.NewLine}{result.StdErr}"
+            );
+
+            var themePath = Directory
+                .GetFiles(outputDirectory, "AppTheme.cs", SearchOption.AllDirectories)
+                .Single();
+            var themeContent = await File.ReadAllTextAsync(themePath);
+            Assert.Contains($"// {palette}", themeContent, StringComparison.Ordinal);
+        }
+        finally
+        {
+            if (
+                Environment.GetEnvironmentVariable("DORN_TEST_KEEP_TEMP") != "true"
+                && Directory.Exists(outputDirectory)
+            )
+            {
+                await BuildSupport.DeleteDirectoryWithRetryAsync(outputDirectory);
+            }
+        }
+    }
+
+    [Fact]
+    public async Task GenerateWithNonDefaultPalette_Builds()
+    {
+        var outputDirectory = Path.Combine(
+            BuildSupport.RealTempRoot,
+            $"dorn-tests-blazor-server-palette-build-{Guid.NewGuid():N}"
+        );
+        var toolsHome = Path.Combine(
+            BuildSupport.RealTempRoot,
+            $"dorn-tests-blazor-server-palette-build-tools-{Guid.NewGuid():N}"
+        );
+        try
+        {
+            var result = await TemplatePackHarness.GenerateAsync(
+                "dorn-blazor-server",
+                "DornPaletteOceanBlazorServerApp",
+                outputDirectory,
+                "--Palette",
+                "Ocean"
+            );
+
+            Assert.True(
+                result.ExitCode == 0,
+                $"Template generation failed (exit {result.ExitCode})."
+                    + $"{Environment.NewLine}STDOUT:{Environment.NewLine}{result.StdOut}"
+                    + $"{Environment.NewLine}STDERR:{Environment.NewLine}{result.StdErr}"
+            );
+
+            var slnFiles = Directory.GetFiles(
+                outputDirectory,
+                "*.slnx",
+                SearchOption.TopDirectoryOnly
+            );
+            Assert.Single(slnFiles);
+            var buildResult = await BuildSupport.RunDotnetBuildAsync(slnFiles[0], toolsHome);
+
+            Assert.True(
+                buildResult.ExitCode == 0,
+                $"dotnet build exited with {buildResult.ExitCode}."
+                    + $"{Environment.NewLine}STDOUT:{Environment.NewLine}{buildResult.StdOut}"
+                    + $"{Environment.NewLine}STDERR:{Environment.NewLine}{buildResult.StdErr}"
+            );
+        }
+        finally
+        {
+            if (Environment.GetEnvironmentVariable("DORN_TEST_KEEP_TEMP") != "true")
+            {
+                if (Directory.Exists(outputDirectory))
+                {
+                    await BuildSupport.DeleteDirectoryWithRetryAsync(outputDirectory);
+                }
+                if (Directory.Exists(toolsHome))
+                {
+                    await BuildSupport.DeleteDirectoryWithRetryAsync(toolsHome);
+                }
+            }
+            else
+            {
+                Console.WriteLine("KEPT: " + outputDirectory);
+            }
+        }
+    }
+
+    [Fact]
+    public async Task GenerateWithDefaultParameters_ExcludesAuthPages()
+    {
+        var outputDirectory = Path.Combine(
+            BuildSupport.RealTempRoot,
+            $"dorn-tests-blazor-server-noauth-{Guid.NewGuid():N}"
+        );
+        try
+        {
+            var result = await TemplatePackHarness.GenerateAsync(
+                "dorn-blazor-server",
+                "DornNoAuthBlazorServerApp",
+                outputDirectory
+            );
+
+            Assert.True(
+                result.ExitCode == 0,
+                $"Template generation failed (exit {result.ExitCode})."
+                    + $"{Environment.NewLine}STDOUT:{Environment.NewLine}{result.StdOut}"
+                    + $"{Environment.NewLine}STDERR:{Environment.NewLine}{result.StdErr}"
+            );
+
+            var webProjectDir = Path.Combine(
+                outputDirectory,
+                "src",
+                "DornNoAuthBlazorServerApp.Web"
+            );
+
+            Assert.False(
+                File.Exists(
+                    Path.Combine(webProjectDir, "Components", "Pages", "Login.razor")
+                ),
+                "Login.razor must be excluded when IncludeAuth is false (default)."
+            );
+            Assert.False(
+                File.Exists(
+                    Path.Combine(webProjectDir, "Components", "Pages", "Secure.razor")
+                ),
+                "Secure.razor must be excluded when IncludeAuth is false (default)."
+            );
+        }
+        finally
+        {
+            if (
+                Environment.GetEnvironmentVariable("DORN_TEST_KEEP_TEMP") != "true"
+                && Directory.Exists(outputDirectory)
+            )
+            {
+                await BuildSupport.DeleteDirectoryWithRetryAsync(outputDirectory);
+            }
+        }
+    }
+
+    [Fact]
+    public async Task GenerateWithIncludeAuthTrue_IncludesLoginAndSecurePages_AndBuilds()
+    {
+        var outputDirectory = Path.Combine(
+            BuildSupport.RealTempRoot,
+            $"dorn-tests-blazor-server-auth-{Guid.NewGuid():N}"
+        );
+        var toolsHome = Path.Combine(
+            BuildSupport.RealTempRoot,
+            $"dorn-tests-blazor-server-auth-tools-{Guid.NewGuid():N}"
+        );
+        try
+        {
+            var result = await TemplatePackHarness.GenerateAsync(
+                "dorn-blazor-server",
+                "DornAuthBlazorServerApp",
+                outputDirectory,
+                "--IncludeAuth",
+                "true"
+            );
+
+            Assert.True(
+                result.ExitCode == 0,
+                $"Template generation failed (exit {result.ExitCode})."
+                    + $"{Environment.NewLine}STDOUT:{Environment.NewLine}{result.StdOut}"
+                    + $"{Environment.NewLine}STDERR:{Environment.NewLine}{result.StdErr}"
+            );
+
+            var webProjectDir = Path.Combine(
+                outputDirectory,
+                "src",
+                "DornAuthBlazorServerApp.Web"
+            );
+
+            Assert.True(
+                File.Exists(
+                    Path.Combine(webProjectDir, "Components", "Pages", "Login.razor")
+                ),
+                "Login.razor must be included when IncludeAuth is true."
+            );
+            Assert.True(
+                File.Exists(
+                    Path.Combine(webProjectDir, "Components", "Pages", "Secure.razor")
+                ),
+                "Secure.razor must be included when IncludeAuth is true."
             );
 
             var slnFiles = Directory.GetFiles(

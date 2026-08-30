@@ -8,13 +8,13 @@
     <ProjectReference Include="..\CleanArchBlazorWasm.Application\CleanArchBlazorWasm.Application.csproj" />
     <ProjectReference Include="..\CleanArchBlazorWasm.Infrastructure\CleanArchBlazorWasm.Infrastructure.csproj" />
   </ItemGroup>
+<!--#endif -->
 
   <ItemGroup>
     <!-- Sdk.BlazorWebAssembly has no ASP.NET Core shared framework, so AddHttpClient
          needs this package explicitly (Sdk.Web gets it for free). -->
     <PackageReference Include="Microsoft.Extensions.Http" />
   </ItemGroup>
-<!--#endif -->
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" />
@@ -23,6 +23,22 @@
       PrivateAssets="all"
     />
   </ItemGroup>
+
+<!--#if (IncludeAuth) -->
+  <PropertyGroup>
+    <!-- LocalStorageAuthStateProvider uses [JSImport] (System.Runtime.InteropServices.JavaScript)
+         instead of Microsoft.JSInterop.IJSRuntime, which this repo's architecture tests forbid
+         Web-project types from touching directly. JSImport requires unsafe code. -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Sdk.BlazorWebAssembly has no ASP.NET Core shared framework, so the AuthorizeView /
+         AuthenticationStateProvider / [Authorize] types used by the opt-in IncludeAuth demo
+         need this package explicitly. -->
+    <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" />
+  </ItemGroup>
+<!--#endif -->
 
   <ItemGroup>
     <PackageReference Include="Dorn.WebUI.Primitives" />

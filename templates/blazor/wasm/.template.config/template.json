@@ -26,6 +26,72 @@
       "datatype": "bool",
       "defaultValue": "false",
       "description": "Include Clean Architecture class libraries: {App}.Domain, {App}.Application, and {App}.Infrastructure, wired to {App}.Web by project reference. Off by default: features stay vertical slices under Features/{Name}/, which remains the top-level shape either way."
+    },
+    "IncludeAuth": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "false",
+      "description": "Include a minimal client-side auth starting point: a localStorage-backed AuthenticationStateProvider, a demo login page, and an [Authorize]-gated example page. Off by default. Not a real identity provider - replace before shipping."
+    },
+    "Palette": {
+      "type": "parameter",
+      "datatype": "choice",
+      "choices": [
+        {
+          "choice": "Terracotta",
+          "description": "Warm rust, olive and gold on a cream surface. Default palette."
+        },
+        {
+          "choice": "Ocean",
+          "description": "Teal and marine blue, calm and nautical."
+        },
+        {
+          "choice": "Forest",
+          "description": "Deep green, walnut brown and moss gold."
+        },
+        {
+          "choice": "Sunset",
+          "description": "Coral, plum magenta and amber."
+        },
+        {
+          "choice": "Lavender",
+          "description": "Violet, dusty rose and slate blue."
+        },
+        {
+          "choice": "Slate",
+          "description": "Steel blue-gray with a cyan accent."
+        },
+        {
+          "choice": "Citrus",
+          "description": "Tangerine, lime green and sunflower yellow."
+        }
+      ],
+      "defaultValue": "Terracotta",
+      "description": "Choose the MudBlazor color palette applied to the generated app's light and dark themes."
+    },
+    "Palette_Ocean": {
+      "type": "computed",
+      "value": "(Palette == \"Ocean\")"
+    },
+    "Palette_Forest": {
+      "type": "computed",
+      "value": "(Palette == \"Forest\")"
+    },
+    "Palette_Sunset": {
+      "type": "computed",
+      "value": "(Palette == \"Sunset\")"
+    },
+    "Palette_Lavender": {
+      "type": "computed",
+      "value": "(Palette == \"Lavender\")"
+    },
+    "Palette_Slate": {
+      "type": "computed",
+      "value": "(Palette == \"Slate\")"
+    },
+    "Palette_Citrus": {
+      "type": "computed",
+      "value": "(Palette == \"Citrus\")"
     }
   },
   "sources": [
@@ -45,10 +111,26 @@
             "src/CleanArchBlazorWasm.Domain/**",
             "src/CleanArchBlazorWasm.Application/**",
             "src/CleanArchBlazorWasm.Infrastructure/**",
-            "src/CleanArchBlazorWasm.Web/Features/ToDo/**",
             "tests/CleanArchBlazorWasm.Application.Tests/Architecture/**",
-            "tests/CleanArchBlazorWasm.Application.Tests/ToDos/**",
-            "tests/CleanArchBlazorWasm.Functional.Tests/Features/ToDo/**"
+            "tests/CleanArchBlazorWasm.Application.Tests/ToDos/**"
+          ]
+        },
+        {
+          "condition": "(IncludeCleanArchitecture)",
+          "exclude": [
+            "src/CleanArchBlazorWasm.Web/Features/ToDo/ToDoItem.cs",
+            "src/CleanArchBlazorWasm.Web/Features/ToDo/IToDoRepository.cs",
+            "src/CleanArchBlazorWasm.Web/Features/ToDo/ToDoRepository.cs",
+            "tests/CleanArchBlazorWasm.Functional.Tests/Features/ToDo/ToDoItemTests.cs",
+            "tests/CleanArchBlazorWasm.Functional.Tests/Features/ToDo/ToDoRepositoryTests.cs"
+          ]
+        },
+        {
+          "condition": "(!IncludeAuth)",
+          "exclude": [
+            "src/CleanArchBlazorWasm.Web/Components/Auth/LocalStorageAuthStateProvider.cs",
+            "src/CleanArchBlazorWasm.Web/Features/Auth/Login.razor",
+            "src/CleanArchBlazorWasm.Web/Features/Auth/Secure.razor"
           ]
         }
       ]
@@ -64,6 +146,21 @@
             "else": ["<!--#else"],
             "elseif": ["<!--#elseif"],
             "endif": ["<!--#endif"],
+            "trim": "true",
+            "wholeLine": "true"
+          }
+        }
+      ]
+    },
+    "**/*.razor": {
+      "operations": [
+        {
+          "type": "conditional",
+          "configuration": {
+            "if": ["#if"],
+            "else": ["#else"],
+            "elseif": ["#elseif"],
+            "endif": ["#endif"],
             "trim": "true",
             "wholeLine": "true"
           }
