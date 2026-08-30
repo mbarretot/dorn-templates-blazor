@@ -4,9 +4,12 @@ using Xunit;
 
 namespace Dorn.Templates.Blazor.Tests;
 
-[Collection(TemplatePackCollection.Name)]
-public class GeneratedHostLaunchTests
+public class GeneratedHostLaunchTests : IAsyncLifetime
 {
+    public Task InitializeAsync() => TemplatePackInstallation.EnsureInstalledAsync();
+
+    public Task DisposeAsync() => Task.CompletedTask;
+
     [Theory]
     [InlineData("dorn-blazor-wasm", "GeneratedWasmHost")]
     [InlineData("dorn-blazor-server", "GeneratedServerHost")]

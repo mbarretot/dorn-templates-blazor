@@ -1,9 +1,16 @@
+using System.Collections.Concurrent;
 using System.Diagnostics;
 
 namespace Dorn.Templates.Blazor.Tests;
 
 internal static class TemplatePackHarness
 {
+    // dotnet pack for a given packageId writes to that csproj's fixed obj/bin intermediate
+    // directories, which collide (badly on Windows, which locks files mid-write) if two packs
+    // of the same package run concurrently. Callers run freely in parallel otherwise; this only
+    // serializes packs that target the same packageId.
+    private static readonly ConcurrentDictionary<string, SemaphoreSlim> PackLocks = new();
+
     public static string RepoRoot { get; } = ResolveRepoRoot();
 
     public static string TemplatesRoot => Path.Combine(RepoRoot, "templates", "blazor");
@@ -27,36 +34,49 @@ internal static class TemplatePackHarness
 
     public static async Task<string> PackAsync(string packageId, string outputDirectory)
     {
-        var csprojPath = Path.Combine(
-            RepoRoot,
-            "eng",
-            "packaging",
-            packageId,
-            $"{packageId}.csproj"
-        );
-        var result = await RunProcessAsync(
-            RepoRoot,
-            null,
-            "pack",
-            csprojPath,
-            "-c",
-            "Release",
-            "-p:PackageVersion=0.0.1-test",
-            "-o",
-            outputDirectory
-        );
-        return result.ExitCode != 0
-            ? throw new InvalidOperationException(
-                $"dotnet pack failed for {packageId}.{Environment.NewLine}"
-                    + $"STDOUT:{Environment.NewLine}{result.StdOut}"
-                    + $"{Environment.NewLine}STDERR:{Environment.NewLine}{result.StdErr}"
-            )
-            : Directory
-                .GetFiles(outputDirectory, $"{packageId}.*.nupkg", SearchOption.TopDirectoryOnly)
-                .SingleOrDefault()
-            ?? throw new FileNotFoundException(
-                $"No nupkg produced for {packageId} in '{outputDirectory}'."
+        var packLock = PackLocks.GetOrAdd(packageId, _ => new SemaphoreSlim(1, 1));
+        await packLock.WaitAsync();
+        try
+        {
+            var csprojPath = Path.Combine(
+                RepoRoot,
+                "eng",
+                "packaging",
+                packageId,
+                $"{packageId}.csproj"
             );
+            var result = await RunProcessAsync(
+                RepoRoot,
+                null,
+                "pack",
+                csprojPath,
+                "-c",
+                "Release",
+                "-p:PackageVersion=0.0.1-test",
+                "-o",
+                outputDirectory
+            );
+            return result.ExitCode != 0
+                ? throw new InvalidOperationException(
+                    $"dotnet pack failed for {packageId}.{Environment.NewLine}"
+                        + $"STDOUT:{Environment.NewLine}{result.StdOut}"
+                        + $"{Environment.NewLine}STDERR:{Environment.NewLine}{result.StdErr}"
+                )
+                : Directory
+                    .GetFiles(
+                        outputDirectory,
+                        $"{packageId}.*.nupkg",
+                        SearchOption.TopDirectoryOnly
+                    )
+                    .SingleOrDefault()
+                ?? throw new FileNotFoundException(
+                    $"No nupkg produced for {packageId} in '{outputDirectory}'."
+                );
+        }
+        finally
+        {
+            packLock.Release();
+        }
     }
 
     public static async Task InstallAsync(string packageId)

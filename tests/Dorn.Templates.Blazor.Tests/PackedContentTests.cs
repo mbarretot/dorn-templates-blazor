@@ -4,8 +4,6 @@ using Xunit;
 
 namespace Dorn.Templates.Blazor.Tests;
 
-// Shared pack paths collide under Windows file locking when xUnit runs collections concurrently.
-[Collection(TemplatePackCollection.Name)]
 public class PackedContentTests
 {
     [Theory]

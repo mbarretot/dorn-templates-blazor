@@ -5,9 +5,12 @@ using Xunit;
 namespace Dorn.Templates.Blazor.Tests;
 
 [Trait("Category", "Integration")]
-[Collection(TemplatePackCollection.Name)]
-public class BlazorServerTemplateGenerationTests
+public class BlazorServerTemplateGenerationTests : IAsyncLifetime
 {
+    public Task InitializeAsync() => TemplatePackInstallation.EnsureInstalledAsync();
+
+    public Task DisposeAsync() => Task.CompletedTask;
+
     [Fact]
     public async Task GenerateAndBuild_DornBlazorServerTemplate_VendorsMudBlazorAssets()
     {

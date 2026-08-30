@@ -7,9 +7,12 @@ namespace Dorn.Templates.Blazor.Tests;
 // resolve symbols/sources and list what it would create without writing anything or running
 // restore/build, so it fails fast and close to the actual mistake.
 [Trait("Category", "Integration")]
-[Collection(TemplatePackCollection.Name)]
-public class TemplateJsonValidationTests
+public class TemplateJsonValidationTests : IAsyncLifetime
 {
+    public Task InitializeAsync() => TemplatePackInstallation.EnsureInstalledAsync();
+
+    public Task DisposeAsync() => Task.CompletedTask;
+
     [Fact]
     public async Task DornBlazorServerTemplate_DryRun_Succeeds()
     {
