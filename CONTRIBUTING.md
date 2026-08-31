@@ -24,6 +24,16 @@ dotnet test tests/Dorn.Templates.Blazor.BrowserTests/Dorn.Templates.Blazor.Brows
 
 ---
 
+## ✅ Before opening a PR
+
+1. Link an issue with the `status:approved` label.
+2. Format every touched file: `dotnet csharpier format <touched-paths>`.
+3. Run the relevant test commands from the development loop, one project at a time.
+4. Confirm the diff has no whitespace errors: `git diff --check`.
+5. Open a PR to `develop` using the [pull request template](.github/PULL_REQUEST_TEMPLATE.md), then wait for CI before merging.
+
+---
+
 ## 🧭 Where to change things
 
 | Area | Source of truth | Keep aligned |

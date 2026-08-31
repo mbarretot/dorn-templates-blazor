@@ -58,7 +58,7 @@ dotnet run --project src/Acme.Portal.Web
 
 | Option | Default | Available in | Effect |
 | --- | --- | --- | --- |
-| `--IncludeAspire <bool>` | `false` | Both | Adds AppHost and ServiceDefaults projects |
+| `--IncludeAspire <bool>` | `false` | Both | Server adds AppHost and ServiceDefaults; WebAssembly adds AppHost only |
 | `--IncludeTests <bool>` | `true` | Both | Includes the generated test projects |
 | `--IncludeCleanArchitecture <bool>` | `false` | Both | Adds Domain, Application, and Infrastructure layers with architecture rules |
 | `--IncludeAuth <bool>` | `false` | Both | Adds a minimal authentication starting point: sign-in/sign-out, a demo login page, and an `[Authorize]`-gated example page |

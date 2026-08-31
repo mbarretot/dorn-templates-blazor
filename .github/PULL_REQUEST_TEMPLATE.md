@@ -1,23 +1,23 @@
-## Summary
+Closes #<issue-number>
 
-<!-- What does this PR do, and why? 1-3 bullet points. -->
+## 🎯 What & Why
 
--
--
+Explain what changed and why in one or two sentences.
 
-## Changes
+## 📦 What's Included
 
 | Area | Change |
 | --- | --- |
-| | |
+| `path/to/file` | Concrete change |
 
-## Test plan
+## ✅ Verification
 
-- [ ]
-- [ ]
+- [ ] Relevant tests passed
+- [ ] Documentation updated when behavior changed
 
-## Checklist
+## 📊 Stats
 
-- [ ] Conventional commit messages
-- [ ] Server and WASM kept aligned (if applicable)
-- [ ] Tests added or updated
+| Metric | Value |
+| --- | --- |
+| Files | N |
+| Lines | +N / -N |
