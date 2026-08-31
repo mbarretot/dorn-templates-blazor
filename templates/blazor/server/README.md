@@ -58,12 +58,21 @@ The application palette is selected when the template is generated.
 
 ## 🔒 Security headers
 
+### Applied by default
+
 `Program.cs` sets a baseline CSP plus `X-Content-Type-Options`, `X-Frame-Options`, and
-`Referrer-Policy` on every response. The CSP allows `'unsafe-inline'` in `style-src` because
-MudBlazor positions popovers/overlays by writing inline `style` via JS interop — tightening that
-further will break those components. If you point `IToDoRepository` at a different backend, add
-its origin to `connect-src`; if you embed the app in an iframe, relax `frame-ancestors` and
-`X-Frame-Options` accordingly.
+`Referrer-Policy` on every response.
+
+### MudBlazor compatibility
+
+The CSP allows `'unsafe-inline'` in `style-src` because MudBlazor positions popovers and overlays
+by writing inline `style` via JS interop. Tightening that directive further will break those
+components.
+
+### When deployment changes
+
+- Add a backend origin to `connect-src` when `IToDoRepository` uses it.
+- Relax `frame-ancestors` and `X-Frame-Options` when embedding the app in an iframe.
 
 ## 📚 Next step
 

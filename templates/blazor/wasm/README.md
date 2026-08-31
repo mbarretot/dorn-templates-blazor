@@ -54,15 +54,23 @@ The application palette is selected when the template is generated.
 
 ## 🔒 Security headers
 
+### Applied by default
+
 `wwwroot/index.html` declares a baseline CSP via `<meta http-equiv="Content-Security-Policy">`.
-It allows `'unsafe-inline'` in `style-src` because MudBlazor positions popovers/overlays by
-writing inline `style` via JS interop, and `'wasm-unsafe-eval'` in `script-src` because Blazor
-WebAssembly can't instantiate its compiled WASM modules without it — tightening either further
-will break the app. A
-`<meta>` tag can't carry `frame-ancestors`, `X-Frame-Options`, or `Referrer-Policy`: since this is
-a standalone WASM app with no server of its own, set those on whatever static host you deploy to
-(e.g. Azure Static Web Apps' `staticwebapp.config.json`, or your CDN/reverse proxy's config). If
-you point `IToDoRepository` at a different backend, add its origin to `connect-src`.
+It allows `'unsafe-inline'` in `style-src` because MudBlazor positions popovers and overlays by
+writing inline `style` via JS interop. It allows `'wasm-unsafe-eval'` in `script-src` because
+Blazor WebAssembly can't instantiate its compiled WASM modules without it. Tightening either
+directive further will break the app.
+
+### Configure at the static host
+
+A `<meta>` tag cannot carry `frame-ancestors`, `X-Frame-Options`, or `Referrer-Policy`. Configure
+those at the static host because this standalone WASM app has no server of its own, such as Azure
+Static Web Apps' `staticwebapp.config.json` or a CDN/reverse proxy configuration.
+
+### When deployment changes
+
+Add a backend origin to `connect-src` when `IToDoRepository` uses it.
 
 ## 📚 Next step
 
