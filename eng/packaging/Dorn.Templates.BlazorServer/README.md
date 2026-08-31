@@ -27,9 +27,11 @@ dotnet run --project src/Acme.Portal.Web
 
 | Option | Default | Effect |
 | --- | --- | --- |
-| `--IncludeAspire <bool>` | `false` | Adds Aspire orchestration projects |
+| `--IncludeAspire <bool>` | `false` | Adds the AppHost and ServiceDefaults projects |
 | `--IncludeTests <bool>` | `true` | Includes generated test projects |
 | `--IncludeCleanArchitecture <bool>` | `false` | Adds Domain, Application, and Infrastructure layers |
+| `--IncludeAuth <bool>` | `false` | Adds a cookie-authentication starting point with demo sign-in and protected pages |
+| `--Palette <Terracotta\|Ocean\|Forest\|Sunset\|Lavender\|Slate\|Citrus>` | `Terracotta` | Selects the application color palette |
 
 > [!TIP]
 > Visual Studio discovers the installed template automatically in **Create a new project**.
